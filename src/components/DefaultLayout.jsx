@@ -34,6 +34,7 @@ export default function DefaultLayout() {
                 <Link to="/petowners/new">Registration</Link>
                 <Link to="/users">Users</Link>
                 <Link to="/petowners">Pet Owners</Link>
+                <Link to="/staffs">Staffs</Link>
             </aside>
             <div className="content">
                 <header>

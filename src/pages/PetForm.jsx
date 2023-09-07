@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
-export default function PetOwnerForm() {
+export default function PetForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -17,9 +17,11 @@ export default function PetOwnerForm() {
         color: '',
         qr_code: '',
         photo: '',
+        breed_id: null
     });
 
-    const [address, setAddress] = useState([]);
+    const [selectedGender, setSelectedGender] = useState('');
+    const [breed, setBreed] = useState([]);
 
     useEffect(() => {
     if (id) {
@@ -76,6 +78,20 @@ export default function PetOwnerForm() {
                 });
         }
     };
+
+    useEffect(() => {
+
+        axiosClient.get(`/breeds`)
+        .then(({ data }) => {
+            setLoading(false);
+            setBreed(data.data);
+        })
+        .catch(() => {
+            setLoading(false);
+        });
+  
+          }, []);
+
     return (
         <div>
             {pet.id && <h1 className="title">Update Pet: </h1>}
@@ -117,14 +133,47 @@ export default function PetOwnerForm() {
                             }
                             placeholder="Birthdate"
                         />
-                        <input
-                            type="char"
+                        {/* <label>Gender</label> */}
+                        <select
                             value={pet.gender}
                             onChange={(ev) =>
                                 setPet({ ...pet, gender: ev.target.value })
                             }
-                            placeholder="Gender"
-                        />
+                            >
+                            <option >Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            </select>
+
+                            <select
+                            // value={pet.breed_id}
+                            // onChange={(ev) =>
+                            //     setPet({ ...pet, breed_id: ev.target.value })
+                            // }
+                            >
+                            <option value="">Specie</option>
+                            {breed.map(b => (
+                                <option key={b.id} value={b.id}>
+                                {b.specie.specie}
+                                </option>
+                            ))}
+                            </select>
+
+                            {/* <label htmlFor="Breed">breed</label> */}
+                        <select
+                            value={pet.breed_id}
+                            onChange={(ev) =>
+                                setPet({ ...pet, breed_id: ev.target.value })
+                            }
+                            >
+                            <option value="">Breed</option>
+                            {breed.map(b => (
+                                <option key={b.id} value={b.id}>
+                                {b.breed}
+                                </option>
+                            ))}
+                            </select>
+                        
                         <input
                             type="text"
                             value={pet.qr_code}

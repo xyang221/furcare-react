@@ -1,7 +1,10 @@
+import SearchBar from "../components/SearchBar"
+
 export default function Dashboard() {
     return (
         <div>
-            dashboard
+            {/* <SearchBar/> */}
+            <h1 className="title">Dashboard</h1>
         </div>
     )
 }

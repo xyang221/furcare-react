@@ -1,4 +1,4 @@
-import {Navigate, createBrowserRouter} from "react-router-dom";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -7,85 +7,99 @@ import DefaultLayout from "./components/DefaultLayout";
 import GuestLayout from "./components/GuestLayout";
 import Dashboard from "./pages/Dashboard";
 import UserForm from "./pages/UserForm";
-import RegisterClient from "./pages/RegisterClient";
 import PetOwners from "./pages/PetOwners";
 import PetOwnerForm from "./pages/PetOwnerForm";
 import Pets from "./pages/Pets";
+import PetForm from "./pages/PetForm";
+import Staffs from "./pages/Staffs";
+import StaffForm from "./pages/StaffForm";
 
 const router = createBrowserRouter([
-    {
-        path:'/',
-        element:<DefaultLayout />,
-        children:[
-            {
-                path: '/',
-                element:<Navigate to='/dashboard' />
-            },
-            
-            {
-                path:'/dashboard',
-                element:<Dashboard />
-            },
+  {
+    path: "/",
+    element: <DefaultLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Navigate to="/dashboard" />,
+      },
 
-            {
-                path:'/users',
-                element:<Users />
-            },
+      {
+        path: "/dashboard",
+        element: <Dashboard />,
+      },
 
-            {
-                path:'/users/new',
-                element:<UserForm key="userCreate"/>
-            },
-            {
-                path:'/users/:id',
-                element:<UserForm key="userUpdate"/>
-            },
-         
+      {
+        path: "/users",
+        element: <Users />,
+      },
 
-            {
-                path:'/register-client',
-                element:<RegisterClient />
-            },
+      {
+        path: "/users/new",
+        element: <UserForm key="userCreate" />,
+      },
+      {
+        path: "/users/:id",
+        element: <UserForm key="userUpdate" />,
+      },
 
-            {
-                path:'/petowners',
-                element:<PetOwners />
-            },
+      {
+        path: "/staffs",
+        element: <Staffs />,
+      },
 
-            {
-                path:'/petowners/new',
-                element:<PetOwnerForm key="petownerCreate"/>
-            },
-            {
-                path:'/petowners/:id',
-                element:<PetOwnerForm key="petownerUpdate"/>
-            },
-            {
-                path:'/petowners/:id/pets',
-                element:<Pets key="viewPets"/>
-            },
-           
-        ]
-    },
-    {
-        path:'/',
-        element:<GuestLayout/>,
-        children:[
-            {
-                path:'/login',
-                element:<Login />
-            },
-            {
-                path:'/signup',
-                element:<Signup />
-            },
-           
-        ]
-    },
-    {
-        path:'*',
-        element:<NotFound />
-    }
-])
+      {
+        path: "/staffs/new",
+        element: <StaffForm key="petownerCreate" />,
+      },
+      {
+        path: "/staffs/:id",
+        element: <StaffForm key="petownerUpdate" />,
+      },
+
+      {
+        path: "/petowners",
+        element: <PetOwners />,
+      },
+
+      {
+        path: "/petowners/new",
+        element: <PetOwnerForm key="petownerCreate" />,
+      },
+      {
+        path: "/petowners/:id",
+        element: <PetOwnerForm key="petownerUpdate" />,
+      },
+      {
+        path: "/petowners/:id/pets",
+        element: <Pets key="viewPets" />,
+      },
+
+      {
+        path: "/pets/new",
+        element: <PetForm />,
+      },
+
+    ],
+  },
+  {
+    path: "/",
+    element: <GuestLayout />,
+    children: [
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/signup",
+        element: <Signup />,
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+]);
 
 export default router;

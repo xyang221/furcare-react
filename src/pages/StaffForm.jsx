@@ -3,14 +3,14 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
-export default function PetOwnerForm() {
+export default function StaffForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState(null);
     const { setNotification } = useStateContext();
     
-    const [petowner, setPetowner] = useState({
+    const [staff, setStaff] = useState({
         id: null,
         user_id: null,
         firstname: '',
@@ -25,10 +25,10 @@ export default function PetOwnerForm() {
     useEffect(() => {
         if (id) {
             setLoading(true);
-            axiosClient.get(`/pet_owners/${id}`)
+            axiosClient.get(`/staffs/${id}`)
                 .then(({ data }) => {
                     setLoading(false);
-                    setPetowner(data);
+                    setStaff(data);
                 })
                 .catch(() => {
                     setLoading(false);
@@ -37,22 +37,14 @@ export default function PetOwnerForm() {
     }
 
         }, [id]);
-
-        // const handleChange = (e) => {
-        //     const { user_id, value } = e.target;
-        //     setPetowner({
-        //       ...petowner,
-        //       [user_id]: value,
-        //     });
-        //   };
    
     const onSubmit = (ev) => {
         ev.preventDefault();
-        if (petowner.id) {
-            axiosClient.put(`/pet_owners/${petowner.id}`, petowner)
+        if (staff.id) {
+            axiosClient.put(`/staff/${staff.id}`, staff)
                 .then(() => {
-                    setNotification("Petowner successfully updated");
-                    navigate('/petowners');
+                    setNotification("staff successfully updated");
+                    navigate('/staffs');
                 })
                 .catch((err) => {
                     const response = err.response;
@@ -61,10 +53,10 @@ export default function PetOwnerForm() {
                     }
                 });
         } else {
-            axiosClient.post(`/pet_owners`, petowner)
+            axiosClient.post(`/staffs`, staff)
                 .then(() => {
                     setNotification("Pet Owner successfully created");
-                    navigate('/petowners');
+                    navigate('/staffs');
                 })
                 .catch((err) => {
                     const response = err.response;
@@ -79,23 +71,23 @@ export default function PetOwnerForm() {
 
     useEffect(() => {
 
-      axiosClient.get(`/users`)
-      .then(({ data }) => {
-          setLoading(false);
-          setUser(data.data);
-      })
-      .catch(() => {
-          setLoading(false);
-      });
+        axiosClient.get(`/users`)
+        .then(({ data }) => {
+            setLoading(false);
+            setUser(data.data);
+        })
+        .catch(() => {
+            setLoading(false);
+        });
       
-                axiosClient.get(`/addresses`)
-                .then(({ data }) => {
-                    setLoading(false);
-                    setAddress(data.data);
-                })
-                .catch(() => {
-                    setLoading(false);
-                });
+        axiosClient.get(`/addresses`)
+        .then(({ data }) => {
+            setLoading(false);
+            setAddress(data.data);
+        })
+        .catch(() => {
+            setLoading(false);
+        });
 
 
         }, []);
@@ -104,8 +96,8 @@ console.log(user)
     return (
         <div>
 
-            {petowner.id && <h1 className="title">Update Pet Owner </h1>}
-            {!petowner.id && <h1 className="title">Registration</h1>}
+            {staff.id && <h1 className="title">Update Staff </h1>}
+            {!staff.id && <h1 className="title">Registration</h1>}
 
             <div className="card animate fadeInDown">
                 {loading && <div className="text-center">Loading...</div>}
@@ -118,11 +110,11 @@ console.log(user)
                 }
                 {!loading && (
                     <form onSubmit={onSubmit}>
-                        <h2>Pet Owner Details</h2>
+                        <h2>Staff Information</h2>
                         <select
-                            value={petowner.user_id}
+                            value={staff.user_id}
                             onChange={(ev) =>
-                                setPetowner({ ...petowner, user_id: ev.target.value })
+                                setStaff({ ...staff, user_id: ev.target.value })
                             }
                             >
                             <option value="">User</option>
@@ -133,25 +125,25 @@ console.log(user)
                             ))}
                             </select>
                         <input type="text"
-                            value={petowner.firstname}
+                            value={staff.firstname}
                             onChange={(ev) =>
-                                setPetowner({ ...petowner, firstname: ev.target.value })
+                                setStaff({ ...staff, firstname: ev.target.value })
                             }
                             placeholder="First Name"
                         />
                         <input type="text"
-                            value={petowner.lastname}
+                            value={staff.lastname}
                             onChange={(ev) =>
-                                setPetowner({ ...petowner, lastname: ev.target.value })
+                                setStaff({ ...staff, lastname: ev.target.value })
                             }
                             placeholder="Last Name"
                         />
 
                         <input
                             type="number"
-                            value={petowner.contact_num}
+                            value={staff.contact_num}
                             onChange={(ev) =>
-                                setPetowner({ ...petowner,
+                                setStaff({ ...staff,
                                     contact_num: ev.target.value,
                                 })
                             }
@@ -159,9 +151,9 @@ console.log(user)
                         />
                         <label htmlFor="address">Address</label> <br></br>
                         <select
-                            // value={petowner.address_id}
+                            // value={staff.address_id}
                             // onChange={(ev) =>
-                            //     setPetowner({ ...petowner, address_id: ev.target.value })
+                            //     setStaff({ ...staff, address_id: ev.target.value })
                             // }
                             >
                             <option value="">Zipcode</option>
@@ -173,9 +165,9 @@ console.log(user)
                             </select>
 
                             <select
-                            // value={petowner.address_id}
+                            // value={staff.address_id}
                             // onChange={(ev) =>
-                            //     setPetowner({ ...petowner, address_id: ev.target.value })
+                            //     setStaff({ ...staff, address_id: ev.target.value })
                             // }
                             >
                             <option value="">Province</option>
@@ -187,9 +179,9 @@ console.log(user)
                             </select>
 
                             <select
-                            // value={petowner.address_id}
+                            // value={staff.address_id}
                             // onChange={(ev) =>
-                            //     setPetowner({ ...petowner, address_id: ev.target.value })
+                            //     setStaff({ ...staff, address_id: ev.target.value })
                             // }
                             >
                             <option value="">City</option>
@@ -201,9 +193,9 @@ console.log(user)
                             </select>
 
                         <select
-                            value={petowner.address_id}
+                            value={staff.address_id}
                             onChange={(ev) =>
-                                setPetowner({ ...petowner, address_id: ev.target.value })
+                                setStaff({ ...staff, address_id: ev.target.value })
                             }
                             >
                             <option value="">Barangay</option>
@@ -215,7 +207,7 @@ console.log(user)
                             </select>
                             <br></br>
                         <button className="btn">Save</button>
-                        <Link className="btn" to="/petowners">Back</Link>
+                        <Link className="btn" to="/staffs">Back</Link>
                     </form>
                 )}
             </div>

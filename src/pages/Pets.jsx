@@ -62,29 +62,29 @@ export default function PetOwners() {
     //         });
     // };
 
-    useEffect(() => {
-        if (id) {
-            setLoading(true);
-            axiosClient.get(`/pet_owners/${id}`)
-                .then(({ data }) => {
-                    setLoading(false);
-                    setPetowners(data);
-                })
-                .catch(() => {
-                    setLoading(false);
-                });
+    // useEffect(() => {
+    //     if (id) {
+    //         setLoading(true);
+    //         axiosClient.get(`/pet_owners/${id}`)
+    //             .then(({ data }) => {
+    //                 setLoading(false);
+    //                 setPetowners(data);
+    //             })
+    //             .catch(() => {
+    //                 setLoading(false);
+    //             });
 
-                axiosClient.get(`/pet_owners/${id}/pets`)
-                .then(({ data }) => {
-                    setLoading(false);
-                    setPets(data);
-                })
-                .catch(() => {
-                    setLoading(false);
-                });
-    }
+    //             axiosClient.get(`/pet_owners/${id}/pets`)
+    //             .then(({ data }) => {
+    //                 setLoading(false);
+    //                 setPets(data);
+    //             })
+    //             .catch(() => {
+    //                 setLoading(false);
+    //             });
+    // }
 
-        }, [id]);
+    //     }, []);
 
     const onDelete = (po) => {
         if (!window.confirm("Are you sure?")) {
@@ -108,6 +108,9 @@ export default function PetOwners() {
             <div className="default-form animated fadeInDown">
                 <div className="form">
                     <h1 className="title">PET</h1>
+                    <Link to="/pets/new" className="btn">
+                       Add Pet
+                    </Link>
                     <Link to="/petowners" className="btn">
                        Back
                     </Link>

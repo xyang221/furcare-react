@@ -40,7 +40,7 @@ export default function Login() {
     };
 
     return (
-        <div>
+        <div >
             <img className="bg-index" src="../src/assets/furcarebg.jpg"></img>
             <div className="login-signup-form animated fadeInDown">
                 <div className="form">
@@ -54,17 +54,20 @@ export default function Login() {
                                 ))}
                             </div>
                         )}
+
                         <input
+                            
                             ref={usernameRef}
                             type="text"
                             placeholder="Username"
-                        />
-                        {/* <input ref={Ref} type="username" placeholder="Username" /> */}
+                        />  <br />
+
                         <input
+                            
                             ref={passwordRef}
                             type="password"
                             placeholder="Password"
-                        />
+                        /> <br />
                         <button className="btn btn-block">Login</button>
                         <p className="message">
                             Don’t have an account yet?{" "}

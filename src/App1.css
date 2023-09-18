@@ -1,11 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+/* @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"); */
 
-* {
+/* * {
     box-sizing: border-box;
+} */
+
+html,
+body,
+#root,
+#defaultLayout,
+#guestLayout {
+    /* display: flex;
+    flex: auto; */
+height: 100%;
 }
-html, body, #root, #defaultLayout, #guestLayout {
-    min-height: 100vh;
-}
+
+
+
+
 
 .title {
     width: 100%;
@@ -19,13 +30,19 @@ html, body, #root, #defaultLayout, #guestLayout {
     text-align: center;
 }
 
-h1, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
     margin: 0;
     margin-bottom: 15px;
 }
 
 body {
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Open Sans", sans-serif;
     margin: 0;
     padding: 0;
     font-size: 14px;
@@ -39,16 +56,15 @@ label {
     display: inline-block;
     text-align: right;
     flex: 1;
-    width: 180px;
-    padding-right: 20px;
+    width: 200px;
 }
 
 input {
     outline: 0;
     background: #ffffff;
-    width: 210px;
+    width: 40%;
     border: 2px solid #e6e6e6;
-    margin: 0 0 15px;
+    margin: 0 10px 15px;
     padding: 10px;
     box-sizing: border-box;
     font-size: 14px;
@@ -103,13 +119,15 @@ option {
     border: 0;
     text-decoration: none;
     padding: 10px;
-    color: #FFFFFF;
+    color: #ffffff;
     font-size: 14px;
     -webkit-transition: all 0.3 ease;
     transition: all 0.3 ease;
     cursor: pointer;
     border-radius: 10px;
     margin-right: 10px;
+    /* margin-bottom: 50px; */
+    
 }
 
 .btn-block {
@@ -118,7 +136,7 @@ option {
 
 .btn-add,
 .btn-edit,
-.btn-delete{
+.btn-delete {
     padding: 0.5rem 0.75rem;
     font-size: 14px;
     border-radius: 4px;
@@ -152,13 +170,14 @@ option {
 }
 
 table {
+    
     width: 100%;
     border-spacing: 0;
     border-collapse: collapse;
 }
 
 table > thead > tr > th {
-    text-align: center;
+    text-align: left;
     padding: 0.5rem 0.5rem;
     background-color: #efefef;
 }
@@ -170,7 +189,7 @@ table > tbody > tr > td {
 }
 
 .card {
-    background-color: #FFF;
+    background-color: #fff;
     border-radius: 0.5rem;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
     padding: 1.25rem 1.5rem;
@@ -184,7 +203,6 @@ table > tbody > tr > td {
     color: white;
     border-radius: 0.5rem;
     margin-bottom: 1rem;
-    text-align: center;
 }
 
 .notification {
@@ -198,72 +216,25 @@ table > tbody > tr > td {
     border-radius: 0.5rem;
 }
 
-/* Login/Signup forms*/
-
-.bg-index {
-    opacity: 0.6;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-}
-
-.bg-main {
-    /* background-image: url("../src/assets/furcarebg.jpg"); */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.login-signup-form {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
-    text-align: center;
-}
-
-.login-signup-form .form {
-    width: 350px;
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    padding: 20px;
-    border-radius: 30px;
-    background: rgba(255, 255, 255, 0.9);
-    font-size: 16px;
-}
-
-.login-signup-form .title {
-    font-size: 20px;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.login-signup-form .form .message {
-    margin: 15px 0 0;
-    color:black;
-    font-size: 16px;
-    text-align: center;
-}
-
-.login-signup-form .form .message a {
-    color: #253db7;
-    text-decoration: none;
-}
 
 /* Login/Signup form */
 
-
 #defaultLayout {
     display: flex;
+   
+    width: 1280px;
+    height: 100%;
     flex-shrink: 0;
+   
     background: url("../src/assets/furcare.png"), lightgray 50% / cover no-repeat;
+    /* filter: blur(2px); */
 }
 
 #defaultLayout aside {
     width: 240px;
+    /* background-color: whitesmoke; */
     padding: 1rem;
+    height: 100%;
     flex-shrink: 0;
     border-right: 2px solid #F00;
     background: #FFF;
@@ -278,6 +249,7 @@ table > tbody > tr > td {
 }
 
 #defaultLayout aside > a, ul, li {
+    text-align: left;
     display: block;
     padding: 0.75rem 1rem;
     border-radius: 6px;
@@ -302,7 +274,7 @@ table > tbody > tr > td {
 
 #defaultLayout header {
     height: 80px;
-    padding: 2rem 3rem;
+    padding: 5px;
     background-color: white;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     display: flex;
@@ -311,7 +283,12 @@ table > tbody > tr > td {
 }
 
 /* #defaultLayout main {
-    padding: 2rem;
+    background-image: url("../src/assets/furcarebg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100;
+    width: 100%;
 } */
 
 .default-form {
@@ -324,12 +301,12 @@ table > tbody > tr > td {
 
 .default-form .form {
     
-    width: 900px;
+    width: 800px;
     height: 520px;
     position: relative;
     z-index: 1;
     background: #ffffff;
-    padding: 30px;
+    padding: 34px;
     border-radius: 30px;
     background: rgba(255, 255, 255, 0.9);
 }

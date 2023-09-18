@@ -95,22 +95,25 @@ export default function StaffForm() {
 console.log(user)
     return (
         <div>
+             <div className="default-form animated fadeInDown">
+                <div className="form">
+            {staff.id && <h1 className="title">UPDATE STAFF</h1>}
+            {!staff.id && <h1 className="title">REGISTER STAFF</h1>}
 
-            {staff.id && <h1 className="title">Update Staff </h1>}
-            {!staff.id && <h1 className="title">Registration</h1>}
-
-            <div className="card animate fadeInDown">
+            <div className="card animated fadeInDown">
                 {loading && <div className="text-center">Loading...</div>}
                 {errors && 
-                    <div className="alert">
+                    <div className="alert">     
                         {Object.keys(errors).map((key) => (
                             <p key={key}>{errors[key][0]}</p>
                         ))}
                     </div>
                 }
+
                 {!loading && (
                     <form onSubmit={onSubmit}>
                         <h2>Staff Information</h2>
+
                         <select
                             value={staff.user_id}
                             onChange={(ev) =>
@@ -124,6 +127,9 @@ console.log(user)
                                 </option>
                             ))}
                             </select>
+
+                            <div>
+                        <label htmlFor="">First Name:</label>
                         <input type="text"
                             value={staff.firstname}
                             onChange={(ev) =>
@@ -131,6 +137,10 @@ console.log(user)
                             }
                             placeholder="First Name"
                         />
+                        </div>
+
+                        <div>
+                        <label htmlFor="">Last Name:</label>
                         <input type="text"
                             value={staff.lastname}
                             onChange={(ev) =>
@@ -138,7 +148,10 @@ console.log(user)
                             }
                             placeholder="Last Name"
                         />
+                        </div>
 
+                        <div>
+                        <label htmlFor="">Contact Number:</label>
                         <input
                             type="number"
                             value={staff.contact_num}
@@ -149,7 +162,10 @@ console.log(user)
                             }
                             placeholder="Contact Number"
                         />
-                        <label htmlFor="address">Address</label> <br></br>
+                        </div>
+
+                        <div>
+                        <label htmlFor="address">Address: </label>
                         <select
                             // value={staff.address_id}
                             // onChange={(ev) =>
@@ -191,7 +207,10 @@ console.log(user)
                                 </option>
                             ))}
                             </select>
+                            </div>
 
+                            <div>
+                                <label htmlFor=""></label>
                         <select
                             value={staff.address_id}
                             onChange={(ev) =>
@@ -205,11 +224,17 @@ console.log(user)
                                 </option>
                             ))}
                             </select>
-                            <br></br>
+                            </div>
+
+                            <div style={{textAlign:"center"}}>
                         <button className="btn">Save</button>
                         <Link className="btn" to="/staffs">Back</Link>
+                        </div>
+
                     </form>
                 )}
+            </div>
+            </div>
             </div>
         </div>
     );

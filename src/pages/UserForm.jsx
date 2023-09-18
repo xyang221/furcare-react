@@ -37,7 +37,7 @@ export default function UserForm() {
             axiosClient.put(`/users/${user.id}`, user)
                 .then(() => {
                     setNotification('User successfully updated')
-                    navigate('/users');
+                    navigate(`petownerCreate`);
                 })
                 .catch((err) => {
                     const response = err.response;
@@ -49,7 +49,8 @@ export default function UserForm() {
             axiosClient.post(`/users`, user)
                 .then(() => {
                     setNotification('User successfully created')
-                    navigate('/petowners/new');
+                    history.push('/petowners/new');
+                    // navigate(`/petowners/new`);
                 })
                 .catch((err) => {
                     const response = err.response;
@@ -62,10 +63,12 @@ export default function UserForm() {
     
     return (
         <div>
+            <div className="default-form animated fadeInDown">
+                <div className="form">
             {user.id && <h1  className="title">Update User</h1>}
             {!user.id && <h1 className="title">New User</h1>}
 
-            <div className="card animate fadeInDown">
+            <div className="card animated fadeInDown">
                 {loading && <div className="text-center">Loading...</div>}
                 {errors && 
                     <div className= "alert">
@@ -75,7 +78,10 @@ export default function UserForm() {
                     </div>
                 }
                 {!loading && (
-                    <form onSubmit={onSubmit}>
+                    <form onSubmit={onSubmit} style={{textAlign:"center"}}>
+                     <h2>Create An Account</h2>
+                        <div>
+                        <label htmlFor="">Username: </label>
                         <input
                             value={user.username}
                             onChange={(ev) =>
@@ -83,6 +89,10 @@ export default function UserForm() {
                             }
                             placeholder="Username"
                         />
+                        </div>
+                        
+                        <div>
+                        <label htmlFor="">Email: </label>
                         <input
                             type="email"
                             value={user.email}
@@ -91,6 +101,10 @@ export default function UserForm() {
                             }
                             placeholder="Email"
                         />
+                        </div>
+
+                        <div>
+                        <label htmlFor="">Password: </label>
                         <input
                             type="password"
                             onChange={(ev) =>
@@ -98,6 +112,10 @@ export default function UserForm() {
                             }
                             placeholder="Password"
                         />
+                        </div>
+
+                        <div>
+                        <label htmlFor="">Password Confirmation:  </label>
                         <input
                             type="password"
                             onChange={(ev) =>
@@ -108,12 +126,15 @@ export default function UserForm() {
                             }
                             placeholder="Password Confirmation"
                         />
+                        </div>
+
                         <button className="btn">Save</button>
-                        <Link to="/users" className="btn">
-                       Back
-                    </Link>
+                        <Link to="/users" className="btn"> Back </Link>
+                        {/* <Link to={`/users/`+po.id} className="btn-edit" > View </Link> */}
                     </form>
                 )}
+            </div>
+            </div>
             </div>
         </div>
     );

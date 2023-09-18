@@ -3,16 +3,23 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
-export default function PetOwnerForm({userID}) {
+export default function PetOwnerUserForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState(null);
-    const { setNotification } = useStateContext();
-    
+    const {setNotification} = useStateContext();
+    const [user, setUser] = useState({
+        id: null,
+        username: '',
+        email: '',
+        password: '',
+        password_confirmation: '',
+    });
+
     const [petowner, setPetowner] = useState({
         id: null,
-        user_id: userID,
+        // user_id: userID,
         firstname: '',
         lastname: '',
         contact_num: '',
@@ -20,113 +27,95 @@ export default function PetOwnerForm({userID}) {
     });
 
     const [address,setAddress]= useState([]);
-    const [user,setUser]= useState([]);
- 
-    useEffect(() => {
-        if (id) {
-            setLoading(true);
-            axiosClient.get(`/petowners/${id}`)
-                .then(({ data }) => {
-                    setLoading(false);
-                    setPetowner(data);
-                })
-                .catch(() => {
-                    setLoading(false);
-                });
-        }
-    }, [id]);
-   
+
+
+    // useEffect(() => {
+    //     if (id) {
+    //         setLoading(true);
+    //         axiosClient.get(`/users/${id}`)
+    //             .then(({ data }) => {
+    //                 setLoading(false);
+    //                 setUser(data);
+    //             })
+    //             .catch(() => {
+    //                 setLoading(false);
+    //             });
+    //         }
+    //     }, [id]);
+
     const onSubmit = (ev) => {
         ev.preventDefault();
-        if (petowner.id) {
-            axiosClient.put(`/petowners/${petowner.id}`, petowner)
+       
+            axiosClient.post(`/users`, user)
                 .then(() => {
-                    setNotification("Petowner successfully updated");
-                    navigate('/petowners');
+                    setNotification('User successfully created')
+                    // history.push('/petowners/new');
+                    // navigate(`/petowners/new`);
                 })
                 .catch((err) => {
                     const response = err.response;
-                    if (response && response.status == 422) {
+                    if (response && response.status === 422) {
                         setErrors(response.data.errors);
                     }
                 });
-        } else {
+            
             axiosClient.post(`/petowners`, petowner)
-                .then(() => {
-                    setNotification("Pet Owner successfully created");
-                    navigate('/petowners');
-                })
-                .catch((err) => {
-                    const response = err.response;
-                    if (response && response.status == 422) {
-                        setErrors(response.data.errors);
-                    }
-                });
-
-           
-        }
+            .then(() => {
+                setNotification("Petowner successfully updated");
+                navigate('/petowners');
+            })
+            .catch((err) => {
+                const response = err.response;
+                if (response && response.status == 422) {
+                    setErrors(response.data.errors);
+                }
+            });
+        
     };
 
     useEffect(() => {
 
-      axiosClient.get(`/users`)
+        axiosClient.get(`/users`)
+        .then(({ data }) => {
+            setLoading(false);
+            setUser(data.data);
+        })
+        .catch(() => {
+            setLoading(false);
+        });
+        
+      axiosClient.get(`/addresses`)
       .then(({ data }) => {
           setLoading(false);
-          setUser(data.data);
+          setAddress(data.data);
       })
       .catch(() => {
           setLoading(false);
       });
-      
-    axiosClient.get(`/addresses`)
-    .then(({ data }) => {
-        setLoading(false);
-        setAddress(data.data);
-    })
-    .catch(() => {
-        setLoading(false);
-    });
-
-
-        }, []);
-    // debugger;
-console.log(user)
-
+  
+  
+          }, []);
+    
     return (
         <div>
             <div className="default-form animated fadeInDown">
                 <div className="form">
-                {petowner.id && <h1 className="title">UPDATE PET OWNER</h1>}
-            {!petowner.id && <h1 className="title">REGISTRATION</h1>}
-            
-            <div className="card animated fadeInDown" >
+            {user.id && <h1  className="title">Update User</h1>}
+            {!user.id && <h1 className="title">REGISTRATION</h1>}
+
+            <div className="card animated fadeInDown">
                 {loading && <div className="text-center">Loading...</div>}
                 {errors && 
-                    <div className="alert">
+                    <div className= "alert">
                         {Object.keys(errors).map((key) => (
                             <p key={key}>{errors[key][0]}</p>
                         ))}
                     </div>
                 }
-
                 {!loading && (
-                    <form onSubmit={onSubmit}>
+                    <form onSubmit={onSubmit} style={{textAlign:"center"}}>
                         <h2>Pet Owner Details</h2>
-                        {!petowner.id &&
-                        
-                        <select
-                            value={petowner.user_id}
-                            onChange={(ev) =>
-                                setPetowner({ ...petowner, user_id: ev.target.value })
-                            }
-                            >
-                            <option>User</option>
-                            {user.map(item => (
-                                <option key={item.id} value={item.id}>
-                                {item.username} 
-                                </option>
-                            ))}
-                            </select> }
+             
                             <div>
                         <label htmlFor="">First Name:</label>
                         <input type="text"
@@ -220,7 +209,7 @@ console.log(user)
                             ))}
                             </select>
 
-                            {/* <select
+                            <select
                             value={petowner.address_id}
                             onChange={(ev) =>
                                 setPetowner({ ...petowner, address_id: ev.target.value })
@@ -232,16 +221,66 @@ console.log(user)
                                 {item.barangay}
                                 </option>
                             ))}
-                            </select> */}
+                            </select>
                             </div>
-                            <div style={{textAlign:"center"}}>
-                        <button className="btn">Save</button>
-                        <Link className="btn" to="/petowners">Back</Link>
+                           
+                    
+                     <h2>Create An Account</h2>
+                        <div>
+                        <label htmlFor="">Username: </label>
+                        <input
+                            value={user.username}
+                            onChange={(ev) =>
+                                setUser({ ...user, username: ev.target.value })
+                            }
+                            placeholder="Username"
+                        />
                         </div>
+                        
+                        <div>
+                        <label htmlFor="">Email: </label>
+                        <input
+                            type="email"
+                            value={user.email}
+                            onChange={(ev) =>
+                                setUser({ ...user, email: ev.target.value })
+                            }
+                            placeholder="Email"
+                        />
+                        </div>
+
+                        <div>
+                        <label htmlFor="">Password: </label>
+                        <input
+                            type="password"
+                            onChange={(ev) =>
+                                setUser({ ...user, password: ev.target.value })
+                            }
+                            placeholder="Password"
+                        />
+                        </div>
+
+                        <div>
+                        <label htmlFor="">Password Confirmation:  </label>
+                        <input
+                            type="password"
+                            onChange={(ev) =>
+                                setUser({
+                                    ...user,
+                                    password_confirmation: ev.target.value,
+                                })
+                            }
+                            placeholder="Password Confirmation"
+                        />
+                        </div>
+
+                        <button className="btn">Save</button>
+                        <Link to="/users" className="btn"> Back </Link>
+                        {/* <Link to={`/users/`+po.id} className="btn-edit" > View </Link> */}
                     </form>
                 )}
-                </div>
-                </div>
+            </div>
+            </div>
             </div>
         </div>
     );

@@ -13,6 +13,11 @@ import Pets from "./pages/Pets";
 import PetForm from "./pages/PetForm";
 import Staffs from "./pages/Staffs";
 import StaffForm from "./pages/StaffForm";
+import AppointmentForm from "./pages/AppointmentForm";
+import Appointments from "./pages/Appointments";
+import ClientServiceForm from "./pages/ClientServiceForm";
+import ViewPetOwner from "./pages/ViewPetOwner";
+import PetOwnerUserForm from "./pages/PetOwnerUserForm";
 
 const router = createBrowserRouter([
   {
@@ -63,11 +68,24 @@ const router = createBrowserRouter([
       },
 
       {
+        path: "/petowneruser",
+        element: <PetOwnerUserForm />,
+      },
+
+      // {
+      //   path: "/petowners/new/:userID",
+      //   element: <PetOwnerForm key="petownerCreate" />,
+      // },
+      {
         path: "/petowners/new",
         element: <PetOwnerForm key="petownerCreate" />,
       },
       {
         path: "/petowners/:id",
+        element: <ViewPetOwner />,
+      },
+      {
+        path: "/petowners/:id/update",
         element: <PetOwnerForm key="petownerUpdate" />,
       },
       {
@@ -76,8 +94,36 @@ const router = createBrowserRouter([
       },
 
       {
+        path: "/pets",
+        element: <Pets key="viewPets" />,
+      },
+
+      {
+        path: "/pets/:id",
+        element: <PetForm key="updatePets" />,
+      },
+
+      {
         path: "/pets/new",
         element: <PetForm />,
+      },
+
+       {
+        path: "/appointments",
+        element: <Appointments />,
+      },
+
+      {
+        path: "/appointments/new",
+        element: <AppointmentForm key="petownerCreate" />,
+      },
+      {
+        path: "/appointments/:id",
+        element: <AppointmentForm key="petownerUpdate" />,
+      },
+      {
+        path: "/clientservice/new",
+        element: <ClientServiceForm />,
       },
 
     ],

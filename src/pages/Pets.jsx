@@ -5,33 +5,29 @@ import { useStateContext } from "../contexts/ContextProvider";
 
 export default function PetOwners() {
     const { id } = useParams();
-    const [petowners, setPetowners] = useState([]);
+    const [petowner, setPetowner] = useState([]);
     const [pets, setPets] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // const [addresses, setAddresses] = useState([]);
-
     const { setNotification } = useStateContext();
 
-    const getPetowners = () => {
-
-        document.title = "Pets";
-        axiosClient.get('/pet_owners')
+    useEffect(() => {
+        if (id) {
+            
+            setLoading(true);
+            
+            axiosClient.get(`/petowners/${id}`)
             .then(({ data }) => {
                 setLoading(false);
-                setPetowners(data.data);
+                setPetowner(data);
             })
             .catch(() => {
                 setLoading(false);
             });
-    };
+            console.log(pets)
 
-    const getPets = () => {
 
-        document.title = "Pet";
-        
-        setLoading(true);
-        axiosClient.get('/pets')
+            axiosClient.get(`/petowners/${id}/pets`)
             .then(({ data }) => {
                 setLoading(false);
                 setPets(data.data);
@@ -40,81 +36,32 @@ export default function PetOwners() {
                 setLoading(false);
             });
 
-        // axiosClient.get('/addresses')
-        // .then(({ data }) => {
-        //     setLoading(false);
-        //     setAddresses(data.data);
-        // })
-        // .catch(() => {
-        //     setLoading(false);
-        // });
-    };
+    }
 
-    // const fetchAddresses = () => {
-    //     setLoading(true);
-    //     axiosClient.get('/pets')
-    //         .then(({ data }) => {
-    //             setLoading(false);
-    //             setAddresses(data.data);
-    //         })
-    //         .catch(() => {
-    //             setLoading(false);
-    //         });
-    // };
+        }, [id]);
 
-    // useEffect(() => {
-    //     if (id) {
-    //         setLoading(true);
-    //         axiosClient.get(`/pet_owners/${id}`)
-    //             .then(({ data }) => {
-    //                 setLoading(false);
-    //                 setPetowners(data);
-    //             })
-    //             .catch(() => {
-    //                 setLoading(false);
-    //             });
-
-    //             axiosClient.get(`/pet_owners/${id}/pets`)
-    //             .then(({ data }) => {
-    //                 setLoading(false);
-    //                 setPets(data);
-    //             })
-    //             .catch(() => {
-    //                 setLoading(false);
-    //             });
-    // }
-
-    //     }, []);
-
-    const onDelete = (po) => {
+    const onDelete = (p) => {
         if (!window.confirm("Are you sure?")) {
             return;
         }
 
-        axiosClient.delete(`/pets/${po.id}`).then(() => {
+        axiosClient.delete(`/pets/${p.id}`).then(() => {
             setNotification("Pet Owner deleted");
-            getPetowners();
+            // getPetowners();
         });
     };
-
-    useEffect(() => {
-        getPetowners();
-        getPets();
-        // fetchAddresses();
-    }, []);
+    // console.log(pets)
 
     return (
         <div>
             <div className="default-form animated fadeInDown">
                 <div className="form">
-                    <h1 className="title">PET</h1>
-                    <Link to="/pets/new" className="btn">
+                {/* <h1 className="title">{petowners.firstname}'s PETS</h1> */}
+                <h1 className="title">PETS</h1>
+                    <Link to={`/petowners/${id}/pets/new`} className="btn">
                        Add Pet
                     </Link>
-                    <Link to="/petowners" className="btn">
-                       Back
-                    </Link>
-                    
+                    <Link to={`/petowners/`+petowner.id} className="btn-edit" > Back </Link>
 
                     <div className="card animated fadeInDown">
                         <table>
@@ -124,6 +71,7 @@ export default function PetOwners() {
                                     <th>Name</th>
                                     <th>Birthdate</th>
                                     <th>Gender</th>
+                                    <th>Breed</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -142,6 +90,7 @@ export default function PetOwners() {
                                             <td>{p.name}</td>
                                             <td>{p.birthdate}</td>
                                             <td>{p.gender}</td>
+                                            <td>{p.breed.breed}</td>
                                             <td>
                                                 <Link to={`/pets/`+p.id} className="btn-edit" > Edit </Link>
                                                 <button onClick={() => onDelete(p)} className="btn-delete" > Delete </button>

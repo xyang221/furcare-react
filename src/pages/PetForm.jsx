@@ -17,16 +17,32 @@ export default function PetForm() {
         color: '',
         qr_code: '',
         photo: '',
-        breed_id: null
+        breed_id: null,
+        petowner_id: null,
     });
 
     const [selectedGender, setSelectedGender] = useState('');
     const [breed, setBreed] = useState([]);
 
+    const [petowners, setPetowners] = useState([]);
+
+    const getPetowners = () => {
+
+        // setLoading(true);
+        axiosClient.get('/petowners')
+            .then(({ data }) => {
+                setLoading(false);
+                setPetowners(data.data);
+            })
+            .catch(() => {
+                setLoading(false);
+            });
+    };
+
     useEffect(() => {
     if (id) {
             setLoading(true);
-            axiosClient.get(`/petowners/${id}`)
+            axiosClient.get(`/pets/${id}`)
                 .then(({ data }) => {
                     setLoading(false);
                     setPet(data);
@@ -35,7 +51,11 @@ export default function PetForm() {
                     setLoading(false);
                 });
     }
+    getPetowners();
+
         }, [id]);
+
+  
 
     //     const getAddress = () => {
     //         setLoading(true);
@@ -53,10 +73,10 @@ export default function PetForm() {
     const onSubmit = (ev) => {
         ev.preventDefault();
         if (pet.id) {
-            axiosClient.put(`/pet/${pet.id}`, pet)
+            axiosClient.put(`/pets/${pet.id}`, pet)
                 .then(() => {
                     setNotification("User successfully updated");
-                    navigate("/pet");
+                    navigate("/pets");
                 })
                 .catch((err) => {
                     const response = err.response;
@@ -65,10 +85,10 @@ export default function PetForm() {
                     }
                 });
         } else {
-            axiosClient.post(`/pet`, pet)
+            axiosClient.post(`/pets`, pet)
                 .then(() => {
                     setNotification("User successfully created");
-                    navigate("/pet");
+                    navigate("/pets");
                 })
                 .catch((err) => {
                     const response = err.response;
@@ -94,10 +114,12 @@ export default function PetForm() {
 
     return (
         <div>
-            {pet.id && <h1 className="title">Update Pet: </h1>}
-            {!pet.id && <h1 className="title">Add Pet</h1>}
+              <div className="default-form animated fadeInDown">
+                <div className="form">
+            {pet.id && <h1 className="title">UPDATE PET </h1>}
+            {!pet.id && <h1 className="title">ADD PET</h1>}
 
-            <div className="card animate fadeInDown">
+            <div className="card animated fadeInDown">
                 {loading && <div className="text-center">Loading...</div>}
                 {errors && (
                     <div className="alert">
@@ -106,17 +128,41 @@ export default function PetForm() {
                         ))}
                     </div>
                 )}
+
                 {!loading && (
                     <form onSubmit={onSubmit}>
-                       
                         <h2>Pet Details</h2>
+
+                        <div>
+                        <label >Pet Owner:</label>
+                      <select
+                            value={pet.petowner_id}
+                            onChange={(ev) =>
+                                setPet({ ...pet, petowner_id: ev.target.value })
+                            }
+                            >
+                            <option > </option>
+                            {petowners.map(po => (
+                                <option key={po.id} value={po.id}>
+                                {`${po.firstname} ${po.lastname}`}
+                                </option>
+                            ))}
+                            </select>
+                            </div>
+
+                        <div>
+                        <label htmlFor="">Photo:</label>
                         <input
-                            type="file"
+                            type="text"
                             value={pet.photo}
                             onChange={(ev) =>
                                 setPet({ ...pet, photo: ev.target.value })
                             }
-                        />
+                        />   
+                        </div>
+
+                        <div>
+                        <label htmlFor="">Pet Name:</label>
                         <input
                             type="text"
                             value={pet.name}
@@ -125,6 +171,23 @@ export default function PetForm() {
                             }
                             placeholder="Pet Name"
                         />
+
+                        <label htmlFor="">Gender:</label>
+                        <select
+                            value={pet.gender}
+                            onChange={(ev) =>
+                                setPet({ ...pet, gender: ev.target.value })
+                            }
+                            >
+                            <option ></option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            </select>
+                        
+                        </div>
+
+                        <div>
+                        <label htmlFor="">Birthdate:</label>
                         <input
                             type="date"
                             value={pet.birthdate}
@@ -133,25 +196,15 @@ export default function PetForm() {
                             }
                             placeholder="Birthdate"
                         />
-                        {/* <label>Gender</label> */}
-                        <select
-                            value={pet.gender}
-                            onChange={(ev) =>
-                                setPet({ ...pet, gender: ev.target.value })
-                            }
-                            >
-                            <option >Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            </select>
 
+                            <label htmlFor="">Specie:</label>
                             <select
                             // value={pet.breed_id}
                             // onChange={(ev) =>
                             //     setPet({ ...pet, breed_id: ev.target.value })
                             // }
                             >
-                            <option value="">Specie</option>
+                            <option value=""></option>
                             {breed.map(b => (
                                 <option key={b.id} value={b.id}>
                                 {b.specie.specie}
@@ -159,20 +212,35 @@ export default function PetForm() {
                             ))}
                             </select>
 
-                            {/* <label htmlFor="Breed">breed</label> */}
+                        </div>
+
+                        <div>
+                        <label htmlFor="">Color:</label>
+                        <input
+                            type="text"
+                            value={pet.color}
+                            onChange={(ev) =>
+                                setPet({ ...pet, color: ev.target.value })
+                            }
+                            placeholder="Color"
+                        />
+
+                        <label htmlFor="">Breed:</label>
                         <select
                             value={pet.breed_id}
                             onChange={(ev) =>
                                 setPet({ ...pet, breed_id: ev.target.value })
                             }
                             >
-                            <option value="">Breed</option>
+                            <option value=""></option>
                             {breed.map(b => (
                                 <option key={b.id} value={b.id}>
                                 {b.breed}
                                 </option>
                             ))}
                             </select>
+
+                        </div>
                         
                         <input
                             type="text"
@@ -184,11 +252,12 @@ export default function PetForm() {
                         />
                       
                         <button className="btn">Save</button>
-                        <Link className="btn" to="/petowners">Back</Link>
-                        //add next page to register the client to mobile app
+                        <Link className="btn" to="/pets">Back</Link>
                     </form>
                 )}
             </div>
-        </div>
+            </div>
+            </div>
+            </div>
     );
 }

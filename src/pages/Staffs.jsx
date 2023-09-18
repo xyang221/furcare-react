@@ -58,7 +58,7 @@ export default function Staffs() {
     return (
         <div>
             <div className="default-form animated fadeInDown">
-                <div className="form">
+                <div className="form" style={{textAlign:"center"}}>
                     <h1 className="title">STAFFS</h1>
                     <Link to="/staffs/new" className="btn">
                         Add new

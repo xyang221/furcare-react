@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios-client";
@@ -39,6 +39,10 @@ export default function Login() {
             });
     };
 
+    useEffect(() => {
+        document.title = "Login";
+    })
+
     return (
         <div >
             <img className="bg-index" src="../src/assets/furcarebg.jpg"></img>
@@ -67,7 +71,12 @@ export default function Login() {
                             ref={passwordRef}
                             type="password"
                             placeholder="Password"
-                        /> <br />
+                        />
+                        <br />
+
+                        <Link to="/signup">Forgot password</Link>
+                        <br />
+
                         <button className="btn btn-block">Login</button>
                         <p className="message">
                             Don’t have an account yet?{" "}

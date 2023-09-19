@@ -42,6 +42,7 @@ export default function DefaultLayout() {
 
 
                 <Link to="/dashboard">Dashboard</Link>
+                <Link to="/roles">Roles</Link>
                 <Link to="/petowners/new">Registration</Link>
                 <Link to="/petowneruser">Petowner Form</Link>
                 <ul onClick={toggleDropdown}>

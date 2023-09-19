@@ -18,6 +18,8 @@ import Appointments from "./pages/Appointments";
 import ClientServiceForm from "./pages/ClientServiceForm";
 import ViewPetOwner from "./pages/ViewPetOwner";
 import PetOwnerUserForm from "./pages/PetOwnerUserForm";
+import Roles from "./pages/Roles";
+import RoleForm from "./pages/RoleForm";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,21 @@ const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard />,
+      },
+
+      {
+        path: "/roles",
+        element: <Roles />,
+      },
+
+      {
+        path: "/roles/:id",
+        element: <RoleForm key="petownerUpdate" />,
+      },
+
+      {
+        path: "/roles/new",
+        element: <RoleForm key="petownerCreate" />,
       },
 
       {

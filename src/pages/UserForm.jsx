@@ -15,7 +15,25 @@ export default function UserForm() {
         email: '',
         password: '',
         password_confirmation: '',
+        role_id: null
     });
+
+    const [roles,setRoles] = useState([]);
+
+    const getRoles = () => {
+
+        document.title = "Pet Owners";
+        
+        setLoading(true);
+        axiosClient.get('/roles')
+            .then(({ data }) => {
+                setLoading(false);
+                setRoles(data.data);
+            })
+            .catch(() => {
+                setLoading(false);
+            });
+    };
 
     useEffect(() => {
         if (id) {
@@ -29,6 +47,7 @@ export default function UserForm() {
                     setLoading(false);
                 });
             }
+        getRoles();
         }, [id]);
 
     const onSubmit = (ev) => {
@@ -37,7 +56,7 @@ export default function UserForm() {
             axiosClient.put(`/users/${user.id}`, user)
                 .then(() => {
                     setNotification('User successfully updated')
-                    navigate(`petownerCreate`);
+                    navigate(`/users`);
                 })
                 .catch((err) => {
                     const response = err.response;
@@ -49,8 +68,7 @@ export default function UserForm() {
             axiosClient.post(`/users`, user)
                 .then(() => {
                     setNotification('User successfully created')
-                    history.push('/petowners/new');
-                    // navigate(`/petowners/new`);
+                    navigate(`/users`);
                 })
                 .catch((err) => {
                     const response = err.response;
@@ -80,6 +98,23 @@ export default function UserForm() {
                 {!loading && (
                     <form onSubmit={onSubmit} style={{textAlign:"center"}}>
                      <h2>Create An Account</h2>
+                     <div>  
+                        <label htmlFor="address">Role:  </label>
+                        <select
+                            value={user.role_id}
+                            onChange={(ev) =>
+                                setUser({ ...user, role_id: ev.target.value })
+                            }
+                            >
+                            <option value=""></option>
+                            {roles.map(item => (
+                                <option key={item.id} value={item.id}>
+                                {item.role}
+                                </option>
+                            ))}
+                            </select>
+                        </div>
+
                         <div>
                         <label htmlFor="">Username: </label>
                         <input

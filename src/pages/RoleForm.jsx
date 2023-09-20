@@ -57,6 +57,7 @@ export default function RoleForm() {
                 });
         }
     };
+
     
     return (
         <div>
@@ -79,7 +80,7 @@ export default function RoleForm() {
                         <div>
                         <label htmlFor="">Role: </label>
                         <input
-                        type="text"
+                        // type="text"
                             value={role.role}
                             onChange={(ev) =>
                                 setRole({ ...role, role: ev.target.value })

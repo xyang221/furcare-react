@@ -17,9 +17,11 @@ import AppointmentForm from "./pages/AppointmentForm";
 import Appointments from "./pages/Appointments";
 import ClientServiceForm from "./pages/ClientServiceForm";
 import ViewPetOwner from "./pages/ViewPetOwner";
-import PetOwnerUserForm from "./pages/PetOwnerUserForm";
 import Roles from "./pages/Roles";
 import RoleForm from "./pages/RoleForm";
+
+import Address from "./components/Address";
+import AddressForm from "./pages/AddressForm";
 
 const router = createBrowserRouter([
   {
@@ -29,6 +31,12 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Navigate to="/dashboard" />,
+      },
+
+      
+      {
+        path: "/address",
+        element: <AddressForm />,
       },
 
       {
@@ -42,13 +50,13 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "/roles/:id",
-        element: <RoleForm key="petownerUpdate" />,
+        path: "/roles/new",
+        element: <RoleForm key="petownerCreate" />,
       },
 
       {
-        path: "/roles/new",
-        element: <RoleForm key="petownerCreate" />,
+        path: "/roles/:id",
+        element: <RoleForm key="petownerUpdate" />,
       },
 
       {
@@ -71,12 +79,12 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "/staffs/new",
-        element: <StaffForm key="petownerCreate" />,
+        path: "/users/:id/staffs/new",
+        element: <StaffForm key="staffCreate" />,
       },
       {
         path: "/staffs/:id",
-        element: <StaffForm key="petownerUpdate" />,
+        element: <StaffForm key="staffUpdate" />,
       },
 
       {
@@ -85,16 +93,12 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "/petowneruser",
-        element: <PetOwnerUserForm />,
+        path: "/petowners/new",
+        element: <PetOwnerForm />,
       },
 
       {
-        path: "/user/:id/petowner/new",
-        element: <PetOwnerForm  />,
-      },
-      {
-        path: "/petowners/new",
+        path: "/users/:id/petowners/new",
         element: <PetOwnerForm key="petownerCreate" />,
       },
       {
@@ -107,11 +111,6 @@ const router = createBrowserRouter([
       },
       {
         path: "/petowners/:id/pets",
-        element: <Pets key="viewPets" />,
-      },
-
-      {
-        path: "/pets",
         element: <Pets key="viewPets" />,
       },
 

@@ -4,7 +4,8 @@ import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
 export default function Signup() {
- 
+    
+    const roleRef = useRef();
     const emailRef = useRef();
     const usernameRef = useRef();
     const passwordRef = useRef();
@@ -16,7 +17,6 @@ export default function Signup() {
     const onSubmit = (ev) => {
         ev.preventDefault();
         const payload = {
-           
             email: emailRef.current.value,
             username: usernameRef.current.value,
             password: passwordRef.current.value,
@@ -58,6 +58,8 @@ export default function Signup() {
                         )}
                        
                         <h1>Create an Account</h1>
+                     
+                       
                         <input
                             ref={emailRef}
                             type="email"

@@ -5,11 +5,8 @@ import { useStateContext } from "../contexts/ContextProvider";
 
 export default function PetOwners() {
     const { id } = useParams();
-    const [pets, setPets] = useState([]);
     const [petowners, setPetowners] = useState([]);
     const [loading, setLoading] = useState(false);
-
-    // const [addresses, setAddresses] = useState([]);
 
     const { setNotification } = useStateContext();
 
@@ -39,40 +36,18 @@ export default function PetOwners() {
         });
     };
 
-    // useEffect(() => {
-    //     if (id) {
-    //         setLoading(true);
-    //         axiosClient.get(`/pet_owners/${id}`)
-    //             .then(({ data }) => {
-    //                 setLoading(false);
-    //                 setPetowners(data);
-    //             })
-    //             .catch(() => {
-    //                 setLoading(false);
-    //             });
-
-    //             axiosClient.get(`/pet_owners/${id}/pets`)
-    //             .then(({ data }) => {
-    //                 setLoading(false);
-    //                 setPets(data);
-    //             })
-    //             .catch(() => {
-    //                 setLoading(false);
-    //             });
-    // }
-
-    //     }, [id]);
-
     useEffect(() => {
         getPetowners();
     }, []);
-    console.log(petowners)
 
     return (
         <div>
             <div className="default-form animated fadeInDown">
-                <div className="form">
+                <div className="form" style={{textAlign:"center"}}>
                     <h1 className="title">PET OWNERS</h1>
+                    <Link to="/users/new" className="btn">
+                        Add new
+                    </Link>
 
                     <div className="card animated fadeInDown">
                         <table>
@@ -99,7 +74,7 @@ export default function PetOwners() {
                                             <td>{po.id}</td>
                                             <td>{`${po.firstname} ${po.lastname}`}</td>
                                             <td>{po.contact_num}</td>
-                                            <td>{po.address.barangay}, {po.address.zipcode.city} </td>
+                                            <td>{po.address.zone}, {po.address.barangay}, {po.address.zipcode.area} </td>
                                             <td>
                                             <Link to={`/petowners/`+po.id} className="btn-edit" > View </Link>
                                                 <button onClick={() => onDelete(po)} className="btn-delete" > Delete </button>

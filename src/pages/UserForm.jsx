@@ -3,9 +3,6 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
-import PetOwnerForm from "./PetOwnerForm";
-import StaffForm from "./StaffForm";
-
 export default function UserForm() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -22,8 +19,6 @@ export default function UserForm() {
     });
 
     const [roles,setRoles] = useState([]);
-    const [userRole, setUserRole] = useState("");
-    const [userid, setUserid] = useState();
 
     const getRoles = () => {
 
@@ -57,7 +52,6 @@ export default function UserForm() {
 
     const onSubmit = (ev) => {
         ev.preventDefault();
-     
 
         if (user.id) {
             axiosClient.put(`/users/${user.id}`, user)
@@ -77,16 +71,21 @@ export default function UserForm() {
                     setNotification('User successfully created');
                     const userid = response.data.id;
                     const roleid = response.data.role_id;
-                    setUserid(userid);
-                    setUserRole(roleid);
 
                     return (
                         <div>
-                          {roleid === "5" && (
-                            navigate(`/user/`+userid+`/petowner/new`)
-                          )}
+                           
+                            {/* admin */}
                           {roleid === "1" && (
                             navigate('/users')
+                          )}
+                           {/* staffs/doctor */}
+                           {roleid === "2" && (
+                            navigate(`/users/`+userid+`/staffs/new`)
+                          )}
+                           {/* petowner */}
+                           {roleid === "3" && (
+                            navigate(`/users/`+userid+`/petowners/new`)
                           )}
                           </div>
                       );
@@ -101,13 +100,15 @@ export default function UserForm() {
         }
       
     };
-    
+
+   
     return (
         <div>
             <div className="default-form animated fadeInDown">
                 <div className="form">
+            
             {user.id && <h1  className="title">Update User</h1>}
-            {!user.id && <h1 className="title">New User</h1>}
+            {!user.id && <h1 className="title">Create An Account</h1>}
 
             <div className="card animated fadeInDown">
                 {loading && <div className="text-center">Loading...</div>}
@@ -120,13 +121,12 @@ export default function UserForm() {
                 }
                 {!loading && (
                     <form onSubmit={onSubmit} style={{textAlign:"center"}}>
-                     <h2>Create An Account</h2>
 
                      {!user.id && 
                      <div>  
-                        <label htmlFor="address">Role:  </label>
+                        <label >Role:  </label>
                         <select
-                            value={user.role_id}
+                            value={user.role_id || ""}
                             onChange={(ev) =>
                                 setUser({ ...user, role_id: ev.target.value })
                             }
@@ -190,7 +190,7 @@ export default function UserForm() {
                         </div>
 
                         <button className="btn">Save</button>
-                        <Link to="/users" className="btn"> Back </Link>
+                        <button onClick={() => navigate(-1)} className="btn">Back</button>
                     </form>
                 )}
             </div>

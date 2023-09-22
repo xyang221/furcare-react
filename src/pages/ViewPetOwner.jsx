@@ -47,16 +47,16 @@ export default function ViewPetOwner() {
                     </div>
                 }
                 <p>Name: {petowner.firstname} {petowner.lastname} </p>
-                <p>Address: {address.barangay}, {zipcode.city}, {zipcode.province},  {zipcode.zipcode} </p>
+                <p>Address:{address.zone}, {address.barangay}, {zipcode.area}, {zipcode.province},  {zipcode.zipcode} </p>
                 <p>Contact Number: {petowner.contact_num}</p>
 
                 <h2>Mobile Account</h2>
-                <p>Username: {user.username} </p>
                 <p>Email: {user.email} </p>
+                <p>Username: {user.username} </p>
 
                 <Link to={`/petowners/${petowner.id}/pets`} className="btn-edit" > Pets </Link>
                 <Link to={`/petowners/`+petowner.id+'/update'} className="btn-edit" > Update Pet Owner </Link>
-                <Link to={`/petowners/`+petowner.id+'/user'} className="btn-edit" > Update User Account </Link>
+                <Link to={`/users/${user.id}`} className="btn-edit">Update User Account</Link>
                 <Link className="btn" to="/petowners">Back</Link>
                 
             </div>

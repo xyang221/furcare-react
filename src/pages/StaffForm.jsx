@@ -40,7 +40,7 @@ export default function StaffForm() {
     const onSubmit = (ev) => {
         ev.preventDefault();
         if (staff.id) {
-            axiosClient.put(`/staff/${staff.id}`, staff)
+            axiosClient.put(`/staffs/${staff.id}`, staff)
                 .then(() => {
                     setNotification("staff successfully updated");
                     navigate('/staffs');
@@ -52,7 +52,7 @@ export default function StaffForm() {
                     }
                 });
         } else {
-            axiosClient.post(`user/${id}/staff`, staff)
+            axiosClient.post(`users/${id}/staffs`, staff)
                 .then(() => {
                     setNotification("Pet Owner successfully created");
                     navigate('/staffs');

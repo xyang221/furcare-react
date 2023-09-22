@@ -11,7 +11,7 @@ export default function Staffs() {
 
     const getstaffs = () => {
 
-        // document.title = "Pet Owners";
+        document.title = "Staffs";
         
         setLoading(true);
         axiosClient.get('/staffs')
@@ -60,7 +60,7 @@ export default function Staffs() {
             <div className="default-form animated fadeInDown">
                 <div className="form" style={{textAlign:"center"}}>
                     <h1 className="title">STAFFS</h1>
-                    <Link to="/users/new" className="btn">
+                    <Link to="/staffs/new" className="btn">
                         Add new
                     </Link>
 
@@ -89,9 +89,9 @@ export default function Staffs() {
                                             <td>{s.id}</td>
                                             <td>{`${s.firstname} ${s.lastname}`}</td>
                                             <td>{s.contact_num}</td>
-                                            <td>{s.address.barangay}, {s.address.zipcode.city} </td>
+                                            <td>{s.address.barangay}, {s.address.zipcode.area} </td>
                                             <td>
-                                                <Link to={`/staffs/`+s.id} className="btn-edit" > Edit </Link>
+                                            <Link to={`/staffs/`+s.id} className="btn-edit" > View </Link>
                                                 <button onClick={() => onDelete(s)} className="btn-delete" > Delete </button>
                                             
                                             </td>

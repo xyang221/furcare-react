@@ -2,215 +2,315 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
+import {
+  Stack,
+  Autocomplete,
+  TextField,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+import Password from "../components/Password";
 
 export default function StaffForm() {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState(null);
-    const { setNotification } = useStateContext();
-    
-    const [staff, setStaff] = useState({
-        id: null,
-        // user_id: null,
-        firstname: '',
-        lastname: '',
-        contact_num: '',
-        address_id: null,
-    });
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState(null);
+  const { setNotification } = useStateContext();
 
-    const [address,setAddress]= useState([]);
- 
-    useEffect(() => {
-        if (id) {
-            setLoading(true);
-            axiosClient.get(`/staffs/${id}`)
-                .then(({ data }) => {
-                    setLoading(false);
-                    setStaff(data);
-                })
-                .catch(() => {
-                    setLoading(false);
-                });
+  const [address, setAddress] = useState([]);
+  const [value, setValue] = useState(null);
 
-    }
+  const [staff, setStaff] = useState({
+    id: null,
+    firstname: "",
+    lastname: "",
+    contact_num: "",
+    zipcode_id: null,
+    barangay: "",
+    zone: "",
+    role_id: null,
+    username: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+  });
 
-        }, [id]);
-   
-    const onSubmit = (ev) => {
-        ev.preventDefault();
-        if (staff.id) {
-            axiosClient.put(`/staffs/${staff.id}`, staff)
-                .then(() => {
-                    setNotification("staff successfully updated");
-                    navigate('/staffs');
-                })
-                .catch((err) => {
-                    const response = err.response;
-                    if (response && response.status == 422) {
-                        setErrors(response.data.errors);
-                    }
-                });
-        } else {
-            axiosClient.post(`users/${id}/staffs`, staff)
-                .then(() => {
-                    setNotification("Pet Owner successfully created");
-                    navigate('/staffs');
-                })
-                .catch((err) => {
-                    const response = err.response;
-                    if (response && response.status == 422) {
-                        setErrors(response.data.errors);
-                    }
-                });
-
-           
-        }
-    };
-
-    useEffect(() => {
-      
-        axiosClient.get(`/addresses`)
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      axiosClient
+        .get(`/staffs/${id}`)
         .then(({ data }) => {
-            setLoading(false);
-            setAddress(data.data);
+          setLoading(false);
+          setStaff(data);
         })
         .catch(() => {
-            setLoading(false);
+          setLoading(false);
         });
+    }
+  }, [id]);
 
+  const onSubmit = (ev) => {
+    ev.preventDefault();
+    if (staff.id) {
+      axiosClient
+        .put(`/staffs/${staff.id}`, staff)
+        .then(() => {
+          setNotification("staff successfully updated");
+          navigate("/staffs");
+        })
+        .catch((err) => {
+          handleErrors(err);
+        });
+    } else {
+      axiosClient
+        .post(`/staffs`, staff)
+        .then(() => {
+          setNotification("Pet Owner successfully created");
+          navigate("/staffs");
+        })
+        .catch((err) => {
+          handleErrors(err);
+        });
+    }
+  };
 
-        }, []);
-    // debugger;
-    return (
-        <div>
-             <div className="default-form animated fadeInDown">
-                <div className="form">
-            {staff.id && <h1 className="title">UPDATE STAFF</h1>}
-            {!staff.id && <h1 className="title">REGISTER STAFF</h1>}
+  const [roles, setRoles] = useState([]);
 
-            <div className="card animated fadeInDown">
-                {loading && <div className="text-center">Loading...</div>}
-                {errors && 
-                    <div className="alert">     
-                        {Object.keys(errors).map((key) => (
-                            <p key={key}>{errors[key][0]}</p>
-                        ))}
-                    </div>
-                }
+  const getRoles = () => {
+    axiosClient
+      .get("/roles")
+      .then(({ data }) => {
+        setLoading(false);
+        setRoles(data.data);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
 
-                {!loading && (
-                    <form onSubmit={onSubmit}>
-                        <h2>Staff Information</h2>
+  const getZipcodes = () => {
+    axiosClient
+      .get("/zipcodes")
+      .then(({ data }) => {
+        setAddress(data.data);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
 
-                            <div>
-                        <label htmlFor="">First Name:</label>
-                        <input type="text"
-                            value={staff.firstname}
-                            onChange={(ev) =>
-                                setStaff({ ...staff, firstname: ev.target.value })
-                            }
-                            placeholder="First Name"
-                        />
-                        </div>
+  useEffect(() => {
+    getRoles();
+    getZipcodes();
+  }, []);
 
-                        <div>
-                        <label htmlFor="">Last Name:</label>
-                        <input type="text"
-                            value={staff.lastname}
-                            onChange={(ev) =>
-                                setStaff({ ...staff, lastname: ev.target.value })
-                            }
-                            placeholder="Last Name"
-                        />
-                        </div>
+  const handleErrors = (err) => {
+    const response = err.response;
+    if (response && response.status === 422) {
+      setErrors(response.data.errors);
+    }
+  };
 
-                        <div>
-                        <label htmlFor="">Contact Number:</label>
-                        <input
-                            type="number"
-                            value={staff.contact_num}
-                            onChange={(ev) =>
-                                setStaff({ ...staff,
-                                    contact_num: ev.target.value,
-                                })
-                            }
-                            placeholder="Contact Number"
-                        />
-                        </div>
+  return (
+    <div>
+      <div className="default-form animated fadeInDown">
+        <div className="form">
+          {staff.id ? (
+            <h1 className="title">UPDATE STAFF</h1>
+          ) : (
+            <h1 className="title">REGISTRATION</h1>
+          )}
 
-                        <div>
-                        <label htmlFor="address">Address: </label>
-                        <select
-                            // value={staff.address_id}
-                            // onChange={(ev) =>
-                            //     setStaff({ ...staff, address_id: ev.target.value })
-                            // }
-                            >
-                            <option value="">Zipcode</option>
-                            {address.map(item => (
-                                <option key={item.id} value={item.id}>
-                                {item.zipcode.zipcode}
-                                </option>
-                            ))}
-                            </select>
+          <div className="card animated fadeInDown">
+            {loading && <div className="text-center">Loading...</div>}
+            {errors && (
+              <div className="alert">
+                {Object.keys(errors).map((key) => (
+                  <p key={key}>{errors[key][0]}</p>
+                ))}
+              </div>
+            )}
 
-                            <select
-                            // value={staff.address_id}
-                            // onChange={(ev) =>
-                            //     setStaff({ ...staff, address_id: ev.target.value })
-                            // }
-                            >
-                            <option value="">Province</option>
-                            {address.map(item => (
-                                <option key={item.id} value={item.id}>
-                                {item.zipcode.province}
-                                </option>
-                            ))}
-                            </select>
+            {!loading && (
+              <form onSubmit={onSubmit}>
+                <h2>Staff Information</h2>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    "& > :not(style)": { m: 3 },
+                  }}
+                >
+                  <TextField
+                    id="firstname"
+                    label="Firstname"
+                    size="small"
+                    // helperText="Please enter your firstname"
+                    value={staff.firstname}
+                    onChange={(ev) =>
+                      setStaff({ ...staff, firstname: ev.target.value })
+                    }
+                  />
+                  <TextField
+                    id="Lastname"
+                    label="Lastname"
+                    size="small"
+                    // helperText="Please enter your firstname"
+                    value={staff.lastname}
+                    onChange={(ev) =>
+                      setStaff({ ...staff, lastname: ev.target.value })
+                    }
+                  />
+                  <TextField
+                    id="Contact Number"
+                    label="Contact Number"
+                    size="small"
+                    type="number"
+                    // helperText="Please enter your firstname"
+                    value={staff.contact_num}
+                    onChange={(ev) =>
+                      setStaff({ ...staff, contact_num: ev.target.value })
+                    }
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    "& > :not(style)": { m: 3 },
+                  }}
+                >
+                <Stack spacing={5}>
+                  <Autocomplete
+                    size="small"
+                    sx={{ width: 400 }}
+                    getOptionLabel={(address) =>
+                      `${address.area}, ${address.province}`
+                    }
+                    options={address}
+                    isOptionEqualToValue={(option, value) =>
+                      option.area === value.area
+                    }
+                    noOptionsText="Not Available"
+                    renderOption={(props, address) => (
+                      <Box component="li" {...props} key={address.id}>
+                        {address.area}, {address.province}
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField {...params} label="City, Province" />
+                    )}
+                    onChange={(event, newValue) => {
+                      setValue(newValue);
+                      setStaff({
+                        ...staff,
+                        zipcode_id: newValue ? newValue.id : null,
+                      });
+                    }}
+                    value={value}
+                  />
+                </Stack>
+                <TextField
+                  id="Barangay"
+                  label="Barangay"
+                  size="small"
+                  // helperText="Please enter your firstname"
+                  value={staff.barangay}
+                  onChange={(ev) =>
+                    setStaff({ ...staff, barangay: ev.target.value })
+                  }
+                />
+                <TextField
+                  id="Zone"
+                  label="Zone"
+                  size="small"
+                  // helperText="Please enter your firstname"
+                  value={staff.zone}
+                  onChange={(ev) =>
+                    setStaff({ ...staff, zone: ev.target.value })
+                  }
+                />
+                </Box>
+                <h2>Create An Acount</h2>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    "& > :not(style)": { m: 3 },
+                  }}
+                >
+                <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                  <InputLabel id="demo-select-small-label">Role</InputLabel>
+                  <Select
+                    labelId="demo-select-small-label"
+                    id="demo-select-small"
+                    label="Role"
+                    value={staff.role_id || ""}
+                    onChange={(ev) =>
+                      setStaff({ ...staff, role_id: ev.target.value })
+                    }
+                  >
+                    {roles.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.role}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  id="Username"
+                  label="Username"
+                  size="small"
+                  // helperText="Please enter your firstname"
+                  value={staff.username}
+                  onChange={(ev) =>
+                    setStaff({ ...staff, username: ev.target.value })
+                  }
+                />
+                <TextField
+                  id="Email"
+                  label="Email"
+                  size="small"
+                  type="email"
+                  // helperText="Please enter your firstname"
+                  value={staff.email}
+                  onChange={(ev) =>
+                    setStaff({ ...staff, email: ev.target.value })
+                  }
+                /></Box>
+                <Password
+                label="Password"
+                  value={staff.password}
+                  onChange={(ev) =>
+                    setStaff({ ...staff, password: ev.target.value })
+                  }
+                />
+                <Password
+                label="Password Confirmation"
+                onChange={(ev) =>
+                    setStaff({
+                      ...staff,
+                      password_confirmation: ev.target.value,
+                    })
+                  }
+                />
 
-                            <select
-                            // value={staff.address_id}
-                            // onChange={(ev) =>
-                            //     setStaff({ ...staff, address_id: ev.target.value })
-                            // }
-                            >
-                            <option value="">City</option>
-                            {address.map(item => (
-                                <option key={item.id} value={item.id}>
-                                {item.zipcode.city}
-                                </option>
-                            ))}
-                            </select>
-                            </div>
-
-                            <div>
-                                <label htmlFor=""></label>
-                        <select
-                            value={staff.address_id}
-                            onChange={(ev) =>
-                                setStaff({ ...staff, address_id: ev.target.value })
-                            }
-                            >
-                            <option value="">Barangay</option>
-                            {address.map(item => (
-                                <option key={item.id} value={item.id}>
-                                {item.barangay}
-                                </option>
-                            ))}
-                            </select>
-                            </div>
-
-                            <div style={{textAlign:"center"}}>
-                        <button className="btn">Save</button>
-                        <Link className="btn" to="/staffs">Back</Link>
-                        </div>
-
-                    </form>
-                )}
-            </div>
-            </div>
-            </div>
+                <div style={{ textAlign: "center" }}>
+                  <button className="btn">Save</button>
+                  <button onClick={() => navigate(-1)} className="btn">
+                    Back
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

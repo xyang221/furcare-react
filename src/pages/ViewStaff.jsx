@@ -3,13 +3,13 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
-export default function ViewPetOwner() {
+export default function ViewStaff() {
     const { id } = useParams();
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState(null);
     const { setNotification } = useStateContext();
     
-    const [petowner, setPetowner] = useState([]);
+    const [staff, setStaff] = useState([]);
     const [address, setAddress] = useState([]);
     const [zipcode, setZipcode] = useState([]);
     const [user, setUser] = useState([]);
@@ -17,10 +17,10 @@ export default function ViewPetOwner() {
     useEffect(() => {
     
             setLoading(true);
-            axiosClient.get(`/petowners/${id}`)
+            axiosClient.get(`/staffs/${id}`)
                 .then(({ data }) => {
                     setLoading(false);
-                    setPetowner(data);
+                    setStaff(data);
                     setAddress(data.address);
                     setZipcode(data.address.zipcode);
                     setUser(data.user)
@@ -31,12 +31,10 @@ export default function ViewPetOwner() {
         
     }, []);
 
-    console.log(petowner);
-
     return (
         <div>
             <div className="card animate fadeInDown">
-            <h1 className="title">Pet Owner Details</h1>
+            <h1 className="title">Staff Information</h1>
                 {loading && <div className="text-center">Loading...</div>}
                 {errors && 
                     <div className="alert">
@@ -45,18 +43,18 @@ export default function ViewPetOwner() {
                         ))}
                     </div>
                 }
-                <p>Name: {petowner.firstname} {petowner.lastname} </p>
+                <p>Name: {staff.firstname} {staff.lastname} </p>
                 <p>Address:{address.zone}, {address.barangay}, {zipcode.area}, {zipcode.province},  {zipcode.zipcode} </p>
-                <p>Contact Number: {petowner.contact_num}</p>
+                <p>Contact Number: {staff.contact_num}</p>
 
-                <h2>Mobile Account</h2>
+                <h2>User Account</h2>
                 <p>Email: {user.email} </p>
                 <p>Username: {user.username} </p>
 
-                <Link to={`/petowners/${petowner.id}/pets`} className="btn-edit" > Pets </Link>
-                <Link to={`/petowners/`+petowner.id+'/update'} className="btn-edit" > Update Pet Owner </Link>
+                <Link to={`/staffs/${staff.id}/pets`} className="btn-edit" > Pets </Link>
+                <Link to={`/staffs/`+staff.id+'/update'} className="btn-edit" > Update Staff </Link>
                 <Link to={`/users/${user.id}`} className="btn-edit">Update User Account</Link>
-                <Link className="btn" to="/petowners">Back</Link>
+                <Link className="btn" to="/staffs">Back</Link>
                 
             </div>
         </div>

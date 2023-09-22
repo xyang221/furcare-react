@@ -13,6 +13,7 @@ import Pets from "./pages/Pets";
 import PetForm from "./pages/PetForm";
 import Staffs from "./pages/Staffs";
 import StaffForm from "./pages/StaffForm";
+import ViewStaff from "./pages/ViewStaff";
 import AppointmentForm from "./pages/AppointmentForm";
 import Appointments from "./pages/Appointments";
 import ClientServiceForm from "./pages/ClientServiceForm";
@@ -31,12 +32,6 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Navigate to="/dashboard" />,
-      },
-
-      
-      {
-        path: "/address",
-        element: <AddressForm />,
       },
 
       {
@@ -79,12 +74,12 @@ const router = createBrowserRouter([
       },
 
       {
-        path: "/users/:id/staffs/new",
+        path: "/staffs/new",
         element: <StaffForm key="staffCreate" />,
       },
       {
         path: "/staffs/:id",
-        element: <StaffForm key="staffUpdate" />,
+        element: <ViewStaff/>,
       },
 
       {
@@ -97,10 +92,6 @@ const router = createBrowserRouter([
         element: <PetOwnerForm />,
       },
 
-      {
-        path: "/users/:id/petowners/new",
-        element: <PetOwnerForm key="petownerCreate" />,
-      },
       {
         path: "/petowners/:id",
         element: <ViewPetOwner />,

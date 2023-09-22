@@ -45,7 +45,7 @@ export default function PetOwners() {
             <div className="default-form animated fadeInDown">
                 <div className="form" style={{textAlign:"center"}}>
                     <h1 className="title">PET OWNERS</h1>
-                    <Link to="/users/new" className="btn">
+                    <Link to="/petowners/new" className="btn">
                         Add new
                     </Link>
 

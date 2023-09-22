@@ -12,7 +12,7 @@ export default function StaffForm() {
     
     const [staff, setStaff] = useState({
         id: null,
-        user_id: null,
+        // user_id: null,
         firstname: '',
         lastname: '',
         contact_num: '',
@@ -20,7 +20,6 @@ export default function StaffForm() {
     });
 
     const [address,setAddress]= useState([]);
-    const [user,setUser]= useState([]);
  
     useEffect(() => {
         if (id) {
@@ -53,7 +52,7 @@ export default function StaffForm() {
                     }
                 });
         } else {
-            axiosClient.post(`/staffs`, staff)
+            axiosClient.post(`user/${id}/staff`, staff)
                 .then(() => {
                     setNotification("Pet Owner successfully created");
                     navigate('/staffs');
@@ -70,15 +69,6 @@ export default function StaffForm() {
     };
 
     useEffect(() => {
-
-        axiosClient.get(`/users`)
-        .then(({ data }) => {
-            setLoading(false);
-            setUser(data.data);
-        })
-        .catch(() => {
-            setLoading(false);
-        });
       
         axiosClient.get(`/addresses`)
         .then(({ data }) => {
@@ -92,7 +82,6 @@ export default function StaffForm() {
 
         }, []);
     // debugger;
-console.log(user)
     return (
         <div>
              <div className="default-form animated fadeInDown">
@@ -113,20 +102,6 @@ console.log(user)
                 {!loading && (
                     <form onSubmit={onSubmit}>
                         <h2>Staff Information</h2>
-
-                        <select
-                            value={staff.user_id}
-                            onChange={(ev) =>
-                                setStaff({ ...staff, user_id: ev.target.value })
-                            }
-                            >
-                            <option value="">User</option>
-                            {user.map(item => (
-                                <option key={item.id} value={item.id}>
-                                {item.username} 
-                                </option>
-                            ))}
-                            </select>
 
                             <div>
                         <label htmlFor="">First Name:</label>

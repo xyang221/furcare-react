@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
-export default function PetOwnerForm({userID}) {
+export default function PetOwnerForm() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -12,7 +12,7 @@ export default function PetOwnerForm({userID}) {
     
     const [petowner, setPetowner] = useState({
         id: null,
-        user_id: userID,
+        // user_id: userid,
         firstname: '',
         lastname: '',
         contact_num: '',
@@ -20,7 +20,6 @@ export default function PetOwnerForm({userID}) {
     });
 
     const [address,setAddress]= useState([]);
-    const [user,setUser]= useState([]);
  
     useEffect(() => {
         if (id) {
@@ -35,6 +34,7 @@ export default function PetOwnerForm({userID}) {
                 });
         }
     }, [id]);
+
    
     const onSubmit = (ev) => {
         ev.preventDefault();
@@ -51,7 +51,7 @@ export default function PetOwnerForm({userID}) {
                     }
                 });
         } else {
-            axiosClient.post(`/petowners`, petowner)
+            axiosClient.post(`user/${id}/petowner`, petowner)
                 .then(() => {
                     setNotification("Pet Owner successfully created");
                     navigate('/petowners');
@@ -69,15 +69,6 @@ export default function PetOwnerForm({userID}) {
 
     useEffect(() => {
 
-      axiosClient.get(`/users`)
-      .then(({ data }) => {
-          setLoading(false);
-          setUser(data.data);
-      })
-      .catch(() => {
-          setLoading(false);
-      });
-      
     axiosClient.get(`/addresses`)
     .then(({ data }) => {
         setLoading(false);
@@ -86,11 +77,8 @@ export default function PetOwnerForm({userID}) {
     .catch(() => {
         setLoading(false);
     });
-
-
         }, []);
     // debugger;
-console.log(user)
 
     return (
         <div>
@@ -112,21 +100,7 @@ console.log(user)
                 {!loading && (
                     <form onSubmit={onSubmit}>
                         <h2>Pet Owner Details</h2>
-                        {!petowner.id &&
-                        
-                        <select
-                            value={petowner.user_id}
-                            onChange={(ev) =>
-                                setPetowner({ ...petowner, user_id: ev.target.value })
-                            }
-                            >
-                            <option>User</option>
-                            {user.map(item => (
-                                <option key={item.id} value={item.id}>
-                                {item.username} 
-                                </option>
-                            ))}
-                            </select> }
+                      
                             <div>
                         <label htmlFor="">First Name:</label>
                         <input type="text"
@@ -204,6 +178,17 @@ console.log(user)
                             ))}
                             </select>
                             <br />
+
+                            <input
+                            type="text"
+                            value={petowner.contact_num}
+                            onChange={(ev) =>
+                                setPetowner({ ...petowner,
+                                    contact_num: ev.target.value,
+                                })
+                            }
+                            placeholder="Barangay"
+                        />
 
                             <label htmlFor=""></label>
                         <select

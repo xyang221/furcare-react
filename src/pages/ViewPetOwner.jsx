@@ -56,6 +56,7 @@ export default function ViewPetOwner() {
 
                 <Link to={`/petowners/${petowner.id}/pets`} className="btn-edit" > Pets </Link>
                 <Link to={`/petowners/`+petowner.id+'/update'} className="btn-edit" > Update Pet Owner </Link>
+                <Link to={`/petowners/`+petowner.id+'/user'} className="btn-edit" > Update User Account </Link>
                 <Link className="btn" to="/petowners">Back</Link>
                 
             </div>

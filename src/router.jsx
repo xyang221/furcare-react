@@ -89,10 +89,10 @@ const router = createBrowserRouter([
         element: <PetOwnerUserForm />,
       },
 
-      // {
-      //   path: "/petowners/new/:userID",
-      //   element: <PetOwnerForm key="petownerCreate" />,
-      // },
+      {
+        path: "/user/:id/petowner/new",
+        element: <PetOwnerForm  />,
+      },
       {
         path: "/petowners/new",
         element: <PetOwnerForm key="petownerCreate" />,

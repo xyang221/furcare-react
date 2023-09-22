@@ -42,27 +42,45 @@ export default function DefaultLayout() {
 
 
                 <Link to="/dashboard">Dashboard</Link>
+                <ul onClick={toggleDropdown}>
+                  Registration
+                  {isDropdownOpen ? <span>&#9650;</span> : <span>&#9660;</span>}
+                </ul>
+                  {isDropdownOpen && (
+                    <ul>
+                       <li>
+                      <Link to="/users/new">Admin</Link>
+                      </li>
+                      <li>
+                      <Link to="/staffs/new">Doctor/Staffs</Link>
+                      </li>
+                      <li>
+                      <Link to="/petowneruser">Pet Owners</Link>
+                      </li>
+                    </ul>
+                  )}
                 <Link to="/roles">Roles</Link>
                 <Link to="/users">Users</Link>
+                {/* <Link to="/users">Archived Files</Link> */}
                 <Link to="/petowners/new">Registration</Link>
                 <Link to="/petowneruser">Petowner Form</Link>
                 <ul onClick={toggleDropdown}>
-              Users
-              {isDropdownOpen ? <span>&#9650;</span> : <span>&#9660;</span>}
-            </ul>
-            {isDropdownOpen && (
-              <ul>
-                <li>
-                <Link to="/petowners">Pet Owners</Link>
-                </li>
-                <li>
-                <Link to="/staffs">Staffs</Link>
-                </li>
-              </ul>
-            )}
-               
-                <Link to="/pets">Pet</Link>
-              
+                  Profile Data
+                  {isDropdownOpen ? <span>&#9650;</span> : <span>&#9660;</span>}
+                </ul>
+                  {isDropdownOpen && (
+                    <ul>
+                      <li>
+                      <Link to="/petowners">Pet Owners</Link>
+                      </li>
+                      <li>
+                      <Link to="/staffs">Staffs</Link>
+                      </li>
+                      <li>
+                      <Link to="/pets">Pet</Link>
+                      </li>
+                    </ul>
+                  )}
                 <Link to="/appointments">Appointments</Link>
                 <Link to="/clientservice/new">Client Service Form</Link>
 

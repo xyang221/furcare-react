@@ -35,13 +35,13 @@ export default function DefaultLayout() {
     return (
         <div id="defaultLayout">
             <aside>
-<img  className="icon" />
+{/* <img  className="icon" /> */}
 
                 <Link to="/dashboard">Dashboard</Link>
                 <Link to="/main">MainLAyout</Link>
                 <Link to="/roles">Roles</Link>
                 <Link to="/users">Users</Link>
-                <Link to="/archives">Archives</Link>
+                <Link to="/archives">Archived Users</Link>
                 {/* <Link to="/users">Archived Files</Link> */}
                 <ul onClick={toggleDropdown}>
                   Profile Data

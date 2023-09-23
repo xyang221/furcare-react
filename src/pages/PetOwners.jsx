@@ -30,10 +30,10 @@ export default function PetOwners() {
             return;
         }
 
-        // axiosClient.delete(`/petowners/${po.id}`).then(() => {
-        //     setNotification("Pet Owner deleted");
-        //     getPetowners();
-        // });
+        axiosClient.delete(`/petowners/${po.id}`).then(() => {
+            setNotification("Pet Owner deleted");
+            getPetowners();
+        });
     };
 
     useEffect(() => {
@@ -77,7 +77,7 @@ export default function PetOwners() {
                                             <td>{po.address.zone}, {po.address.barangay}, {po.address.zipcode.area} </td>
                                             <td>
                                             <Link to={`/petowners/`+po.id} className="btn-edit" > View </Link>
-                                                <button onClick={() => onDelete(po)} className="btn-delete" > Archive </button>
+                                                <button onClick={() => onDelete(po)} className="btn-delete" > Delete </button>
                                             
                                             </td>
                                         </tr>

@@ -27,8 +27,8 @@ export default function Users() {
             return;
         }
 
-        axiosClient.delete(`/users/${u.id}`).then(() => {
-            setNotification("User deleted");
+        axiosClient.delete(`/users/${u.id}/archive`).then(() => {
+            setNotification("User archived");
             getUsers();
         });
     };
@@ -81,7 +81,7 @@ export default function Users() {
                                                     onClick={() => onDelete(u)}
                                                     className="btn-delete"
                                                 >
-                                                    Delete
+                                                    Archive
                                                 </button>
                                             </td>
                                         </tr>

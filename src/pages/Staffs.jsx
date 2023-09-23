@@ -89,7 +89,7 @@ export default function Staffs() {
                                             <td>{s.id}</td>
                                             <td>{`${s.firstname} ${s.lastname}`}</td>
                                             <td>{s.contact_num}</td>
-                                            <td>{s.address.barangay}, {s.address.zipcode.area} </td>
+                                            <td>{s.address.zone}, {s.address.barangay}, {s.address.zipcode.area} </td>
                                             <td>
                                             <Link to={`/staffs/`+s.id} className="btn-edit" > View </Link>
                                                 <button onClick={() => onDelete(s)} className="btn-delete" > Delete </button>

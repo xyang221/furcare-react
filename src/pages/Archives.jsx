@@ -1,51 +1,48 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 
-export default function PetOwners() {
-    const { id } = useParams();
-    const [petowners, setPetowners] = useState([]);
+export default function Archives() {
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const { setNotification } = useStateContext();
 
-    const getPetowners = () => {
-
-        document.title = "Pet Owners";
+    const getUsers = () => {
         
         setLoading(true);
-        axiosClient.get('/petowners')
+        axiosClient.get('/users')
             .then(({ data }) => {
                 setLoading(false);
-                setPetowners(data.data);
+                setUsers(data.data);
             })
             .catch(() => {
                 setLoading(false);
             });
     };
 
-    const onDelete = (po) => {
+    const onDelete = (u) => {
         if (!window.confirm("Are you sure?")) {
             return;
         }
 
-        // axiosClient.delete(`/petowners/${po.id}`).then(() => {
-        //     setNotification("Pet Owner deleted");
-        //     getPetowners();
-        // });
+        axiosClient.delete(`/users/${u.id}`).then(() => {
+            setNotification("User deleted");
+            getUsers();
+        });
     };
 
     useEffect(() => {
-        getPetowners();
+        getUsers();
     }, []);
 
     return (
         <div>
             <div className="default-form animated fadeInDown">
                 <div className="form" style={{textAlign:"center"}}>
-                    <h1 className="title">PET OWNERS</h1>
-                    <Link to="/petowners/new" className="btn">
+                    <h1 className="title">USERS</h1>
+                    <Link to="/users/new" className="btn">
                         Add new
                     </Link>
 
@@ -54,31 +51,38 @@ export default function PetOwners() {
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Contact Number</th>
-                                    <th>Address</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Created Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             {loading && (
                                 <tbody>
                                     <tr>
-                                        <td style={{textAlign:"center"}} colSpan={5}>Loading...</td>
+                                        <td colSpan={5}>Loading...</td>
                                     </tr>
                                 </tbody>
                             )}
                             {!loading && (
                                 <tbody>
-                                    {petowners.map(po => (
-                                        <tr key={po.id}>
-                                            <td>{po.id}</td>
-                                            <td>{`${po.firstname} ${po.lastname}`}</td>
-                                            <td>{po.contact_num}</td>
-                                            <td>{po.address.zone}, {po.address.barangay}, {po.address.zipcode.area} </td>
+                                    {users.map(u => (
+                                        <tr key={u.id}>
+                                            <td>{u.id}</td>
+                                            <td>{u.username}</td>
+                                            <td>{u.email}</td>
+                                            <td>{u.created_at}</td>
                                             <td>
-                                            <Link to={`/petowners/`+po.id} className="btn-edit" > View </Link>
-                                                <button onClick={() => onDelete(po)} className="btn-delete" > Archive </button>
-                                            
+                                            <Link to={`/users/`+u.id} className="btn-edit">
+                                                    Edit
+                                                </Link>
+                                               
+                                                <button
+                                                    onClick={() => onDelete(u)}
+                                                    className="btn-delete"
+                                                >
+                                                    Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

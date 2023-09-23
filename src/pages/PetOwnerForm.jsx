@@ -11,6 +11,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Button,
+  Stepper,
+  Step,
+  StepLabel,
+  Typography,
 } from "@mui/material";
 import Password from "../components/Password";
 
@@ -116,200 +121,252 @@ export default function PetOwnerForm() {
     }
   };
 
+  const [activeStep, setActiveStep] = useState(0);
+
+  const handleNext = () => {
+    setActiveStep((prevStep) => prevStep + 1);
+  };
+
+  const handlePrev = () => {
+    setActiveStep((prevStep) => prevStep - 1);
+  };
+
+  const handleChange = (field, value) => {
+    setPetowner({ ...petowner, [field]: value });
+  };
+
+  const steps = ["Register Pet Owner", "Create an Account"];
+
+  const getStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return (
+          <Box
+            sx={{
+              width: "50%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              "& > :not(style)": { m: 1 },
+              margin: "auto",
+            }}
+          >
+            <Typography variant="h4" >Pet Owner Registration</Typography>
+
+            <TextField
+              variant="outlined"
+              id="firstname"
+              label="Firstname"
+              size="small"
+              // helperText="Please enter your firstname"
+              value={petowner.firstname}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, firstname: ev.target.value })
+              }
+            />
+            <TextField
+              variant="outlined"
+              id="Lastname"
+              label="Lastname"
+              size="small"
+              // helperText="Please enter your firstname"
+              value={petowner.lastname}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, lastname: ev.target.value })
+              }
+            />
+            <TextField
+              variant="outlined"
+              id="Contact Number"
+              label="Contact Number"
+              size="small"
+              type="number"
+              // helperText="Please enter your firstname"
+              value={petowner.contact_num}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, contact_num: ev.target.value })
+              }
+            />
+            <TextField
+              id="Zone"
+              label="Zone"
+              size="small"
+              // helperText="Please enter your firstname"
+              value={petowner.zone}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, zone: ev.target.value })
+              }
+            />
+            <TextField
+              id="Barangay"
+              label="Barangay"
+              size="small"
+              // helperText="Please enter your firstname"
+              value={petowner.barangay}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, barangay: ev.target.value })
+              }
+            />
+
+            <Autocomplete
+              size="small"
+              sx={{ width: "100%" }}
+              getOptionLabel={(address) =>
+                `${address.area}, ${address.province}, ${address.zipcode}`
+              }
+              options={address}
+              isOptionEqualToValue={(option, value) =>
+                option.area === value.area
+              }
+              noOptionsText="Not Available"
+              renderOption={(props, address) => (
+                <Box component="li" {...props} key={address.id}>
+                  {address.area}, {address.province}, {address.zipcode}
+                </Box>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="City, Province, Zipcode" />
+              )}
+              onChange={(event, newValue) => {
+                setValue(newValue);
+                setPetowner({
+                  ...petowner,
+                  zipcode_id: newValue ? newValue.id : null,
+                });
+              }}
+              value={value}
+            />
+          </Box>
+        );
+      case 1:
+        return (
+          // <h2>Create An Acount</h2>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              "& > :not(style)": { m: 2 },
+            }}
+          >
+            <Typography variant="h4">Create an Account</Typography>
+            <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+              <InputLabel id="demo-select-small-label">Role</InputLabel>
+              <Select
+                labelId="demo-select-small-label"
+                id="demo-select-small"
+                label="Role"
+                value={petowner.role_id || ""}
+                onChange={(ev) =>
+                  setPetowner({ ...petowner, role_id: ev.target.value })
+                }
+              >
+                {roles.map((item) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.role}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              id="Username"
+              label="Username"
+              size="small"
+              // helperText="Please enter your firstname"
+              value={petowner.username}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, username: ev.target.value })
+              }
+            />
+            <TextField
+              id="Email"
+              label="Email"
+              size="small"
+              type="email"
+              // helperText="Please enter your firstname"
+              value={petowner.email}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, email: ev.target.value })
+              }
+            />
+            <Password
+              label="Password"
+              value={petowner.password}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, password: ev.target.value })
+              }
+            />
+            <Password
+              label="Password Confirmation"
+              onChange={(ev) =>
+                setPetowner({
+                  ...petowner,
+                  password_confirmation: ev.target.value,
+                })
+              }
+            />
+          </Box>
+        );
+      default:
+        return "Unknown step";
+    }
+  };
+  //   console.log(petowner);
+
   return (
     <div>
-      <div className="default-form animated fadeInDown">
-        <div className="form">
-          {petowner.id ? (
-            <h1 className="title">UPDATE PET OWNER</h1>
-          ) : (
-            <h1 className="title">REGISTRATION</h1>
-          )}
-
-          <div className="card animated fadeInDown">
-            {loading && <div className="text-center">Loading...</div>}
-            {errors && (
-              <div className="alert">
-                {Object.keys(errors).map((key) => (
-                  <p key={key}>{errors[key][0]}</p>
-                ))}
-              </div>
-            )}
-
-            {!loading && (
-              <form onSubmit={onSubmit}>
-                <h2>Pet Owner Details</h2>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    "& > :not(style)": { m: 3 },
-                  }}
-                >
-                  <TextField
-                    id="firstname"
-                    label="Firstname"
-                    size="small"
-                    // helperText="Please enter your firstname"
-                    value={petowner.firstname}
-                    onChange={(ev) =>
-                      setPetowner({ ...petowner, firstname: ev.target.value })
-                    }
-                  />
-                  <TextField
-                    id="Lastname"
-                    label="Lastname"
-                    size="small"
-                    // helperText="Please enter your firstname"
-                    value={petowner.lastname}
-                    onChange={(ev) =>
-                      setPetowner({ ...petowner, lastname: ev.target.value })
-                    }
-                  />
-                  <TextField
-                    id="Contact Number"
-                    label="Contact Number"
-                    size="small"
-                    type="number"
-                    // helperText="Please enter your firstname"
-                    value={petowner.contact_num}
-                    onChange={(ev) =>
-                      setPetowner({ ...petowner, contact_num: ev.target.value })
-                    }
-                  />
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    "& > :not(style)": { m: 3 },
-                  }}
-                >
-                <Stack spacing={5}>
-                  <Autocomplete
-                    size="small"
-                    sx={{ width: 400 }}
-                    getOptionLabel={(address) =>
-                      `${address.area}, ${address.province}`
-                    }
-                    options={address}
-                    isOptionEqualToValue={(option, value) =>
-                      option.area === value.area
-                    }
-                    noOptionsText="Not Available"
-                    renderOption={(props, address) => (
-                      <Box component="li" {...props} key={address.id}>
-                        {address.area}, {address.province}
-                      </Box>
-                    )}
-                    renderInput={(params) => (
-                      <TextField {...params} label="City, Province" />
-                    )}
-                    onChange={(event, newValue) => {
-                      setValue(newValue);
-                      setPetowner({
-                        ...petowner,
-                        zipcode_id: newValue ? newValue.id : null,
-                      });
-                    }}
-                    value={value}
-                  />
-                </Stack>
-                <TextField
-                  id="Barangay"
-                  label="Barangay"
-                  size="small"
-                  // helperText="Please enter your firstname"
-                  value={petowner.barangay}
-                  onChange={(ev) =>
-                    setPetowner({ ...petowner, barangay: ev.target.value })
-                  }
-                />
-                <TextField
-                  id="Zone"
-                  label="Zone"
-                  size="small"
-                  // helperText="Please enter your firstname"
-                  value={petowner.zone}
-                  onChange={(ev) =>
-                    setPetowner({ ...petowner, zone: ev.target.value })
-                  }
-                />
-                </Box>
-                <h2>Create An Acount</h2>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    "& > :not(style)": { m: 3 },
-                  }}
-                >
-                <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-                  <InputLabel id="demo-select-small-label">Role</InputLabel>
-                  <Select
-                    labelId="demo-select-small-label"
-                    id="demo-select-small"
-                    label="Role"
-                    value={petowner.role_id || ""}
-                    onChange={(ev) =>
-                      setPetowner({ ...petowner, role_id: ev.target.value })
-                    }
-                  >
-                    {roles.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.role}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField
-                  id="Username"
-                  label="Username"
-                  size="small"
-                  // helperText="Please enter your firstname"
-                  value={petowner.username}
-                  onChange={(ev) =>
-                    setPetowner({ ...petowner, username: ev.target.value })
-                  }
-                />
-                <TextField
-                  id="Email"
-                  label="Email"
-                  size="small"
-                  type="email"
-                  // helperText="Please enter your firstname"
-                  value={petowner.email}
-                  onChange={(ev) =>
-                    setPetowner({ ...petowner, email: ev.target.value })
-                  }
-                /></Box>
-                <Password
-                label="Password"
-                  value={petowner.password}
-                  onChange={(ev) =>
-                    setPetowner({ ...petowner, password: ev.target.value })
-                  }
-                />
-                <Password
-                label="Password Confirmation"
-                onChange={(ev) =>
-                    setPetowner({
-                      ...petowner,
-                      password_confirmation: ev.target.value,
-                    })
-                  }
-                />
-
-                <div style={{ textAlign: "center" }}>
-                  <button className="btn">Save</button>
-                  <button onClick={() => navigate(-1)} className="btn">
-                    Back
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
+      {errors && (
+        <div className="alert">
+          {Object.keys(errors).map((key) => (
+            <p key={key}>{errors[key][0]}</p>
+          ))}
         </div>
+      )}
+
+      <Stepper activeStep={activeStep}>
+        {steps.map((label, index) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      <div>
+        {activeStep === steps.length ? (
+          <div>
+            <p>All steps completed</p>
+          </div>
+        ) : (
+          <div>
+            {getStepContent(activeStep)}
+            <div>
+              <Button disabled={activeStep === 0} onClick={handlePrev}>
+                Back
+              </Button>
+              {activeStep === 0 && (
+                <>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleNext}
+                  >
+                    Next
+                  </Button>
+                </>
+              )}
+              {activeStep === 1 && (
+                <>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={onSubmit}
+                  >
+                    Finish
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

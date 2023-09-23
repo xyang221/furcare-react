@@ -20,9 +20,9 @@ import ClientServiceForm from "./pages/ClientServiceForm";
 import ViewPetOwner from "./pages/ViewPetOwner";
 import Roles from "./pages/Roles";
 import RoleForm from "./pages/RoleForm";
+import Archives from "./pages/Archives";
 
-import Address from "./components/Address";
-import AddressForm from "./pages/AddressForm";
+import Main from "./components/Main";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +37,15 @@ const router = createBrowserRouter([
       {
         path: "/dashboard",
         element: <Dashboard />,
+      },
+      {
+        path: "/archives",
+        element: <Archives />,
+      },
+
+      {
+        path: "/main",
+        element: <Main />,
       },
 
       {

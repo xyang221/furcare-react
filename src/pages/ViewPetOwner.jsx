@@ -46,7 +46,7 @@ export default function ViewPetOwner() {
                     </div>
                 }
                 <p>Name: {petowner.firstname} {petowner.lastname} </p>
-                <p>Address:{address.zone}, {address.barangay}, {zipcode.area}, {zipcode.province},  {zipcode.zipcode} </p>
+                <p>Address: {address.zone}, {address.barangay}, {zipcode.area}, {zipcode.province},  {zipcode.zipcode} </p>
                 <p>Contact Number: {petowner.contact_num}</p>
 
                 <h2>Mobile Account</h2>

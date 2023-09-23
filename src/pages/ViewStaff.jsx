@@ -44,7 +44,7 @@ export default function ViewStaff() {
                     </div>
                 }
                 <p>Name: {staff.firstname} {staff.lastname} </p>
-                <p>Address:{address.zone}, {address.barangay}, {zipcode.area}, {zipcode.province},  {zipcode.zipcode} </p>
+                <p>Address: {address.zone}, {address.barangay}, {zipcode.area}, {zipcode.province},  {zipcode.zipcode} </p>
                 <p>Contact Number: {staff.contact_num}</p>
 
                 <h2>User Account</h2>

@@ -1,8 +1,6 @@
 import {
-  Alert,
   Box,
   Button,
-  CssBaseline,
   Paper,
   Stack,
   Table,
@@ -17,20 +15,14 @@ import {
 import { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import { Link } from "react-router-dom";
-import {
-  DeleteForever,
-  RestoreFromTrash,
-} from "@mui/icons-material";
-import { useStateContext } from "../contexts/ContextProvider";
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
+import { Add, Delete, Edit, Search } from "@mui/icons-material";
 
-const Roles = () => {
+
+const Tablemui = () => {
   const columns = [
     { id: "id", name: "ID" },
-    { id: "name", name: "Username" },
-    { id: "email", name: "Email" },
-    { id: "deleteddate", name: "Deleted Date" },
+    { id: "name", name: "Roles" },
+    { id: "email", name: "Description" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -45,32 +37,20 @@ const Roles = () => {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState("");
 
-  const getArchivedUsers = () => {
+  const getRoles = () => {
     setLoading(true);
     axiosClient
-      .get("/archives/users")
+      .get("/zipcodes")
       .then(({ data }) => {
         setLoading(false);
-        setUsers(data.data);
+        setRoles(data.data);
       })
       .catch(() => {
         setLoading(false);
       });
-  };
-
-  const onRestore = (u) => {
-    if (!window.confirm("Are you sure?")) {
-      return;
-    }
-
-    axiosClient.put(`/users/${u.id}/restore`).then(() => {
-      setNotification("User was restored");
-      getArchivedUsers();
-    });
   };
 
   const onDelete = (r) => {
@@ -78,42 +58,44 @@ const Roles = () => {
       return;
     }
 
-    axiosClient.delete(`/archives/${r.id}/forcedelete`).then(() => {
-      setNotification("User was deleted");
-      return <Alert severity="success">User was deleted</Alert>
-      getArchivedUsers();
+    axiosClient.delete(`/roles/${r.id}`).then(() => {
+      // setNotification("Role deleted");
+      getRoles();
     });
   };
 
   useEffect(() => {
-    getArchivedUsers();
+    getRoles();
   }, []);
 
   return (
-    <>
-    <CssBaseline/>
-        {/* <Navbar/> */}
-        <Stack direction="row" justifyContent="space-between">
-             {/* <Sidebar /> */}
-             <Box flex={5} >
     <Paper
       sx={{
-        minWidth: "90%",
+        minWidth:"90%",
         padding: "10px",
-        margin: "10px",
+        margin:"10px"
       }}
     >
-      {notification && <Alert severity="success">{notification}</Alert>}
       <Box
         p={2}
         display="flex"
         flexDirection="row"
         justifyContent="space-between"
       >
-        <Typography variant="h4">Archived Users</Typography>{" "}
+        <Typography variant="h4">Roles</Typography>{" "}
+       
+        <Button
+          component={Link}
+          to={"/roles/new"}
+          variant="contained"
+          size="small"
+        >
+          <Add />
+          <Typography fontSize="12px"> Role</Typography>
+        </Button>
       </Box>
-
-      <TableContainer sx={{ height: 380 }}>
+      
+      <TableContainer sx={{  height: 380 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -130,7 +112,7 @@ const Roles = () => {
           {loading && (
             <TableBody>
               <TableRow>
-                <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                <TableCell colSpan={4} style={{ textAlign: "center" }}>
                   Loading...
                 </TableCell>
               </TableRow>
@@ -139,32 +121,32 @@ const Roles = () => {
 
           {!loading && (
             <TableBody>
-              {users &&
-                users
+              {roles &&
+                roles
                   .slice(page * rowperpage, page * rowperpage + rowperpage)
                   .map((r) => (
                     <TableRow hover role="checkbox" key={r.id}>
                       <TableCell>{r.id}</TableCell>
-                      <TableCell>{r.username}</TableCell>
-                      <TableCell>{r.email}</TableCell>
-                      <TableCell>{r.deleted_at}</TableCell>
+                      <TableCell>{r.area}</TableCell>
+                      <TableCell>{r.province}</TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={2}>
                           <Button
+                            component={Link}
+                            to={`/roles/` + r.id}
                             variant="contained"
-                            color="success"
                             size="small"
-                            onClick={() => onRestore(r)}
+                            color="info"
                           >
-                            <RestoreFromTrash fontSize="small" />
+                            <Edit fontSize="small" />
                           </Button>
                           <Button
                             variant="contained"
-                            size="small"
                             color="error"
+                            size="small"
                             onClick={() => onDelete(r)}
                           >
-                            <DeleteForever fontSize="small" />
+                            <Delete fontSize="small" />
                           </Button>
                         </Stack>
                       </TableCell>
@@ -178,16 +160,13 @@ const Roles = () => {
         rowsPerPageOptions={[10, 15, 25]}
         rowsPerPage={rowperpage}
         page={page}
-        count={users.length}
+        count={roles.length}
         component="div"
         onPageChange={handlechangepage}
         onRowsPerPageChange={handleRowsPerPage}
       ></TablePagination>
     </Paper>
-    </Box>
-    </Stack>
-    </>
   );
 };
 
-export default Roles;
+export default Tablemui;

@@ -13,7 +13,6 @@ export default function PetOwners() {
 
     useEffect(() => {
         if (id) {
-            
             setLoading(true);
             
             axiosClient.get(`/petowners/${id}`)

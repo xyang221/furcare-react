@@ -16,6 +16,7 @@ import {
   Step,
   StepLabel,
   Typography,
+  Alert,
 } from "@mui/material";
 import Password from "../components/Password";
 
@@ -135,7 +136,7 @@ export default function PetOwnerForm() {
     setPetowner({ ...petowner, [field]: value });
   };
 
-  const steps = ["Register Pet Owner", "Create an Account"];
+  const steps = ["Register Pet Owner", "Create a User Account"];
 
   const getStepContent = (step) => {
     switch (step) {
@@ -157,7 +158,6 @@ export default function PetOwnerForm() {
               variant="outlined"
               id="firstname"
               label="Firstname"
-              size="small"
               // helperText="Please enter your firstname"
               value={petowner.firstname}
               onChange={(ev) =>
@@ -168,7 +168,6 @@ export default function PetOwnerForm() {
               variant="outlined"
               id="Lastname"
               label="Lastname"
-              size="small"
               // helperText="Please enter your firstname"
               value={petowner.lastname}
               onChange={(ev) =>
@@ -179,7 +178,6 @@ export default function PetOwnerForm() {
               variant="outlined"
               id="Contact Number"
               label="Contact Number"
-              size="small"
               type="number"
               // helperText="Please enter your firstname"
               value={petowner.contact_num}
@@ -190,7 +188,6 @@ export default function PetOwnerForm() {
             <TextField
               id="Zone"
               label="Zone"
-              size="small"
               // helperText="Please enter your firstname"
               value={petowner.zone}
               onChange={(ev) =>
@@ -200,7 +197,6 @@ export default function PetOwnerForm() {
             <TextField
               id="Barangay"
               label="Barangay"
-              size="small"
               // helperText="Please enter your firstname"
               value={petowner.barangay}
               onChange={(ev) =>
@@ -209,7 +205,6 @@ export default function PetOwnerForm() {
             />
 
             <Autocomplete
-              size="small"
               sx={{ width: "100%" }}
               getOptionLabel={(address) =>
                 `${address.area}, ${address.province}, ${address.zipcode}`
@@ -218,7 +213,7 @@ export default function PetOwnerForm() {
               isOptionEqualToValue={(option, value) =>
                 option.area === value.area
               }
-              noOptionsText="Not Available"
+              noOptionsText="Not Found"
               renderOption={(props, address) => (
                 <Box component="li" {...props} key={address.id}>
                   {address.area}, {address.province}, {address.zipcode}
@@ -250,16 +245,17 @@ export default function PetOwnerForm() {
             }}
           >
             <Typography variant="h4">Create an Account</Typography>
-            <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+            <FormControl sx={{ m: 1, minWidth: 120 }} >
               <InputLabel id="demo-select-small-label">Role</InputLabel>
               <Select
                 labelId="demo-select-small-label"
                 id="demo-select-small"
                 label="Role"
-                value={petowner.role_id || ""}
+                value={petowner.role_id || 3}
                 onChange={(ev) =>
                   setPetowner({ ...petowner, role_id: ev.target.value })
                 }
+                disabled
               >
                 {roles.map((item) => (
                   <MenuItem key={item.id} value={item.id}>
@@ -271,8 +267,6 @@ export default function PetOwnerForm() {
             <TextField
               id="Username"
               label="Username"
-              size="small"
-              // helperText="Please enter your firstname"
               value={petowner.username}
               onChange={(ev) =>
                 setPetowner({ ...petowner, username: ev.target.value })
@@ -281,30 +275,32 @@ export default function PetOwnerForm() {
             <TextField
               id="Email"
               label="Email"
-              size="small"
               type="email"
-              // helperText="Please enter your firstname"
               value={petowner.email}
               onChange={(ev) =>
                 setPetowner({ ...petowner, email: ev.target.value })
               }
             />
-            <Password
-              label="Password"
-              value={petowner.password}
-              onChange={(ev) =>
-                setPetowner({ ...petowner, password: ev.target.value })
-              }
-            />
-            <Password
-              label="Password Confirmation"
-              onChange={(ev) =>
-                setPetowner({
-                  ...petowner,
-                  password_confirmation: ev.target.value,
-                })
-              }
-            />
+             <TextField
+                  variant="outlined"
+                  id="Password"
+                  label="Password"
+                  type="password"
+                  value={petowner.password}
+                  onChange={(ev) =>
+                    setPetowner({ ...petowner, password: ev.target.value })
+                  }
+                />
+                <TextField
+                  variant="outlined"
+                  id="Password Confirmation"
+                  label="Password Confirmation"
+                  type="password"
+                  value={petowner.password_confirmation}
+                  onChange={(ev) =>
+                    setPetowner({ ...petowner, password_confirmation: ev.target.value })
+                  }
+                />
           </Box>
         );
       default:
@@ -316,11 +312,11 @@ export default function PetOwnerForm() {
   return (
     <div>
       {errors && (
-        <div className="alert">
+        <Box p={2}>
           {Object.keys(errors).map((key) => (
-            <p key={key}>{errors[key][0]}</p>
+            <Alert severity="error" key={key}>{errors[key][0]}</Alert>
           ))}
-        </div>
+        </Box>
       )}
 
       <Stepper activeStep={activeStep}>

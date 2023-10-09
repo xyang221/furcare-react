@@ -22,12 +22,18 @@ import Roles from "./pages/Roles";
 import RoleForm from "./pages/RoleForm";
 import Archives from "./pages/Archives";
 
-import Main from "./components/Main";
+import ProtectedStaffRoute from "./contexts/ProtectedStaffRoute";
+import PetOwnerLayout from "./components/PetOwner/PetOwnerLayout";
+import ProtectedPetOwnerRoute from "./contexts/ProtectedPetOwnerRoute";
+import PetOwnerPets from "./pages/PetOwner.jsx/PetOwnerPets";
+import MainLayout from "./components/MainLayout";
+
+
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <DefaultLayout />,
+    element: <ProtectedStaffRoute> <MainLayout /></ProtectedStaffRoute>,
     children: [
       {
         path: "/",
@@ -45,7 +51,7 @@ const router = createBrowserRouter([
 
       {
         path: "/main",
-        element: <Main />,
+        element: <MainLayout />,
       },
 
       {
@@ -142,6 +148,28 @@ const router = createBrowserRouter([
         element: <ClientServiceForm />,
       },
 
+    ],
+  },
+  {
+    path: "/",
+    element: <ProtectedPetOwnerRoute> <PetOwnerLayout /></ProtectedPetOwnerRoute>,
+    children: [
+      {
+        path: "/",
+        element: <Navigate to="/pets" />,
+      },
+      {
+        path: "/asd",
+        element: <Archives />,
+      },
+      {
+        path: "/pets",
+        element: <PetOwnerPets />,
+      },
+      {
+        path: "/appointments",
+        element: <Appointments />,
+      },
     ],
   },
   {

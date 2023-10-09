@@ -4,25 +4,34 @@ const StateContext = createContext({
     user: null,
     token: null,
     notification: null,
-    // petowner: null,
+    role: null,
     setUser: () => {},
     setToken: () => {},
     setNotification: () => {},
-    // setPetowner: () => {}
+    setRole: () => {},
 })
 
 export const ContextProvider =({children}) => {
-    const [user, setUser] = useState({});
-    const [petowner, setPetowner] = useState({});
+    // const [user, setUser] = useState({});
     const [notification, _setNotification] = useState('')
     const [token, _setToken] = useState(localStorage.getItem('ACCESS_TOKEN'));
-    // const [token, _setToken] = useState(null);
+    const [role, _setRole] = useState(localStorage.getItem('role'))
+    const [user, _setUser] = useState(localStorage.getItem('User'))
 
     const setNotification = (message) => {
         _setNotification(message);
         setTimeout(() => {
             _setNotification('')
         }, 5000)
+    }
+
+    const setUser = (user) => {
+        _setUser(user)
+        if (user) {
+            localStorage.setItem('User', user);
+        } else {
+            localStorage.removeItem('User')
+        }
     }
 
     const setToken = (token) => {
@@ -33,6 +42,15 @@ export const ContextProvider =({children}) => {
             localStorage.removeItem('ACCESS_TOKEN')
         }
     }
+
+    const setRole = (role) => {
+        _setRole(role)
+        if (role) {
+            localStorage.setItem('role', role);
+        } else {
+            localStorage.removeItem('role')
+        }
+    }
     return (
         <StateContext.Provider value={{
             user,
@@ -41,8 +59,9 @@ export const ContextProvider =({children}) => {
             setToken,
             notification,
             setNotification,
-            // petowner,
-            // setPetowner
+            setRole,
+            role
+         
         }}>
             {children}
         </StateContext.Provider>

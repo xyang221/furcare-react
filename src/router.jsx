@@ -25,7 +25,7 @@ import Archives from "./pages/Archives";
 import ProtectedStaffRoute from "./contexts/ProtectedStaffRoute";
 import PetOwnerLayout from "./components/PetOwner/PetOwnerLayout";
 import ProtectedPetOwnerRoute from "./contexts/ProtectedPetOwnerRoute";
-import PetOwnerPets from "./pages/PetOwner.jsx/PetOwnerPets";
+// import PetOwnerPets from "./pages/PetOwner.jsx/PetOwnerPets";
 import MainLayout from "./components/MainLayout";
 
 
@@ -162,10 +162,10 @@ const router = createBrowserRouter([
         path: "/asd",
         element: <Archives />,
       },
-      {
-        path: "/pets",
-        element: <PetOwnerPets />,
-      },
+      // {
+      //   path: "/pets",
+      //   element: <PetOwnerPets />,
+      // },
       {
         path: "/appointments",
         element: <Appointments />,

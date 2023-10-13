@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   Paper,
   Stack,
   Table,
@@ -15,23 +17,48 @@ import {
 } from "@mui/material";
 import { Add, Delete, Edit, Search } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
-import axiosClient from "../../axios-client";
-import { useStateContext } from "../../contexts/ContextProvider";
-import Navbar from "../../components/Navbar";
-import Sidebar from "../../components/PetOwnerSidebar";
+import axiosClient from "../axios-client";
+import { useStateContext } from "../contexts/ContextProvider";
+import PetsModal from "../components/modals/PetsModal";
 
 export default function PetOwnerPets() {
   const { id } = useParams();
-  // const [petowner, setPetowner] = useState([]);
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState(null);
 
-  const { setNotification, user } = useStateContext();
-  console.log(user.id);
+  const { setNotification } = useStateContext();
+
+  const [pet, setPet] = useState({
+    id: null,
+    name: "",
+    birthdate: "",
+    gender: "",
+    color: "",
+    qr_code: "",
+    photo: "",
+    breed_id: null,
+    // petowner_id: null,
+  });
+
+  const [breeds, setBreeds] = useState([]);
+
+  const getBreeds = () => {
+    axiosClient
+      .get(`/breeds`)
+      .then(({ data }) => {
+        setLoading(false);
+        setBreeds(data.data);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
 
   const getPets = () => {
+    setLoading(true);
     axiosClient
-      .get(`/petowners/3/pets`)
+      .get(`/petowners/${id}/pets`)
       .then(({ data }) => {
         setLoading(false);
         setPets(data.data);
@@ -52,6 +79,7 @@ export default function PetOwnerPets() {
     });
   };
 
+  //for table
   const columns = [
     { id: "id", name: "ID" },
     { id: "name", name: "Pet Name" },
@@ -71,9 +99,39 @@ export default function PetOwnerPets() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
+  //for modal
+
+  const [petdata, setPetdata] = useState([]);
+  const [open, openchange] = useState(false);
+  const functionopenpopup = (ev) => {
+    // openchange(true);
+    openchange(true);
+    // setPetowner({});
+    // setErrors(null);
+  };
+
+  const closepopup = () => {
+    openchange(false);
+  };
+
+  const onEdit = (r) => {
+    setLoading(true);
+    getBreeds();
+    axiosClient
+      .get(`/pets/${r.id}`)
+      .then(({ data }) => {
+        setLoading(false);
+        setPet(data);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+    openchange(true);
+  };
+
   useEffect(() => {
     getPets();
-  }, []);
+  }, [id]);
 
   return (
     <Box>
@@ -96,15 +154,31 @@ export default function PetOwnerPets() {
             >
               <Typography variant="h4">My Pets</Typography>{" "}
               <Button
-                component={Link}
-                to={"/pets/new"}
+                onClick={functionopenpopup}
                 variant="contained"
                 size="small"
               >
                 <Add />
-                <Typography fontSize="12px"> Pet</Typography>
               </Button>
             </Box>
+
+            {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
+          <CircularProgress color="inherit" />
+        </Backdrop> */}
+
+            <PetsModal
+              open={open}
+              onClick={closepopup}
+              onClose={closepopup}
+              // id={petdata.id}
+              // onSubmit={onSubmit}
+              loading={loading}
+              breeds={breeds}
+              pet={pet}
+              setPet={setPet}
+              errors={errors}
+              isUpdate={pet.id}
+            />
 
             <TableContainer sx={{ height: 380 }}>
               <Table stickyHeader aria-label="sticky table">
@@ -147,8 +221,8 @@ export default function PetOwnerPets() {
                             <TableCell>
                               <Stack direction="row" spacing={2}>
                                 <Button
-                                  component={Link}
-                                  to={`/pets/` + r.id}
+                                  // onClick={functionopenpopup}
+                                  onClick={() => onEdit(r)}
                                   variant="contained"
                                   size="small"
                                   color="info"

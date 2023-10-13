@@ -20,7 +20,6 @@ import {
 import Password from "../components/Password";
 
 export default function StaffForm() {
-  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
@@ -37,51 +36,25 @@ export default function StaffForm() {
     zipcode_id: null,
     barangay: "",
     zone: "",
-    role_id: null,
+    role_id: 2,
     username: "",
     email: "",
     password: "",
     password_confirmation: "",
   });
 
-  useEffect(() => {
-    if (id) {
-      setLoading(true);
-      axiosClient
-        .get(`/staffs/${id}`)
-        .then(({ data }) => {
-          setLoading(false);
-          setStaff(data);
-        })
-        .catch(() => {
-          setLoading(false);
-        });
-    }
-  }, [id]);
-
   const onSubmit = (ev) => {
     ev.preventDefault();
-    if (staff.id) {
-      axiosClient
-        .put(`/staffs/${staff.id}`, staff)
-        .then(() => {
-          setNotification("staff successfully updated");
-          navigate("/staffs");
-        })
-        .catch((err) => {
-          handleErrors(err);
-        });
-    } else {
+  
       axiosClient
         .post(`/staffs`, staff)
         .then(() => {
           setNotification("Pet Owner successfully created");
-          navigate("/staffs");
+          navigate("/admin/staffs");
         })
         .catch((err) => {
           handleErrors(err);
         });
-    }
   };
 
   const [roles, setRoles] = useState([]);
@@ -135,7 +108,7 @@ export default function StaffForm() {
     setStaff({ ...staff, [field]: value });
   };
 
-  const steps = ["Register Pet Owner", "Create an Account"];
+  const steps = ["Register Staff", "Create an Account"];
 
   const getStepContent = (step) => {
     switch (step) {
@@ -260,6 +233,7 @@ export default function StaffForm() {
                 onChange={(ev) =>
                   setStaff({ ...staff, role_id: ev.target.value })
                 }
+                disabled
               >
                 {roles.map((item) => (
                   <MenuItem key={item.id} value={item.id}>

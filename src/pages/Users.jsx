@@ -1,22 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link } from "react-router-dom";
-import { useStateContext } from "../contexts/ContextProvider";
-import Navbar from "../components/Navbar";
 import {
   Alert,
   Backdrop,
   Box,
   Button,
   CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  InputLabel,
-  MenuItem,
   Paper,
-  Select,
   Stack,
   Table,
   TableBody,
@@ -25,11 +15,10 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TextField,
   Typography,
 } from "@mui/material";
-import Sidebar from "../components/Sidebar";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
+import UserEdit from "../components/modals/UserEdit";
 
 export default function Users() {
   //for table
@@ -84,7 +73,6 @@ export default function Users() {
   const [roles, setRoles] = useState([]);
 
   const getRoles = () => {
-    document.title = "Pet Owners";
 
     setLoading(true);
     axiosClient
@@ -108,20 +96,24 @@ export default function Users() {
     password: "",
     password_confirmation: "",
     role_id: null,
+   
   });
   const [open, openchange] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
 
-  const functionopenpopup = (ev) => {
-    openchange(true);
-    setUser({});
+  const addModal = (ev) => {
+    setOpenAdd(true);
+    setUser({})
     setErrors(null);
   };
 
   const closepopup = () => {
     openchange(false);
+    setOpenAdd(false)
   };
 
   const onEdit = (r) => {
+    setErrors(null)
     setModalloading(true);
     axiosClient
       .get(`/users/${r.id}`)
@@ -132,11 +124,11 @@ export default function Users() {
       .catch(() => {
         setModalloading(false);
       });
-
     openchange(true);
   };
+  
 
-  const onSubmit = (user) => {
+  const onSubmit = () => {
     if (user.id) {
       axiosClient
         .put(`/users/${user.id}`, user)
@@ -156,7 +148,7 @@ export default function Users() {
         .post(`/users`, user)
         .then(() => {
           setNotification("User was successfully created");
-          openchange(false);
+          setOpenAdd(false);
           getUsers();
         })
         .catch((err) => {
@@ -175,11 +167,6 @@ export default function Users() {
 
   return (
     <>
-      {/* <CssBaseline/> */}
-      {/* <Navbar/> */}
-      {/* <Stack direction="row" justifyContent="space-between"> */}
-      {/* <Sidebar /> */}
-      {/* <Box flex={5} > */}
       <Paper
         sx={{
           padding: "10px",
@@ -193,7 +180,10 @@ export default function Users() {
           justifyContent="space-between"
         >
           <Typography variant="h4">Users</Typography>{" "}
-          <Button onClick={functionopenpopup} variant="contained" size="small">
+          <Button 
+          // onClick={() => addModal()} 
+          onClick={addModal}
+           variant="contained" size="small">
             <Add />
           </Button>
         </Box>
@@ -204,129 +194,40 @@ export default function Users() {
           <CircularProgress color="inherit" />
         </Backdrop>
 
-        {!modalloading && (
-          <Dialog
-            // fullScreen
-            open={open}
-            onClose={closepopup}
-            fullWidth
-            maxWidth="sm"
-          >
-            {user.id && (
-              <DialogTitle>
-                Update User
-                <IconButton onClick={closepopup} style={{ float: "right" }}>
-                  <Close color="primary"></Close>
-                </IconButton>{" "}
-              </DialogTitle>
-            )}
 
-            {!user.id && (
-              <DialogTitle>
-                New User
-                <IconButton onClick={closepopup} style={{ float: "right" }}>
-                  <Close color="primary"></Close>
-                </IconButton>{" "}
-              </DialogTitle>
-            )}
+        {/* {!modalloading && ( */}
+          <UserEdit
+          open={openAdd}
+          onClick={closepopup}
+          onClose={closepopup}
+          id={null}
+          onSubmit={onSubmit}
+          loading={modalloading}
+          roles={roles}
+          user={user}
+          setUser={setUser}
+          errors={errors}
+          isUpdate={null}
+          />
+        {/* )} */}
 
-            <DialogContent>
-              {errors && (
-                <Box>
-                  {Object.keys(errors).map((key) => (
-                    <Alert severity="error" key={key}>
-                      {errors[key][0]}
-                    </Alert>
-                  ))}
-                </Box>
-              )}
-              {/* <DialogContentText>Do you want remove this user?</DialogContentText> */}
-              <Stack spacing={2} margin={2}>
-                {/* <InputLabel id="demo-select-small-label">Role</InputLabel> */}
-                {user.role_id && (
-                  <Select
-                    label="Role"
-                    value={user.role_id || ""}
-                    // onChange={(ev) =>
-                    //   setUser({ ...user, role_id: ev.target.value })
-                    // }
-                    disabled
-                  >
-                    {roles.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.role}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-
-                {!user.role_id && (
-                  <Select
-                    label="Role"
-                    value={user.role_id || ""}
-                    onChange={(ev) =>
-                      setUser({ ...user, role_id: ev.target.value })
-                    }
-                  >
-                    {roles.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.role}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-
-                <TextField
-                  variant="outlined"
-                  id="Username"
-                  label="Username"
-                  value={user.username}
-                  onChange={(ev) =>
-                    setUser({ ...user, username: ev.target.value })
-                  }
-                />
-                <TextField
-                  variant="outlined"
-                  id="Email"
-                  label="Email"
-                  type="email"
-                  value={user.email}
-                  onChange={(ev) =>
-                    setUser({ ...user, email: ev.target.value })
-                  }
-                />
-                <TextField
-                  variant="outlined"
-                  id="Password"
-                  label="Password"
-                  type="password"
-                  value={user.password}
-                  onChange={(ev) =>
-                    setUser({ ...user, password: ev.target.value })
-                  }
-                />
-                <TextField
-                  variant="outlined"
-                  id="Password Confirmation"
-                  label="Password Confirmation"
-                  type="password"
-                  value={user.password_confirmation}
-                  onChange={(ev) =>
-                    setUser({ ...user, password_confirmation: ev.target.value })
-                  }
-                />
-                <Button
-                  color="primary"
-                  variant="contained"
-                  onClick={() => onSubmit(user)}
-                >
-                  Save
-                </Button>
-              </Stack>
-            </DialogContent>
-          </Dialog>
-        )}
-
+        {/* {!modalloading && ( */}
+          <UserEdit
+          open={open}
+          onClick={closepopup}
+          onClose={closepopup}
+          id={user.id}
+          onSubmit={onSubmit}
+          loading={modalloading}
+          roles={roles}
+          user={user}
+          setUser={setUser}
+          errors={errors}
+          isUpdate={user.id !== null}
+          // onSubmit={() => onSubmit()}
+          />
+          {/* )} */}
+          
         <TableContainer sx={{ height: 380 }} fullWidth
             maxWidth="sm">
           <Table stickyHeader aria-label="sticky table">
@@ -371,6 +272,7 @@ export default function Users() {
                               size="small"
                               color="info"
                               onClick={() => onEdit(r)}
+                              // onClick={onEdit}
                             >
                               <Edit fontSize="small" />
                             </Button>

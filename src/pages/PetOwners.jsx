@@ -3,9 +3,10 @@ import axiosClient from "../axios-client";
 import { Link } from "react-router-dom";
 import {
     Alert,
+    Backdrop,
     Box,
     Button,
-    CssBaseline,
+    CircularProgress,
     Paper,
     Stack,
     Table,
@@ -20,10 +21,9 @@ import {
   import {
       Add,
       Archive,
-    Edit,
+    Visibility,
   } from "@mui/icons-material";
-  import Navbar from "../components/Navbar";
-  import Sidebar from "../components/Sidebar";
+import PetOwnerEdit from "../components/modals/PetOwnerEdit";
 
 export default function PetOwners() {
 
@@ -47,7 +47,6 @@ export default function PetOwners() {
       const [page, pagechange] = useState(0);
       const [rowperpage, rowperpagechange] = useState(10);
     
-      const [users, setUsers] = useState([]);
       const [loading, setLoading] = useState(false);
       const [notification, setNotification] = useState("");
     const [petowners, setPetowners] = useState([]);
@@ -55,8 +54,6 @@ export default function PetOwners() {
 
     const getPetowners = () => {
 
-        document.title = "Pet Owners";
-        
         setLoading(true);
         axiosClient.get('/petowners')
             .then(({ data }) => {
@@ -79,17 +76,26 @@ export default function PetOwners() {
         });
     };
 
+    const [open, openchange] = useState(false);
+  const [modalloading, setModalloading] = useState(false);
+
+
+    const functionopenpopup = (ev) => {
+      openchange(true);
+      // setPetowner({});
+      // setErrors(null);
+    };
+  
+    const closepopup = () => {
+      openchange(false);
+    };
+
     useEffect(() => {
         getPetowners();
     }, []);
 
     return (
         <>
-        <CssBaseline/>
-            {/* <Navbar/> */}
-            <Stack direction="row" justifyContent="space-between">
-                 {/* <Sidebar /> */}
-                 <Box flex={5} >
         <Paper
           sx={{
             minWidth: "90%",
@@ -108,12 +114,25 @@ export default function PetOwners() {
             <Button
             component={Link}
             to={"/admin/petowners/new"}
+            // onClick={functionopenpopup}
             variant="contained"
             size="small"
           >
             <Add />
           </Button>
           </Box>
+
+          <Backdrop open={modalloading} style={{ zIndex: 999 }}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
+
+        {/* {!modalloading && (
+          <PetOwnerEdit
+          open={open}
+          onClose={closepopup}
+          onClick={closepopup}
+          />
+        )} */}
     
           <TableContainer sx={{ height: 380 }}>
             <Table stickyHeader aria-label="sticky table">
@@ -152,16 +171,17 @@ export default function PetOwners() {
                           <TableCell>{r.address.zone}, {r.address.barangay}, {r.address.zipcode.area}</TableCell>
                           <TableCell>
                             <Stack direction="row" spacing={2}>
-                              <Button
+                            <Button
                               component={Link}
-                              to={`/admin/petowners/` + r.id}
+                              to={`/admin/petowners/` + r.id + `/view`}
                                 variant="contained"
                                 color="info"
                                 size="small"
                                 // onClick={() => onRestore(r)}
                               >
-                                <Edit fontSize="small" />
+                                <Visibility fontSize="small" />
                               </Button>
+                            
                               <Button
                                 variant="contained"
                                 size="small"
@@ -188,8 +208,6 @@ export default function PetOwners() {
             onRowsPerPageChange={handleRowsPerPage}
           ></TablePagination>
         </Paper>
-        </Box>
-        </Stack>
         </>
     );
 }

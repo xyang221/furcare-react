@@ -24,8 +24,6 @@ import {
 import { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import { Add, Close, Delete, Edit, Search } from "@mui/icons-material";
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
 
 export default function Roles() {
 
@@ -71,7 +69,7 @@ export default function Roles() {
     }
 
     axiosClient.delete(`/roles/${r.id}`).then(() => {
-      // setNotification("Role deleted");
+      setNotification("Role was deleted");
       getRoles();
     });
   };
@@ -81,6 +79,7 @@ export default function Roles() {
   const functionopenpopup = (ev) => {
     openchange(true);
     setRole({})
+    setErrors(null)
   };
   const closepopup = () => {
     openchange(false);
@@ -211,7 +210,7 @@ export default function Roles() {
               {errors && (
                 <Box>
                   {Object.keys(errors).map((key) => (
-                    <Alert key={key}>{errors[key][0]}</Alert>
+                    <Alert severity="error" key={key}>{errors[key][0]}</Alert>
                   ))}
                 </Box>
               )}

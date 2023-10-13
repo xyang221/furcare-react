@@ -65,12 +65,13 @@ export default function Login() {
       .post("/login", payload)
       .then(({ data }) => {
         // setUser(data.user);
-        setUser(JSON.stringify(data.user));
+        setUser(data.user.id);
         setToken(data.token);
         setRole(data.user.role_id);
         // navigate("/ass");
+        navigate("/")
         
-        navigate(from, { replace: true });
+        // navigate(from, { replace: true });
       })
       .catch((err) => {
         const response = err.response;

@@ -11,9 +11,6 @@ import Modaltry from "./Modal";
 
 export default function MainLayout() {
   const { role, token } = useStateContext();
-  const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(false);
 
   // Redirect to the login page if there's no token
   if (!token) {
@@ -46,7 +43,7 @@ export default function MainLayout() {
         <Navbar />
         <Box display="flex" justifyContent="space-between">
           {sidebarComponent}
-          <Box flex={5} p={2}>
+          <Box flex={5}>
             {/* <Box position="fixed"> */}
             {/* main layout sagol ang dashboard */}
             <Outlet />

@@ -15,7 +15,6 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
-  ListItemButton,
   Select,
   TextField,
   Typography,
@@ -27,14 +26,13 @@ import { Close } from "@mui/icons-material";
 
 export default function Profile() {
   const { user, setUser, token, setToken, setRole } = useStateContext();
-  const [curruser, setcurrUser] = useState({});
   const navigate = useNavigate();
+  const userval = parseInt(user)
 
   const onLogout = (ev) => {
     ev.preventDefault();
 
     axiosClient.post("/logout").then(() => {
-      // setUser({});
       setUser(null);
       setToken(null);
       setRole(null);
@@ -42,15 +40,11 @@ export default function Profile() {
     });
   };
 
-  // const getUser = () => {
-  //   axiosClient.get('/user').then(({ data }) => {
-  //     setUser(data);
-  //   });
-  // }
-
   //for modal
   const [errors, setErrors] = useState(null);
   const [modalloading, setModalloading] = useState(false);
+  const [notification, setNotification] = useState(false);
+
   const [userprofile, setUserprofile] = useState({
     id: null,
     username: "",
@@ -59,26 +53,38 @@ export default function Profile() {
     password_confirmation: "",
     role_id: null,
   });
+  
   const [openchange, setopenchange] = useState(false);
 
   const [roles, setRoles] = useState([]);
 
+  // const getRoles = () => {
+  //   setModalloading(true);
+  //   axiosClient
+  //     .get("/roles")
+  //     .then(({ data }) => {
+  //       setModalloading(false);
+  //       setRoles(data.data);
+  //     })
+  //     .catch(() => {
+  //       setModalloading(false);
+  //     });
+  // };
+
   const getRoles = () => {
-    setModalloading(true);
     axiosClient
       .get("/roles")
       .then(({ data }) => {
-        setModalloading(false);
         setRoles(data.data);
       })
       .catch(() => {
-        setModalloading(false);
+        setNotification("There is something wrong in the roles api");
       });
   };
 
   const functionopenpopup = (ev) => {
     setopenchange(true);
-    setUser({});
+    setUserprofile({});
     setErrors(null);
   };
 
@@ -86,22 +92,36 @@ export default function Profile() {
     setopenchange(false);
   };
 
-  const onEdit = (userprofile) => {
-    setModalloading(true);
+  // const getUser = () => {
+  //   setModalloading(true);
+  //   axiosClient
+  //     .get(`/users/${userval}`)
+  //     .then(({ data }) => {
+  //       setModalloading(false);
+  //       setUserprofile(data);
+  //     })
+  //     .catch(() => {
+  //       setModalloading(false);
+  //     });
+  // }
+
+  const getUser = () => {
     axiosClient
-      .get(`/users/${userprofile.id}`)
+      .get(`/users/${userval}`)
       .then(({ data }) => {
-        setModalloading(false);
-        setUser(data);
+        setUserprofile(data);
       })
       .catch(() => {
-        setModalloading(false);
+        setNotification("There is something wrong in the users api");
       });
+  }
 
+  const onEdit = () => {
+    setErrors(null)
     setopenchange(true);
   };
-
-  const onSubmit = (userprofile) => {
+  
+  const onSubmit = () => {
     if (userprofile.id) {
       axiosClient
         .put(`/users/${userprofile.id}`, userprofile)
@@ -168,12 +188,8 @@ export default function Profile() {
     prevOpen.current = open;
   }, [open]);
 
-  const setparsetobject = () => {
-    setUserprofile(JSON.parse(user));
-  };
-
   useEffect(() => {
-    // setparsetobject()
+    getUser();
     getRoles();
   }, []);
 
@@ -190,7 +206,7 @@ export default function Profile() {
         >
           <Avatar sx={{ width: 30, height: 30 }} />
           <Typography variant="span" color="white">
-            {curruser.username}
+            {userprofile.username}
           </Typography>
         </Button>
         <Popper
@@ -216,14 +232,7 @@ export default function Profile() {
                     aria-labelledby="composition-button"
                     onKeyDown={handleListKeyDown}
                   >
-                    {/* <MenuItem ><ListItemButton to={`editprofile/`+user.id} >Profile</ListItemButton> </MenuItem> */}
-                    {/* <MenuItem
-                      component={Link}
-                      to={"editprofile/" + curruser.id}
-                    >
-                      Edit Profile
-                    </MenuItem> */}
-                    <MenuItem onClick={() => onEdit(userprofile)}>
+                    <MenuItem onClick={() => onEdit()}>
                       Edit Profile
                     </MenuItem>
                     <MenuItem onClick={onLogout}>Logout</MenuItem>
@@ -242,7 +251,7 @@ export default function Profile() {
           fullWidth
           maxWidth="sm"
         >
-          {userprofile.id && (
+          {userval && (
             <DialogTitle>
               Update User
               <IconButton onClick={closepopup} style={{ float: "right" }}>
@@ -261,9 +270,7 @@ export default function Profile() {
                 ))}
               </Box>
             )}
-            {/* <DialogContentText>Do you want remove this user?</DialogContentText> */}
             <Stack spacing={2} margin={2}>
-              {/* <InputLabel id="demo-select-small-label">Role</InputLabel> */}
               {userprofile.role_id && (
                 <Select
                   label="Role"
@@ -326,7 +333,7 @@ export default function Profile() {
               <Button
                 color="primary"
                 variant="contained"
-                onClick={() => onSubmit(userprofile)}
+                onClick={() => onSubmit()}
               >
                 Save
               </Button>

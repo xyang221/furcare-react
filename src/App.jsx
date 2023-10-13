@@ -25,7 +25,8 @@ import StaffLayout from "./components/StaffLayout";
 import PetOwnerLayout from "./components/PetOwner/PetOwnerLayout";
 
 // petowner pages
-import PetOwnerPets from "./pages/PetOwner.jsx/PetOwnerPets";
+// import PetOwnerPets from "./pages/PetOwner.jsx/PetOwnerPets";
+import PetOwnerPets from "./pages/PetOwnerPets";
 import MainLayout from "./components/MainLayout";
 import { Switch } from "@mui/material";
 import Roles from "./pages/Roles";
@@ -66,12 +67,17 @@ function App() {
           <Route path="admin/staffs" element={<Staffs />} />
           <Route path="admin/staffs/new" element={<StaffForm />} />
           <Route path="admin/staffs/:id" element={<StaffForm />} />
-          <Route path="admin/staffs/:id/update" element={<ViewStaff />} />
+          <Route path="admin/staffs/:id/view" element={<ViewStaff />} />
 
           <Route path="admin/petowners" element={<PetOwners />} />
           <Route path="admin/petowners/new" element={<PetOwnerForm />} />
-          <Route path="admin/petowners/:id" element={<PetOwnerForm />} />
-          <Route path="admin/petowners/:id/update" element={<ViewPetOwner />} />
+          {/* <Route path="admin/petowners/:id/update" element={<PetOwnerForm />} /> */}
+          <Route path="admin/petowners/:id/view" element={<ViewPetOwner />} />
+
+          {/* <Route path="admin/petowners/:id/pets" element={<Pets />} /> */}
+
+          <Route path="admin/appointments" element={<Appointments />} />
+          
         </Route>
 
         <Route element={<RequireAuth allowedRoles={[roles.STAFF]} />}>

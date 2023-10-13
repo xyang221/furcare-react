@@ -68,7 +68,7 @@ const Roles = () => {
     }
 
     axiosClient.put(`/users/${u.id}/restore`).then(() => {
-      setNotification("User was restored");
+      setNotification("User was successfully restored");
       getArchivedUsers();
     });
   };
@@ -79,7 +79,7 @@ const Roles = () => {
     }
 
     axiosClient.delete(`/archives/${r.id}/forcedelete`).then(() => {
-      setNotification("User was deleted");
+      setNotification("User was permanently deleted");
       return <Alert severity="success">User was deleted</Alert>
       getArchivedUsers();
     });
@@ -103,7 +103,7 @@ const Roles = () => {
         margin: "10px",
       }}
     >
-      {notification && <Alert severity="success">{notification}</Alert>}
+     
       <Box
         p={2}
         display="flex"
@@ -112,7 +112,7 @@ const Roles = () => {
       >
         <Typography variant="h4">Archived Users</Typography>{" "}
       </Box>
-
+      {notification && <Alert severity="success">{notification}</Alert>}
       <TableContainer sx={{ height: 380 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>

@@ -5,7 +5,6 @@ import {
     Alert,
     Box,
     Button,
-    CssBaseline,
     Paper,
     Stack,
     Table,
@@ -21,12 +20,12 @@ import {
       Add,
       Archive,
     Edit,
+    Visibility,
   } from "@mui/icons-material";
-  import Navbar from "../components/Navbar";
-  import Sidebar from "../components/Sidebar";
 
 export default function Staffs() {
 
+  //for table
     const columns = [
         { id: "id", name: "ID" },
         { id: "name", name: "Name" },
@@ -46,17 +45,12 @@ export default function Staffs() {
       const [page, pagechange] = useState(0);
       const [rowperpage, rowperpagechange] = useState(10);
     
-      const [users, setUsers] = useState([]);
       const [notification, setNotification] = useState("");
-
-    const { id } = useParams();
     const [staffs, setStaffs] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const getstaffs = () => {
 
-        document.title = "Staffs";
-        
         setLoading(true);
         axiosClient.get('/staffs')
             .then(({ data }) => {
@@ -79,20 +73,20 @@ export default function Staffs() {
         });
     };
 
-    useEffect(() => {
-        if (id) {
-            setLoading(true);
-            axiosClient.get(`/staffs/${id}`)
-                .then(({ data }) => {
-                    setLoading(false);
-                    setStaffs(data);
-                })
-                .catch(() => {
-                    setLoading(false);
-                });
-    }
-
-        }, [id]);
+    //for modal
+    const [open, openchange] = useState(false);
+    const [modalloading, setModalloading] = useState(false);
+  
+  
+      const functionopenpopup = (ev) => {
+        openchange(true);
+        // setPetowner({});
+        // setErrors(null);
+      };
+    
+      const closepopup = () => {
+        openchange(false);
+      };
 
     useEffect(() => {
         getstaffs();
@@ -100,11 +94,6 @@ export default function Staffs() {
 
     return (
         <>
-        <CssBaseline/>
-            {/* <Navbar/> */}
-            <Stack direction="row" justifyContent="space-between">
-                 {/* <Sidebar /> */}
-                 <Box flex={5} >
         <Paper
           sx={{
             minWidth: "90%",
@@ -121,13 +110,12 @@ export default function Staffs() {
           >
             <Typography variant="h4">Staffs</Typography>{" "}
             <Button
-            component={Link}
-            to={"admin/staffs/new"}
+             component={Link}
+             to={"/admin/staffs/new"}
             variant="contained"
             size="small"
           >
             <Add />
-            <Typography fontSize="12px"> Staff</Typography>
           </Button>
           </Box>
     
@@ -170,13 +158,13 @@ export default function Staffs() {
                             <Stack direction="row" spacing={2}>
                               <Button
                               component={Link}
-                              to={`/admin/staffs/` + r.id}
+                              to={`/admin/staffs/` + r.id + `/view`}
                                 variant="contained"
                                 color="info"
                                 size="small"
                                 // onClick={() => onRestore(r)}
                               >
-                                <Edit fontSize="small" />
+                                <Visibility fontSize="small" />
                               </Button>
                               <Button
                                 variant="contained"
@@ -204,8 +192,6 @@ export default function Staffs() {
             onRowsPerPageChange={handleRowsPerPage}
           ></TablePagination>
         </Paper>
-        </Box>
-        </Stack>
         </>
     );
 }

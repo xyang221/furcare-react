@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import {
   Archive,
   Home,
+  ListRounded,
   People,
   Person,
   Person2,
@@ -48,7 +49,7 @@ export default function Sidebar() {
   return (
     <Box
       flex={1}
-      sx={{ backgroundColor: "white", display: { xs: "none", sm: "block" } }}
+      sx={{ backgroundColor: "white", display: { xs: "none", sm: "block" } }} 
     >
       {/* <Box position="fixed"> */}
       <StyledList>
@@ -124,8 +125,20 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 6}
+            onClick={() => handleListItemClick(6)}
+            to="/admin/appointments"
+          >
+            <ListItemText primary="Appointments"></ListItemText>
+            <ListItemIcon>
+              <ListRounded />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
       </StyledList>
     </Box>
-    // </Box>
+    //  </Box>
   );
 }

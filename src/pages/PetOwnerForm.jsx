@@ -38,7 +38,7 @@ export default function PetOwnerForm() {
     zipcode_id: null,
     barangay: "",
     zone: "",
-    role_id: null,
+    role_id: 3,
     username: "",
     email: "",
     password: "",
@@ -67,7 +67,7 @@ export default function PetOwnerForm() {
         .put(`/petowners/${petowner.id}`, petowner)
         .then(() => {
           setNotification("Petowner successfully updated");
-          navigate("/petowners");
+          navigate("/admin/petowners");
         })
         .catch((err) => {
           handleErrors(err);
@@ -77,7 +77,7 @@ export default function PetOwnerForm() {
         .post(`/petowners`, petowner)
         .then(() => {
           setNotification("Pet Owner successfully created");
-          navigate("/petowners");
+          navigate("/admin/petowners");
         })
         .catch((err) => {
           handleErrors(err);

@@ -49,7 +49,7 @@ export default function Sidebar() {
   return (
     <Box
       flex={1}
-      sx={{ backgroundColor: "white", display: { xs: "none", sm: "block" } }} 
+      sx={{ backgroundColor: "white", display: { xs: "none", sm: "block" } }}
     >
       {/* <Box position="fixed"> */}
       <StyledList>
@@ -93,11 +93,23 @@ export default function Sidebar() {
           <ListItemButton
             selected={selectedIndex === 3}
             onClick={() => handleListItemClick(3)}
-            to="/admin/archives"
+            to="/admin/pets/breeds"
           >
-            <ListItemText primary="Archived Users"></ListItemText>
+            <ListItemText primary="Breeds"></ListItemText>
             <ListItemIcon>
-              <Archive />
+              <Pets />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 8}
+            onClick={() => handleListItemClick(8)}
+            to="/admin/pets/species"
+          >
+            <ListItemText primary="Species"></ListItemText>
+            <ListItemIcon>
+              <Pets />
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
@@ -132,6 +144,18 @@ export default function Sidebar() {
             to="/admin/appointments"
           >
             <ListItemText primary="Appointments"></ListItemText>
+            <ListItemIcon>
+              <ListRounded />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 7}
+            onClick={() => handleListItemClick(7)}
+            to="/admin/clientservice"
+          >
+            <ListItemText primary="Client Service"></ListItemText>
             <ListItemIcon>
               <ListRounded />
             </ListItemIcon>

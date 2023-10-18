@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -16,19 +16,17 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Edit } from "@mui/icons-material";
+import { Add, Archive, ArrowBackIos, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
-import DropDownButtons from "../components/DropDownButtons";
-import AddAppointment from "../components/modals/AddAppointment";
 
-export default function Appointments() {
+export default function PetOwnerAppointments() {
   //for table
   const columns = [
     { id: "Date", name: "Date" },
-    { id: "client", name: "Client" },
     { id: "Purpose", name: "Purpose" },
     { id: "Service", name: "Service" },
     { id: "Status", name: "Status" },
+    { id: "Remarks", name: "Remarks" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -44,26 +42,26 @@ export default function Appointments() {
   const [rowperpage, rowperpagechange] = useState(10);
 
   const [notification, setNotification] = useState("");
-  const [message, setMessage] = useState("");
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const {id} = useParams();
+  const navigate = useNavigate()
 
   const getAppointments = () => {
     setLoading(true);
     axiosClient
-      .get("/appointments/bydate")
+      .get(`/petowners/${id}/appointments`)
       .then(({ data }) => {
         setLoading(false);
         setAppointments(data.data);
       })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
+      .catch(() => {
         setLoading(false);
       });
   };
+
+  console.log(appointments)
 
   const onDelete = (po) => {
     if (!window.confirm("Are you sure?")) {
@@ -91,35 +89,20 @@ export default function Appointments() {
       });
   };
 
-  const [petowners, setPetowners] = useState([]);
+  // const [petowners, setPetowners] = useState([]);
 
-  const getPetowners = () => {
-    setModalloading(true);
-    axiosClient
-      .get(`/petowners`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setPetowners(data.data);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-  };
-
-  const [clientservice, setCS] = useState([]);
-
-  const getClientServices = () => {
-    setModalloading(true);
-    axiosClient
-      .get(`/clientservices`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setCS(data.data);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-  };
+  // const getPetowners = () => {
+  //   setModalloading(true);
+  //   axiosClient
+  //     .get(`/petowners`)
+  //     .then(({ data }) => {
+  //       setModalloading(false);
+  //       setPetowners(data.data);
+  //     })
+  //     .catch(() => {
+  //       setModalloading(false);
+  //     });
+  // };
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -129,18 +112,16 @@ export default function Appointments() {
     date: "",
     purpose: "",
     remarks: "",
-    petowner_id: null,
     client_service_id: null,
   });
   const [open, openchange] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
 
   const addModal = (ev) => {
-    getPetowners();
-    // setOpenAdd(true);
+    // getPetowners();
+    setOpenAdd(true);
     setAppointment({});
     setErrors(null);
-    openchange(true);
   };
 
   const closepopup = () => {
@@ -177,9 +158,9 @@ export default function Appointments() {
   const onSubmit = () => {
     if (appointment.id) {
       axiosClient
-        .put(`/appointments/${appointment.id}`, appointment)
+        .put(`/appointment/${appointment.id}`, appointment)
         .then(() => {
-          setNotification("Appointment was successfully updated");
+          setNotification("appointment was successfully updated");
           openchange(false);
           getAppointments();
         })
@@ -191,9 +172,9 @@ export default function Appointments() {
         });
     } else {
       axiosClient
-        .post(`/appointments`, appointment)
+        .post(`/appointment`, appointment)
         .then(() => {
-          setNotification("Appointment was successfully created");
+          setNotification("appointment was successfully created");
           setOpenAdd(false);
           getAppointments();
         })
@@ -209,7 +190,6 @@ export default function Appointments() {
   useEffect(() => {
     getServices();
     getAppointments();
-    getClientServices();
   }, []);
 
   return (
@@ -221,53 +201,46 @@ export default function Appointments() {
           margin: "10px",
         }}
       >
+        {notification && <Alert severity="success">{notification}</Alert>}
         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Appointments {notification}</Typography>{" "}
-          <DropDownButtons
-            optionLink1="/admin/appointments/pending"
-            optionLabel1="Pending"
-            optionLink2="/admin/appointments/scheduled"
-            optionLabel2="Scheduled"
-            optionLink3="/admin/appointments/done"
-            optionLabel3="Done"
-          />
-          <Button onClick={addModal} variant="contained" size="small">
+          <Typography variant="h4">My Appointments</Typography>{" "}
+        
+          <Button
+            //  component={Link}
+            //  to={"/admin/appointments/new"}
+            onClick={addModal}
+            variant="contained"
+            size="small"
+          >
             <Add />
           </Button>
+          <Button
+          variant="contained"
+          color="error"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowBackIos fontSize="small" />
+          <Typography>Back</Typography>
+        </Button>
         </Box>
 
-        {notification && <Alert severity="success">{notification}</Alert>}
-
-        <AddAppointment
-          open={open}
+        {/* <EditAppointment
+          open={openAdd}
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
           loading={modalloading}
-          petowners={petowners}
-          appointment={appointment}
-          setAppointment={setAppointment}
-          errors={errors}
-        />
-
-        <EditAppointment
-          open={open}
-          onClose={closepopup}
-          onClick={closepopup}
-          onSubmit={onSubmit}
-          loading={modalloading}
-          petowners={petowners}
-          clientservices={clientservice}
+          // petowners={petowners}
           appointment={appointment}
           setAppointment={setAppointment}
           errors={errors}
           isUpdate={appointment.id}
-        />
+        /> */}
 
         <TableContainer sx={{ height: 380 }}>
           <Table stickyHeader aria-label="sticky table">
@@ -286,18 +259,8 @@ export default function Appointments() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={5} style={{ textAlign: "center" }}>
                     Loading...
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            )}
-
-            {!loading && message && (
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
-                    No Appointments For Today
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -311,21 +274,14 @@ export default function Appointments() {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
-                        <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
+                        {/* <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell> */}
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.clientservice.service.service}</TableCell>
                         <TableCell>{r.status}</TableCell>
-                        <TableCell>
+                        <TableCell>{r.remarks}</TableCell>
+                        {/* <TableCell>
                           <Stack direction="row" spacing={2}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="info"
-                              onClick={() => onEdit(r)}
-                            >
-                              <Typography>edit</Typography>
-                            </Button>
-
+                           
                             <Button
                               variant="contained"
                               size="small"
@@ -335,7 +291,7 @@ export default function Appointments() {
                               <Typography>done</Typography>
                             </Button>
                           </Stack>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))}
               </TableBody>

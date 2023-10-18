@@ -9,8 +9,8 @@ import { Navigate, useNavigate } from "react-router-dom";
 export default function Dashboard() {
   const { user, token, setUser, setToken } = useStateContext();
 
-  if (!token) {
-      return <Navigate to="/login" />;
+  if (token) {
+      return <Navigate to="/" />;
   }
 
   return (

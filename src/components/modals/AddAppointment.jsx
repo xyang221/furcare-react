@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 
-export default function EditAppointment(props) {
+export default function AddAppointment(props) {
   const {
     open,
     onClose,
@@ -27,7 +27,6 @@ export default function EditAppointment(props) {
     onSubmit,
     loading,
     petowners,
-    clientservices,
     appointment,
     setAppointment,
     errors,
@@ -49,7 +48,7 @@ export default function EditAppointment(props) {
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            {isUpdate ? "Update Appointment" : "Create Appointment"}
+            Create Appointment
             <IconButton onClick={onClick} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
@@ -65,15 +64,6 @@ export default function EditAppointment(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
-            <TextField
-                variant="outlined"
-                id="Status"
-                label="Status"
-                value={appointment.status}
-                onChange={(ev) => handleFieldChange("date", ev.target.value)}
-                disabled
-              />
-
               <TextField
                 variant="outlined"
                 id="Date"
@@ -83,7 +73,6 @@ export default function EditAppointment(props) {
                 onChange={(ev) => handleFieldChange("date", ev.target.value)}
               />
 
-              <InputLabel>Pet Owner</InputLabel>
               <Select
                 label="Pet Owner"
                 value={appointment.petowner_id || ""}
@@ -98,7 +87,7 @@ export default function EditAppointment(props) {
                 ))}
               </Select>
 
-              <InputLabel>Client</InputLabel>
+              {/* <InputLabel>Client</InputLabel> */}
               <Select
                 label="Client"
                 value={appointment.client_service_id || ""}
@@ -107,9 +96,9 @@ export default function EditAppointment(props) {
                 }
                 placeholder="Client"
               >
-                {clientservices.map((item) => (
+                {petowners.map((item) => (
                   <MenuItem key={item.id} value={item.id}>
-                    {`${item.petowner.firstname} ${item.petowner.lastname}`}
+                    {`${item.firstname} ${item.lastname}`}
                   </MenuItem>
                 ))}
               </Select>
@@ -121,19 +110,6 @@ export default function EditAppointment(props) {
                 value={appointment.purpose}
                 onChange={(ev) => handleFieldChange("purpose", ev.target.value)}
               />
-
-                  <InputLabel>Remarks</InputLabel>
-                  <TextareaAutosize
-                    minRows={3}
-                    placeholder="Remarks"
-                    variant="outlined"
-                    id="Remarks"
-                    label="Remarks"
-                    value={appointment.remarks || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("remarks", ev.target.value)
-                    }
-                  />
 
               <Button color="primary" variant="contained" onClick={onSubmit}>
                 Save

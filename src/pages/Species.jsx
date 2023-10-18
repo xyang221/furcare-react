@@ -16,17 +16,14 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
-import UserEdit from "../components/modals/UserEdit";
-import { Link } from "react-router-dom";
+import SpeciesModal from "../components/modals/SpeciesModal";
 
-export default function Users() {
+export default function Species() {
   //for table
   const columns = [
     { id: "id", name: "ID" },
-    { id: "name", name: "Username" },
-    { id: "email", name: "Email" },
-    // { id: "Created Date", name: "Created Date" },
-    { id: "Role", name: "Role" },
+    { id: "Specie", name: "Specie" },
+    { id: "Description", name: "Description" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -42,35 +39,18 @@ export default function Users() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
 
-  const getUsers = () => {
+  const [species, setSpecies] = useState([]);
+
+  const getSpecies = () => {
     setLoading(true);
     axiosClient
-      .get("/users")
+      .get("/species")
       .then(({ data }) => {
         setLoading(false);
-        setUsers(data.data);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
-
-
-  const [roles, setRoles] = useState([]);
-
-  const getRoles = () => {
-
-    setLoading(true);
-    axiosClient
-      .get("/roles")
-      .then(({ data }) => {
-        setLoading(false);
-        setRoles(data.data);
+        setSpecies(data.data);
       })
       .catch(() => {
         setLoading(false);
@@ -80,19 +60,16 @@ export default function Users() {
   //for modal
   const [errors, setErrors] = useState(null);
   const [modalloading, setModalloading] = useState(false);
-  const [user, setUser] = useState({
+  const [specie, setSpecie] = useState({
     id: null,
-    username: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    role_id: null,
-   
+    specie: "",
+    description: "",
   });
+
   const [open, openchange] = useState(false);
 
   const addModal = (ev) => {
-    setUser({})
+    setSpecie({})
     setErrors(null);
     openchange(true)
   };
@@ -105,10 +82,10 @@ export default function Users() {
     setErrors(null)
     setModalloading(true);
     axiosClient
-      .get(`/users/${r.id}`)
+      .get(`/species/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
-        setUser(data);
+        setSpecie(data);
       })
       .catch(() => {
         setModalloading(false);
@@ -116,25 +93,25 @@ export default function Users() {
     openchange(true);
   };
   
-  const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this user?")) {
+  const onArchive = (s) => {
+    if (!window.confirm("Are you sure to archive this specie?")) {
       return;
     }
 
-    axiosClient.delete(`/users/${u.id}/archive`).then(() => {
-      setNotification("User was archived");
-      getUsers();
+    axiosClient.delete(`/species/${s.id}`).then(() => {
+      setNotification("Specie was archived");
+      getSpecies();
     });
   };
 
   const onSubmit = () => {
-    if (user.id) {
+    if (specie.id) {
       axiosClient
-        .put(`/users/${user.id}`, user)
+        .put(`/species/${specie.id}`, specie)
         .then(() => {
-          setNotification("User was successfully updated");
+          setNotification("specie was successfully updated");
           openchange(false);
-          getUsers();
+          getSpecies();
         })
         .catch((err) => {
           const response = err.response;
@@ -144,11 +121,11 @@ export default function Users() {
         });
     } else {
       axiosClient
-        .post(`/users`, user)
+        .post(`/species`, specie)
         .then(() => {
-          setNotification("User was successfully created");
+          setNotification("specie was successfully added");
           openchange(false);
-          getUsers();
+          getSpecies();
         })
         .catch((err) => {
           const response = err.response;
@@ -160,8 +137,7 @@ export default function Users() {
   };
 
   useEffect(() => {
-    getUsers();
-    getRoles();
+    getSpecies();
   }, []);
 
   return (
@@ -178,16 +154,16 @@ export default function Users() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Users</Typography>{" "}
+          <Typography variant="h4">Species</Typography>{" "}
           
-          <Button
+          {/* <Button
             component={Link}
-            to={`/admin/users/archives`}
+            to={`/admin/species/archives`}
             variant="contained"
             size="small"
           >
             <Typography>Archives</Typography>
-          </Button>
+          </Button> */}
 
           <Button 
           onClick={addModal}
@@ -198,23 +174,18 @@ export default function Users() {
 
         {notification && <Alert severity="success">{notification}</Alert>}
 
-        {/* <Backdrop open={modalloading} style={{ zIndex: 999 }}>
-          <CircularProgress color="inherit" />
-        </Backdrop> */}
+        <SpeciesModal
+        open={open}
+        onClose={closepopup}
+        onClick={closepopup}
+        onSubmit={onSubmit}
+        loading={modalloading}
+        specie={specie}
+        setSpecie={setSpecie}
+        errors={errors}
+        isUpdate={specie.id}
+        />
 
-          <UserEdit
-          open={open}
-          onClick={closepopup}
-          onClose={closepopup}
-          onSubmit={onSubmit}
-          loading={modalloading}
-          roles={roles}
-          user={user}
-          setUser={setUser}
-          errors={errors}
-          isUpdate={user.id}
-          />
-          
         <TableContainer sx={{ height: 380 }} 
             maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
@@ -242,16 +213,14 @@ export default function Users() {
 
             {!loading && (
               <TableBody>
-                {users &&
-                  users
+                {species &&
+                  species
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.id}</TableCell>
-                        <TableCell>{r.username}</TableCell>
-                        <TableCell>{r.email}</TableCell>
-                        {/* <TableCell>{r.created_at}</TableCell> */}
-                        <TableCell>{r.role_id}</TableCell>
+                        <TableCell>{r.specie}</TableCell>
+                        <TableCell>{r.description}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
@@ -282,7 +251,7 @@ export default function Users() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={users.length}
+          count={species.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}

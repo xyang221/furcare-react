@@ -253,7 +253,7 @@ export default function Profile() {
         >
           {userval && (
             <DialogTitle>
-              Update User
+              Edit Profile
               <IconButton onClick={closepopup} style={{ float: "right" }}>
                 <Close color="primary"></Close>
               </IconButton>{" "}

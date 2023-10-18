@@ -16,18 +16,21 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DeleteForever,
   RestoreFromTrash,
 } from "@mui/icons-material";
 
-export default function Archives () {
+export default function PetsArchives () {
+
+  const navigate = useNavigate()
   const columns = [
     { id: "id", name: "ID" },
-    { id: "name", name: "Username" },
-    { id: "email", name: "Email" },
-    { id: "deleteddate", name: "Deleted Date" },
+    { id: "name", name: "Pet Name" },
+    { id: "gender", name: "Gender" },
+    { id: "breed", name: "Breed" },
+    { id: "Deleted Date", name: "Deleted Date" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -42,48 +45,47 @@ export default function Archives () {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [users, setUsers] = useState([]);
+  const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
 
-  const getArchivedUsers = () => {
+  const getPetsArchive = () => {
     setLoading(true);
     axiosClient
-      .get(`/archives/users`)
+      .get("/archives/pets")
       .then(({ data }) => {
         setLoading(false);
-        setUsers(data.data);
+        setPets(data.data);
       })
       .catch(() => {
         setLoading(false);
       });
   };
 
-
-  const onRestore = (u) => {
-    if (!window.confirm("Are you sure to restore this uer?")) {
+  const onRestore = (po) => {
+    if (!window.confirm("Are you sure to restore this pet?")) {
       return;
     }
 
-    axiosClient.put(`/users/${u.id}/restore`).then(() => {
-      setNotification("User was successfully restored");
-      getArchivedUsers();
+    axiosClient.put(`/pets/${po.id}/restore`).then(() => {
+      setNotification("Pet was successfully restored");
+      getPetsArchive();
     });
   };
 
-  const onDelete = (r) => {
-    if (!window.confirm("Are you sure permanently delete this user?")) {
+  const onDelete = (po) => {
+    if (!window.confirm("Are you sure permanently delete this pet?")) {
       return;
     }
 
-    axiosClient.delete(`/archives/${r.id}/forcedelete`).then(() => {
-      setNotification("User was permanently deleted");
-      getArchivedUsers();
+    axiosClient.delete(`/archives/${po.id}/forcedelete`).then(() => {
+      setNotification("Pet was permanently deleted");
+      getPetsArchive();
     });
   };
 
   useEffect(() => {
-    getArchivedUsers();
+    getPetsArchive();
   }, []);
 
   return (
@@ -107,18 +109,17 @@ export default function Archives () {
         flexDirection="row"
         justifyContent="space-between"
       >
-        <Typography variant="h4">Archived Users</Typography>{" "}
+        <Typography variant="h4">Archived Pets</Typography>{" "}
         <Button
-            component={Link}
-            to={`/admin/users`}
-            variant="contained"
-            size="small"
-            color="error"
+             onClick={() => navigate(-1)}
+             color="error"
+             variant="contained"
           >
             <Typography>Back</Typography>
           </Button>
       </Box>
       {notification && <Alert severity="success">{notification}</Alert>}
+
       <TableContainer sx={{ height: 380 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -136,7 +137,7 @@ export default function Archives () {
           {loading && (
             <TableBody>
               <TableRow>
-                <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                <TableCell colSpan={6} style={{ textAlign: "center" }}>
                   Loading...
                 </TableCell>
               </TableRow>
@@ -145,22 +146,23 @@ export default function Archives () {
 
           {!loading && (
             <TableBody>
-              {users &&
-                users
+              {pets &&
+                pets
                   .slice(page * rowperpage, page * rowperpage + rowperpage)
-                  .map((r) => (
-                    <TableRow hover role="checkbox" key={r.id}>
-                      <TableCell>{r.id}</TableCell>
-                      <TableCell>{r.username}</TableCell>
-                      <TableCell>{r.email}</TableCell>
-                      <TableCell>{r.deleted_at}</TableCell>
+                  .map((po) => (
+                    <TableRow hover role="checkbox" key={po.id}>
+                      <TableCell>{po.id}</TableCell>
+                            <TableCell>{po.name}</TableCell>
+                            <TableCell>{po.gender}</TableCell>
+                            <TableCell>{po.breed.breed}</TableCell>
+                          <TableCell>{po.deleted_at}</TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={2}>
                           <Button
                             variant="contained"
                             color="success"
                             size="small"
-                            onClick={() => onRestore(r)}
+                            onClick={() => onRestore(po)}
                           >
                             <RestoreFromTrash fontSize="small" />
                           </Button>
@@ -168,7 +170,7 @@ export default function Archives () {
                             variant="contained"
                             size="small"
                             color="error"
-                            onClick={() => onDelete(r)}
+                            onClick={() => onDelete(po)}
                           >
                             <DeleteForever fontSize="small" />
                           </Button>
@@ -184,7 +186,7 @@ export default function Archives () {
         rowsPerPageOptions={[10, 15, 25]}
         rowsPerPage={rowperpage}
         page={page}
-        count={users.length}
+        count={pets.length}
         component="div"
         onPageChange={handlechangepage}
         onRowsPerPageChange={handleRowsPerPage}

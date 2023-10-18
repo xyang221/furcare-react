@@ -18,15 +18,15 @@ import {
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 import UserEdit from "../components/modals/UserEdit";
 import { Link } from "react-router-dom";
+import BreedsModal from "../components/modals/BreedsModal";
 
-export default function Users() {
+export default function Breeds() {
   //for table
   const columns = [
     { id: "id", name: "ID" },
-    { id: "name", name: "Username" },
-    { id: "email", name: "Email" },
-    // { id: "Created Date", name: "Created Date" },
-    { id: "Role", name: "Role" },
+    { id: "Specie", name: "Specie" },
+    { id: "breed", name: "Breed" },
+    { id: "Description", name: "Description" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -42,35 +42,32 @@ export default function Users() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [users, setUsers] = useState([]);
+  const [breeds, setBreeds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
 
-  const getUsers = () => {
+  const getBreeds = () => {
     setLoading(true);
     axiosClient
-      .get("/users")
+      .get("/breeds")
       .then(({ data }) => {
         setLoading(false);
-        setUsers(data.data);
+        setBreeds(data.data);
       })
       .catch(() => {
         setLoading(false);
       });
   };
 
+  const [species, setSpecies] = useState([]);
 
-
-  const [roles, setRoles] = useState([]);
-
-  const getRoles = () => {
-
+  const getSpecies = () => {
     setLoading(true);
     axiosClient
-      .get("/roles")
+      .get("/species")
       .then(({ data }) => {
         setLoading(false);
-        setRoles(data.data);
+        setSpecies(data.data);
       })
       .catch(() => {
         setLoading(false);
@@ -80,19 +77,16 @@ export default function Users() {
   //for modal
   const [errors, setErrors] = useState(null);
   const [modalloading, setModalloading] = useState(false);
-  const [user, setUser] = useState({
+  const [breed, setBreed] = useState({
     id: null,
-    username: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    role_id: null,
-   
+    breed: "",
+    description: "",
+    specie_id: null,
   });
   const [open, openchange] = useState(false);
 
   const addModal = (ev) => {
-    setUser({})
+    setBreed({})
     setErrors(null);
     openchange(true)
   };
@@ -105,10 +99,10 @@ export default function Users() {
     setErrors(null)
     setModalloading(true);
     axiosClient
-      .get(`/users/${r.id}`)
+      .get(`/breeds/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
-        setUser(data);
+        setBreed(data);
       })
       .catch(() => {
         setModalloading(false);
@@ -117,24 +111,24 @@ export default function Users() {
   };
   
   const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this user?")) {
+    if (!window.confirm("Are you sure to archive this breed?")) {
       return;
     }
 
-    axiosClient.delete(`/users/${u.id}/archive`).then(() => {
-      setNotification("User was archived");
-      getUsers();
+    axiosClient.delete(`/breeds/${u.id}/archive`).then(() => {
+      setNotification("breed was archived");
+      getBreeds();
     });
   };
 
   const onSubmit = () => {
-    if (user.id) {
+    if (breed.id) {
       axiosClient
-        .put(`/users/${user.id}`, user)
+        .put(`/breeds/${breed.id}`, breed)
         .then(() => {
-          setNotification("User was successfully updated");
+          setNotification("Breed was successfully updated");
           openchange(false);
-          getUsers();
+          getBreeds();
         })
         .catch((err) => {
           const response = err.response;
@@ -144,11 +138,11 @@ export default function Users() {
         });
     } else {
       axiosClient
-        .post(`/users`, user)
+        .post(`/breeds`, breed)
         .then(() => {
-          setNotification("User was successfully created");
+          setNotification("Breed was successfully added");
           openchange(false);
-          getUsers();
+          getBreeds();
         })
         .catch((err) => {
           const response = err.response;
@@ -160,8 +154,8 @@ export default function Users() {
   };
 
   useEffect(() => {
-    getUsers();
-    getRoles();
+    getBreeds();
+    getSpecies();
   }, []);
 
   return (
@@ -178,16 +172,16 @@ export default function Users() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Users</Typography>{" "}
+          <Typography variant="h4">Breeds</Typography>{" "}
           
-          <Button
+          {/* <Button
             component={Link}
-            to={`/admin/users/archives`}
+            to={`/admin/breeds/archives`}
             variant="contained"
             size="small"
           >
             <Typography>Archives</Typography>
-          </Button>
+          </Button> */}
 
           <Button 
           onClick={addModal}
@@ -198,23 +192,19 @@ export default function Users() {
 
         {notification && <Alert severity="success">{notification}</Alert>}
 
-        {/* <Backdrop open={modalloading} style={{ zIndex: 999 }}>
-          <CircularProgress color="inherit" />
-        </Backdrop> */}
+        <BreedsModal
+        open={open}
+        onClose={closepopup}
+        onClick={closepopup}
+        onSubmit={onSubmit}
+        loading={modalloading}
+        species={species}
+        breed={breed}
+        setBreed={setBreed}
+        errors={errors}
+        isUpdate={breed.id}
+        />
 
-          <UserEdit
-          open={open}
-          onClick={closepopup}
-          onClose={closepopup}
-          onSubmit={onSubmit}
-          loading={modalloading}
-          roles={roles}
-          user={user}
-          setUser={setUser}
-          errors={errors}
-          isUpdate={user.id}
-          />
-          
         <TableContainer sx={{ height: 380 }} 
             maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
@@ -242,16 +232,15 @@ export default function Users() {
 
             {!loading && (
               <TableBody>
-                {users &&
-                  users
+                {breeds &&
+                  breeds
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.id}</TableCell>
-                        <TableCell>{r.username}</TableCell>
-                        <TableCell>{r.email}</TableCell>
-                        {/* <TableCell>{r.created_at}</TableCell> */}
-                        <TableCell>{r.role_id}</TableCell>
+                        <TableCell>{r.specie.specie}</TableCell>
+                        <TableCell>{r.breed}</TableCell>
+                        <TableCell>{r.description}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
@@ -282,7 +271,7 @@ export default function Users() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={users.length}
+          count={breeds.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}

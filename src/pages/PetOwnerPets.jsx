@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Backdrop,
   Box,
   Button,
@@ -15,7 +16,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Delete, Edit, Search } from "@mui/icons-material";
+import { Add, Archive, Delete, Edit, Search } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
@@ -26,8 +27,9 @@ export default function PetOwnerPets() {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
+  const [imageData, setImageData] = useState("");
+  const [notification, setNotification] = useState("");
 
-  const { setNotification } = useStateContext();
 
   const [pet, setPet] = useState({
     id: null,
@@ -36,14 +38,14 @@ export default function PetOwnerPets() {
     gender: "",
     color: "",
     qr_code: "",
-    photo: "",
+    photo: imageData,
     breed_id: null,
-    // petowner_id: null,
   });
 
   const [breeds, setBreeds] = useState([]);
 
   const getBreeds = () => {
+    setLoading(true);
     axiosClient
       .get(`/breeds`)
       .then(({ data }) => {
@@ -68,19 +70,9 @@ export default function PetOwnerPets() {
       });
   };
 
-  const onDelete = (p) => {
-    if (!window.confirm("Are you sure?")) {
-      return;
-    }
-
-    axiosClient.delete(`/pets/${p.id}`).then(() => {
-      setNotification("Pet Owner archived");
-      getPets();
-    });
-  };
-
   //for table
   const columns = [
+    // { id: "photo", name: "photo" },
     { id: "id", name: "ID" },
     { id: "name", name: "Pet Name" },
     { id: "email", name: "Gender" },
@@ -101,13 +93,13 @@ export default function PetOwnerPets() {
 
   //for modal
 
-  const [petdata, setPetdata] = useState([]);
   const [open, openchange] = useState(false);
+
   const functionopenpopup = (ev) => {
     // openchange(true);
     openchange(true);
-    // setPetowner({});
-    // setErrors(null);
+    setPet({});
+    setErrors(null);
   };
 
   const closepopup = () => {
@@ -116,7 +108,6 @@ export default function PetOwnerPets() {
 
   const onEdit = (r) => {
     setLoading(true);
-    getBreeds();
     axiosClient
       .get(`/pets/${r.id}`)
       .then(({ data }) => {
@@ -129,9 +120,54 @@ export default function PetOwnerPets() {
     openchange(true);
   };
 
+  const onArchive = (u) => {
+    if (!window.confirm("Are you sure to archive this pet?")) {
+      return;
+    }
+
+    axiosClient.delete(`/pets/${u.id}/archive`).then(() => {
+      setNotification("Pet was archived");
+      getPets();
+    });
+  };
+
+  const onSubmit = (ev) => {
+    ev.preventDefault();
+    if (pet.id) {
+      axiosClient
+        .put(`/pets/${pet.id}`, pet)
+        .then(() => {
+          setNotification("Pet was successfully updated");
+          openchange(false)
+          getPets();
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status == 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    } else {
+      axiosClient
+        .post(`/petowners/${id}/addpet`, pet)
+        .then(() => {
+          setNotification("Pet was successfully added");
+          openchange(false)
+          getPets();
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status == 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    }
+  };
+
   useEffect(() => {
     getPets();
-  }, [id]);
+    getBreeds();
+  }, []);
 
   return (
     <Box>
@@ -153,14 +189,25 @@ export default function PetOwnerPets() {
               justifyContent="space-between"
             >
               <Typography variant="h4">My Pets</Typography>{" "}
+
+              <Button
+            component={Link}
+            to={`/admin/pets/archives`}
+            variant="contained"
+            size="small"
+          >
+            <Typography>Archives</Typography>
+          </Button>
+
               <Button
                 onClick={functionopenpopup}
                 variant="contained"
-                size="small"
               >
                 <Add />
               </Button>
             </Box>
+
+            {notification && <Alert severity="success">{notification}</Alert>}
 
             {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
           <CircularProgress color="inherit" />
@@ -171,7 +218,8 @@ export default function PetOwnerPets() {
               onClick={closepopup}
               onClose={closepopup}
               // id={petdata.id}
-              // onSubmit={onSubmit}
+              setImageData={setImageData}
+              onSubmit={onSubmit}
               loading={loading}
               breeds={breeds}
               pet={pet}
@@ -197,7 +245,7 @@ export default function PetOwnerPets() {
                 {loading && (
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={4} style={{ textAlign: "center" }}>
+                      <TableCell colSpan={5} style={{ textAlign: "center" }}>
                         Loading...
                       </TableCell>
                     </TableRow>
@@ -214,6 +262,7 @@ export default function PetOwnerPets() {
                         )
                         .map((r) => (
                           <TableRow hover role="checkbox" key={r.id}>
+                            {/* <TableCell  ><img  src={`http://127.0.0.1:8000/${r.photo}`}/>  </TableCell> */}
                             <TableCell>{r.id}</TableCell>
                             <TableCell>{r.name}</TableCell>
                             <TableCell>{r.gender}</TableCell>
@@ -221,7 +270,6 @@ export default function PetOwnerPets() {
                             <TableCell>
                               <Stack direction="row" spacing={2}>
                                 <Button
-                                  // onClick={functionopenpopup}
                                   onClick={() => onEdit(r)}
                                   variant="contained"
                                   size="small"
@@ -229,13 +277,14 @@ export default function PetOwnerPets() {
                                 >
                                   <Edit fontSize="small" />
                                 </Button>
+
                                 <Button
                                   variant="contained"
                                   color="error"
                                   size="small"
-                                  onClick={() => onDelete(r)}
+                                  onClick={() => onArchive(r)}
                                 >
-                                  <Delete fontSize="small" />
+                                  <Archive fontSize="small" />
                                 </Button>
                               </Stack>
                             </TableCell>

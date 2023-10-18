@@ -24,13 +24,13 @@ export default function PetsModal(props) {
     open,
     onClose,
     onClick,
-    id,
     onSubmit,
     loading,
     breeds,
     pet,
-    setPet, 
+    setPet,
     errors,
+    setImageData,
     isUpdate,
   } = props;
 
@@ -41,93 +41,95 @@ export default function PetsModal(props) {
     setPet(updatedPet);
   };
 
+  const handleAddPhoto = (file) => {
+    setImageData(file[0]);
+  };
+
   return (
     <>
-     <>
-      <Backdrop open={loading} style={{ zIndex: 999 }}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      {!loading && (
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-          <DialogTitle>
-            {isUpdate ? "Update Pet" : "New Pet"}
-            <IconButton onClick={onClick} style={{ float: "right" }}>
-              <Close color="primary"></Close>
-            </IconButton>
-          </DialogTitle>
-          <DialogContent>
-            {errors && (
-              <Box>
-                {Object.keys(errors).map((key) => (
-                  <Alert severity="error" key={key}>
-                    {errors[key][0]}
-                  </Alert>
-                ))}
-              </Box>
-            )}
-            <Stack spacing={2} margin={2}>
-             
-              <TextField
-                variant="outlined"
-                id="Name"
-                label="Name"
-                value={pet.name}
-                onChange={(ev) => handleFieldChange("name", ev.target.value)}
-              />
-              <TextField
-                variant="outlined"
-                id="Birthdate"
-                type="date"
-                value={pet.birthdate}
-                onChange={(ev) => handleFieldChange("birthdate", ev.target.value)}
-              />
-              <TextField
-                variant="outlined"
-                id="Gender"
-                label="Gender"
-                value={pet.gender}
-                onChange={(ev) => handleFieldChange("gender", ev.target.value)}
-              />
-              <TextField
-                variant="outlined"
-                id="Color"
-                label="Color"
-                value={pet.color}
-                onChange={(ev) =>
-                  handleFieldChange("color", ev.target.value)
-                }
-              />
-              <TextField
-                variant="outlined"
-                id="QRCode"
-                label="QRCode"
-                value={pet.qr_code}
-                onChange={(ev) =>
-                  handleFieldChange("qr_code", ev.target.value)
-                }
-              />
-              <TextField
-                variant="outlined"
-                id="Photo"
-                label="Photo"
-                value={pet.photo}
-                onChange={(ev) =>
-                  handleFieldChange("photo", ev.target.value)
-                }
-              />
-              <TextField
-                variant="outlined"
-                id="Breed"
-                label="Breed"
-                value={pet.color}
-                onChange={(ev) =>
-                  handleFieldChange("color", ev.target.value)
-                }
-              />
-                 <Select
-                  label="Role"
+      <>
+        <Backdrop open={loading} style={{ zIndex: 999 }}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
+        {!loading && (
+          <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+            <DialogTitle>
+              {isUpdate ? "Update Pet" : "Add Pet"}
+              <IconButton onClick={onClick} style={{ float: "right" }}>
+                <Close color="primary"></Close>
+              </IconButton>
+            </DialogTitle>
+            <DialogContent>
+              {errors && (
+                <Box>
+                  {Object.keys(errors).map((key) => (
+                    <Alert severity="error" key={key}>
+                      {errors[key][0]}
+                    </Alert>
+                  ))}
+                </Box>
+              )}
+              <Stack spacing={2} margin={2}>
+                <TextField
+                  variant="outlined"
+                  id="Photo"
+                  label="Photo"
+                  // component="input"
+                  type="file"
+                  // value={pet.photo}
+                  onChange={(ev) => handleAddPhoto(ev.target.files)}
+                />
+
+                <TextField
+                  variant="outlined"
+                  id="Name"
+                  label="Name"
+                  value={pet.name}
+                  onChange={(ev) => handleFieldChange("name", ev.target.value)}
+                />
+                <TextField
+                  variant="outlined"
+                  id="Birthdate"
+                  type="date"
+                  value={pet.birthdate}
+                  onChange={(ev) =>
+                    handleFieldChange("birthdate", ev.target.value)
+                  }
+                />
+            
+                <Select
+                  label="Gender"
+                  value={pet.gender || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("gender", ev.target.value)
+                  }
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                </Select>
+                <TextField
+                  variant="outlined"
+                  id="Color"
+                  label="Color"
+                  value={pet.color}
+                  onChange={(ev) => handleFieldChange("color", ev.target.value)}
+                />
+                <TextField
+                  variant="outlined"
+                  id="QRCode"
+                  label="QRCode"
+                  value={pet.qr_code}
+                  onChange={(ev) =>
+                    handleFieldChange("qr_code", ev.target.value)
+                  }
+                />
+
+                <Select
+                  label="Breed"
                   value={pet.breed_id || ""}
-                  onChange={(ev) => handleFieldChange("breed_id", ev.target.value)}
+                  onChange={(ev) =>
+                    handleFieldChange("breed_id", ev.target.value)
+                  }
                 >
                   {breeds.map((item) => (
                     <MenuItem key={item.id} value={item.id}>
@@ -135,14 +137,14 @@ export default function PetsModal(props) {
                     </MenuItem>
                   ))}
                 </Select>
-              <Button color="primary" variant="contained" onClick={onSubmit}>
-                Save
-              </Button>
-            </Stack>
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
+                <Button color="primary" variant="contained" onClick={onSubmit}>
+                  Save
+                </Button>
+              </Stack>
+            </DialogContent>
+          </Dialog>
+        )}
+      </>
     </>
   );
 }

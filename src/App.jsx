@@ -10,26 +10,25 @@ import PetOwnerForm from "./pages/PetOwnerForm";
 import NotFound from "./pages/NotFound";
 import RequireAuth from "./contexts/RequireAuth";
 import GuestLayout from "./components/GuestLayout";
-import Dashboard from "./pages/Dashboard";
-import RoleForm from "./pages/RoleForm";
 import Users from "./pages/Users";
 import UserForm from "./pages/UserForm";
 import ViewStaff from "./pages/ViewStaff";
 import ViewPetOwner from "./pages/ViewPetOwner";
-import Pets from "./pages/Pets";
-import PetForm from "./pages/PetForm";
 import Appointments from "./pages/Appointments";
-import AppointmentForm from "./pages/AppointmentForm";
-import ClientServiceForm from "./pages/ClientServiceForm";
-import StaffLayout from "./components/StaffLayout";
-import PetOwnerLayout from "./components/PetOwner/PetOwnerLayout";
 
-// petowner pages
-// import PetOwnerPets from "./pages/PetOwner.jsx/PetOwnerPets";
 import PetOwnerPets from "./pages/PetOwnerPets";
 import MainLayout from "./components/MainLayout";
-import { Switch } from "@mui/material";
 import Roles from "./pages/Roles";
+import ClientService from "./pages/ClientService";
+import AppointmentsPending from "./pages/AppointmentsPending";
+import AppointmentsDone from "./pages/AppointmentsDone";
+import PetOwnerAppointments from "./pages/PetOwnerAppointments";
+import AppointmentsScheduled from "./pages/AppointmentsScheduled";
+import PetOwnerArchives from "./pages/PetOwnersArchives";
+import Breeds from "./pages/Breeds";
+import Species from "./pages/Species";
+import StaffsArchives from "./pages/StaffsArchives";
+import PetsArchives from "./pages/PetsArchives";
 
 const roles = {
   ADMIN: "1",
@@ -52,15 +51,13 @@ function App() {
           <Route path="editprofile/:id" element={<UserForm />} />
           
         <Route element={<RequireAuth allowedRoles={[roles.ADMIN]} />}>
-         
-
-          <Route path="admin/archives" element={<Archives />} />
 
           <Route path="admin/roles" element={<Roles />} />
           {/* <Route path="admin/roles/new" element={<RoleForm />} /> */}
           {/* <Route path="admin/roles/:id" element={<RoleForm />} /> */}
 
           <Route path="admin/users" element={<Users />} />
+          <Route path="admin/users/archives" element={<Archives />} />
           {/* <Route path="admin/users/new" element={<UserForm />} /> */}
           {/* <Route path="admin/users/:id" element={<UserForm />} /> */}
 
@@ -68,15 +65,28 @@ function App() {
           <Route path="admin/staffs/new" element={<StaffForm />} />
           <Route path="admin/staffs/:id" element={<StaffForm />} />
           <Route path="admin/staffs/:id/view" element={<ViewStaff />} />
+          <Route path="admin/staffs/archives" element={<StaffsArchives />} />
 
           <Route path="admin/petowners" element={<PetOwners />} />
           <Route path="admin/petowners/new" element={<PetOwnerForm />} />
+          <Route path="admin/petowners/:id/appointments" element={<PetOwnerAppointments />} />
           {/* <Route path="admin/petowners/:id/update" element={<PetOwnerForm />} /> */}
           <Route path="admin/petowners/:id/view" element={<ViewPetOwner />} />
+          <Route path="admin/petowners/archives" element={<PetOwnerArchives />} />
+
+          <Route path="admin/pets/archives" element={<PetsArchives />} />
+
+          <Route path="admin/pets/species" element={<Species />} />
+          <Route path="admin/pets/breeds" element={<Breeds />} />
+          
 
           {/* <Route path="admin/petowners/:id/pets" element={<Pets />} /> */}
 
           <Route path="admin/appointments" element={<Appointments />} />
+          <Route path="admin/appointments/scheduled" element={<AppointmentsScheduled />} />
+          <Route path="admin/appointments/pending" element={<AppointmentsPending />} />
+          <Route path="admin/appointments/done" element={<AppointmentsDone />} />
+          <Route path="admin/clientservice" element={<ClientService />} />
           
         </Route>
 

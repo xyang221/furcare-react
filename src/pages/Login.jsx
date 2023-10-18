@@ -68,7 +68,6 @@ export default function Login() {
         setUser(data.user.id);
         setToken(data.token);
         setRole(data.user.role_id);
-        // navigate("/ass");
         navigate("/")
         
         // navigate(from, { replace: true });

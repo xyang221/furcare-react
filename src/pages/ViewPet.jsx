@@ -1,26 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { useStateContext } from "../contexts/ContextProvider";
-import { Alert, Backdrop, Button, CircularProgress, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Typography } from "@mui/material";
 import { ArrowBackIos, Edit } from "@mui/icons-material";
 import PetOwnerEdit from "../components/modals/PetOwnerEdit";
+import PetOwnerPets from "./PetOwnerPets";
 import UserEdit from "../components/modals/UserEdit";
 
-export default function ViewStaff() {
+export default function ViewPet() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [notification, setNotification] = useState(null);
 
-  const [staff, setStaff] = useState({
+  const [petownerdata, setPetownerdata] = useState({
     id: null,
     firstname: "",
     lastname: "",
     contact_num: "",
-    address_id: null,
-    user_id: null
   });
 
   const [addressdata, setAddressdata] = useState({
@@ -39,33 +37,40 @@ export default function ViewStaff() {
     role_id: null,
   });
 
-  // const [staffid, setStaffid] = useState(null);
-  // const [addressid, setAddressid] = useState(null);
-  // const [userid, setUserid] = useState(null);
-  const [zipcode, setZipcode] = useState([]);
+  const [zipcode, setZipcode] = useState({
+    area: "",
+    province: "",
+    zipcode: "",
+  });
+
+  const [petownerid, setPetownerid] = useState(null);
+  const [addressid, setAddressid] = useState(null);
+  const [userid, setUserid] = useState(null);
+  const [zipcodeid, setZipcodeid] = useState(null);
 
   const [openuser, openuserchange] = useState(false);
-  const [openStaff, openStaffchange] = useState(false);
+  const [openPetowner, openPetownerchange] = useState(false);
 
   const closepopup = () => {
     openuserchange(false);
-    openStaffchange(false);
+    openPetownerchange(false);
   };
 
-  const getStaff = () => {
+  const getPetowner = () => {
+    setNotification(null);
     setErrors(null);
     setLoading(true);
     axiosClient
-      .get(`/staffs/${id}`)
+      .get(`/petowners/${id}`)
       .then(({ data }) => {
         setLoading(false);
-        setStaff(data);
-        // setStaffid(data.id)
+        setPetownerid(data.id);
+        setPetownerdata(data);
+        setAddressid(data.address.id);
         setAddressdata(data.address);
-        // setAddressid(data.address_id);
         setZipcode(data.address.zipcode);
+        setUserid(data.user.id);
         setUserdata(data.user);
-        // setUserid(data.user.id);
       })
       .catch(() => {
         setLoading(false);
@@ -87,14 +92,37 @@ export default function ViewStaff() {
       });
   };
 
+  const [zipcodes, setZipcodes] = useState([]);
+
+  const getZipcodes = () => {
+    setLoading(true);
+    axiosClient
+      .get("/zipcodes")
+      .then(({ data }) => {
+        setLoading(false);
+        setZipcodes(data.data);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
+
+  const handleAddressChange = (event, newValue) => {
+    setAddressdata((prevAddress) => ({
+      ...prevAddress,
+      zipcode_id: newValue ? newValue.id : prevAddress.zipcode_id,
+    }));
+  };
+
   const onEdit = () => {
-    getStaff()
-    setErrors(null)
-    openStaffchange(true);
+    getPetowner();
+    setErrors(null);
+    getZipcodes()
+    openPetownerchange(true);
   };
 
   const onEditUSer = () => {
-    getStaff();
+    getPetowner();
     setErrors(null);
     getRoles();
     openuserchange(true);
@@ -104,16 +132,17 @@ export default function ViewStaff() {
     setErrors(null);
     setLoading(true);
     axiosClient
-      .put(`/staffs/${staff.id}`, staff)
+      .put(`/petowners/${petownerid}`, petownerdata)
       .then(() => {
-          setNotification("Staff was successfully updated");
+        setNotification("Petowner was successfully updated");
 
-        return axiosClient.put(`/addresses/${staff.address_id}`, addressdata);
+        return axiosClient.put(`/addresses/${addressid}`, addressdata);
       })
       .then(() => {
-        setNotification("Staff was successfully updated");
-        openStaffchange(false);
-        getStaff();
+        setLoading(false);
+        openPetownerchange(false);
+        getPetowner();
+        console.log("sucess daw");
       })
 
       .catch((err) => {
@@ -127,11 +156,11 @@ export default function ViewStaff() {
   const onSubmitUser = () => {
     setErrors(null);
     axiosClient
-      .put(`/users/${staff.user_id}`, userdata)
+      .put(`/users/${userid}`, userdata)
       .then(() => {
         setNotification("User was successfully updated");
         openuserchange(false);
-        getStaff();
+        getPetowner();
       })
       .catch((err) => {
         const response = err.response;
@@ -142,54 +171,74 @@ export default function ViewStaff() {
   };
 
   useEffect(() => {
-    getStaff();
+    getPetowner();
   }, []);
 
   return (
     <div>
       <div className="card animate fadeInDown">
-        <h1 className="title">Staff Information</h1>
-        {notification && <Alert severity="success">{notification}</Alert>}
-        <p>
-          Name: {staff.firstname} {staff.lastname}{" "}
-        </p>
-        <p>
-          Address: {addressdata.zone}, {addressdata.barangay}, {zipcode.area}, {zipcode.province}, {zipcode.zipcode}{" "}
-        </p>
-        <p>Contact Number: {staff.contact_num}</p>
+        
+        <h1 className="title">Pet Owner Details</h1>
 
-        <h2>User Account</h2>
+        {/* <Box
+  component="img"
+  sx={{
+    height: 233,
+    width: 350,
+    maxHeight: { xs: 233, md: 167 },
+    maxWidth: { xs: 350, md: 250 },
+  }}
+  alt="The house from the offer."
+  src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"
+/> */}
+        {/* {loading && <div className="text-center">Loading...</div>} */}
+        {notification && <Alert severity="success">{notification}</Alert>}
+        {/* {errors && (
+          <div className="alert">
+            {Object.keys(errors).map((key) => (
+              <p key={key}>{errors[key][0]}</p>
+            ))}
+          </div>
+        )} */}
+
+      <p>
+        Name: {petownerdata.firstname} {petownerdata.lastname}
+      </p>
+      <p>
+        Address: {addressdata.zone}, {addressdata.barangay}, {zipcode.area}, {zipcode.province}, {zipcode.zipcode}
+      </p>
+      <p>Contact Number: {petownerdata.contact_num}</p>
+
+        <h2>Mobile Account</h2>
         <p>Username: {userdata.username} </p>
         <p>Email: {userdata.email} </p>
 
         <Button
           variant="contained"
-          size="small"
           color="info"
           onClick={() => onEdit()}
         >
-          <Typography>Update Staff</Typography> <Edit fontSize="small" />
+          <Typography>Update Pet Owner</Typography> <Edit fontSize="small" />
         </Button>
 
         <PetOwnerEdit
-          open={openStaff}
+          open={openPetowner}
           onClose={closepopup}
           onClick={closepopup}
           // id={id}
           onSubmit={onSubmit}
           loading={loading}
-          petowner={staff}
-          setPetowner={setStaff}
+          petowner={petownerdata}
+          setPetowner={setPetownerdata}
           address={addressdata}
           setAddress={setAddressdata}
-          zipcode={zipcode}
+          zipcode={zipcodes}
           errors={errors}
-          isUpdate={staff.id}
+          isUpdate={id}
         />
 
         <Button
           variant="contained"
-          size="small"
           color="info"
           onClick={() => onEditUSer()}
         >
@@ -207,12 +256,19 @@ export default function ViewStaff() {
           user={userdata}
           setUser={setUserdata}
           errors={errors}
-          isUpdate={userdata.id}
+          isUpdate={userid}
         />
+
+<Button
+            component={Link}
+            to={`/admin/petowners/` + petownerid + `/appointments`}
+            variant="contained"
+          >
+            <Typography>appointments</Typography>
+          </Button>
 
         <Button
           variant="contained"
-          size="small"
           color="error"
           onClick={() => navigate(-1)}
         >
@@ -220,7 +276,7 @@ export default function ViewStaff() {
           <Typography>Back</Typography>
         </Button>
 
-     
+        <PetOwnerPets />
       </div>
     </div>
   );

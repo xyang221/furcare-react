@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
     Alert,
-    Backdrop,
     Box,
     Button,
-    CircularProgress,
     Paper,
     Stack,
     Table,
@@ -18,20 +16,19 @@ import {
     TableRow,
     Typography,
   } from "@mui/material";
-  import {
-      Add,
-      Archive,
-    Visibility,
-  } from "@mui/icons-material";
 
-export default function PetOwners() {
+import EditAppointment from "../components/modals/EditAppointment";
+import DropDownButtons from "../components/DropDownButtons";
+
+export default function AppointmentsPending() {
 
   //for table
     const columns = [
-        { id: "id", name: "ID" },
-        { id: "name", name: "Name" },
-        { id: "contact_num", name: "Contact Number" },
-        { id: "address", name: "Address" },
+        { id: "Date", name: "Date" },
+        { id: "client", name: "Client" },
+        { id: "Purpose", name: "Purpose" },
+        { id: "Service", name: "Service" },
+        { id: "Status", name: "Status" },
         { id: "Actions", name: "Actions" },
       ];
     
@@ -46,38 +43,83 @@ export default function PetOwners() {
       const [page, pagechange] = useState(0);
       const [rowperpage, rowperpagechange] = useState(10);
     
-      const [loading, setLoading] = useState(false);
       const [notification, setNotification] = useState("");
-    const [petowners, setPetowners] = useState([]);
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const getPetowners = () => {
+    const getAppointments = () => {
 
         setLoading(true);
-        axiosClient.get('/petowners')
+        axiosClient.get('/appointments/pending')
             .then(({ data }) => {
                 setLoading(false);
-                setPetowners(data.data);
+                setAppointments(data.data);
             })
             .catch(() => {
                 setLoading(false);
             });
     };
 
-    const onArchive = (u) => {
-      if (!window.confirm("Are you sure to archive this pet owner?")) {
-        return;
-      }
-  
-      axiosClient.delete(`/petowners/${u.id}/archive`).then(() => {
-        setNotification("Pet Owner was archived");
-        getPetowners();
-      });
-    };
+    const [services,setServices] = useState([]);
+
+    const getServices = () => {
+        setModalloading(true);
+        axiosClient
+          .get(`/services`)
+          .then(({ data }) => {
+            setModalloading(false);
+            setServices(data.data);
+          })
+          .catch(() => {
+            setModalloading(false);
+          });
+    }
+
+    const [petowners,setPetowners] = useState([]);
 
 
-    useEffect(() => {
-        getPetowners();
-    }, []);
+    const getPetowners = () => {
+        setModalloading(true);
+        axiosClient
+          .get(`/petowners`)
+          .then(({ data }) => {
+            setModalloading(false);
+            setPetowners(data.data);
+          })
+          .catch(() => {
+            setModalloading(false);
+          });
+    }
+
+  const [errors, setErrors] = useState(null);
+  const [modalloading, setModalloading] = useState(false);
+
+  const onAccept = (r) => {
+    if (!window.confirm("Are you sure to accept this appointment?")) {
+      return;
+    }
+
+    axiosClient.put(`/appointments/${r.id}/schedule`).then(() => {
+      setNotification("The appointment was scheduled");
+      getAppointments();
+    });
+  };
+
+  const onCancel = (r) => {
+    if (!window.confirm("Are you sure to cancel this appointment?")) {
+      return;
+    }
+
+    axiosClient.put(`/appointments/${r.id}/cancel`).then(() => {
+      setNotification("The appointment was cancelled");
+      getAppointments();
+    });
+  };
+
+  useEffect(() => {
+    getServices()
+    getAppointments();
+  }, []);
 
     return (
         <>
@@ -94,29 +136,22 @@ export default function PetOwners() {
             flexDirection="row"
             justifyContent="space-between"
           >
-            <Typography variant="h4">Pet Owners</Typography>{" "}
-            
-            <Button
-            component={Link}
-            to={`/admin/petowners/archives`}
-            variant="contained"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button>
+            <Typography variant="h4">Pending Appointments</Typography>{" "}
 
-            <Button
-            component={Link}
-            to={"/admin/petowners/new"}
-            variant="contained"
-            size="small"
-          >
-            <Add />
-          </Button>
+            <DropDownButtons
+            optionLink1="/admin/appointments/scheduled"
+            optionLabel1="Scheduled"
+            optionLink2="/admin/appointments/done"
+            optionLabel2="Done"
+            optionLink3="/admin/appointments"
+            optionLabel3="Today"
+          />
+
           </Box>
 
           {notification && <Alert severity="success">{notification}</Alert>}
-
+          
+    
           <TableContainer sx={{ height: 380 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
@@ -143,35 +178,35 @@ export default function PetOwners() {
     
               {!loading && (
                 <TableBody>
-                  {petowners &&
-                    petowners
+                  {appointments &&
+                    appointments
                       .slice(page * rowperpage, page * rowperpage + rowperpage)
                       .map((r) => (
                         <TableRow hover role="checkbox" key={r.id}>
-                          <TableCell>{r.id}</TableCell>
-                        <TableCell>{`${r.firstname} ${r.lastname}`}</TableCell>
-                          <TableCell>{r.contact_num}</TableCell>
-                          <TableCell>{r.address.zone}, {r.address.barangay}, {r.address.zipcode.area}</TableCell>
+                          <TableCell>{r.date}</TableCell>
+                        <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
+                          <TableCell>{r.purpose}</TableCell>
+                          <TableCell>{r.clientservice.service.service}</TableCell>
+                          <TableCell>{r.status}</TableCell>
                           <TableCell>
                             <Stack direction="row" spacing={2}>
-                            <Button
-                              component={Link}
-                              to={`/admin/petowners/` + r.id + `/view`}
+                              <Button
+                              // component={Link}
+                              // to={`/admin/appointments/` + r.id}
                                 variant="contained"
-                                color="info"
+                                color="success"
                                 size="small"
+                                onClick={() => onAccept(r)}
                               >
-                                <Visibility fontSize="small" />
-                                {/* <Typography>view</Typography> */}
+                                <Typography>ACCEPT</Typography>
                               </Button>
-                            
                               <Button
                                 variant="contained"
                                 size="small"
                                 color="error"
-                                onClick={() => onArchive(r)}
+                                onClick={() => onCancel(r)}
                               >
-                                <Archive fontSize="small" />
+                                <Typography>CANCEL</Typography>
                               </Button>
                             </Stack>
                           </TableCell>
@@ -185,7 +220,7 @@ export default function PetOwners() {
             rowsPerPageOptions={[10, 15, 25]}
             rowsPerPage={rowperpage}
             page={page}
-            count={petowners.length}
+            count={appointments.length}
             component="div"
             onPageChange={handlechangepage}
             onRowsPerPageChange={handleRowsPerPage}

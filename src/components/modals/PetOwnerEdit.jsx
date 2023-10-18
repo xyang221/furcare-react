@@ -113,31 +113,32 @@ export default function PetOwnerEdit(props) {
                   handleFieldChangeAddress("barangay", ev.target.value)
                 }
               />
-              {/* <Autocomplete
-            sx={{ width: "100%" }}
-            getOptionLabel={(option) =>
-              `${option.area}, ${option.province}, ${option.zipcode}`
-            }
-            options={zipcode}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            noOptionsText="Not Found"
-            renderOption={(props, option) => (
-              <li {...props}>
-                {option.area}, {option.province}, {option.zipcode}
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField {...params} label="City, Province, Zipcode" />
-            )}
-            onChange={(event, newValue) => {
-              setValue(newValue);
-              setAddress((prevAddress) => ({
-                ...prevAddress,
-                zipcode_id: newValue ? newValue.id : prevAddress.zipcode_id,
-              }));
-            }}
-            value={value}
-          /> */}
+              <Autocomplete
+                sx={{ width: "100%" }}
+                getOptionLabel={(option) =>
+                  `${option.area}, ${option.province}, ${option.zipcode}`
+                }
+                options={zipcode}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                noOptionsText="Not Found"
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    {option.area}, {option.province}, {option.zipcode}
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField {...params} label="City, Province, Zipcode" />
+                )}
+                value={address.zipcode_id || null}
+
+                onChange={(event, newValue) => {
+                  setAddress((prevAddress) => ({
+                    ...prevAddress,
+                    zipcode_id: newValue ? newValue.id : prevAddress.zipcode_id
+                  }));
+                }}
+
+              />
               <Button color="primary" variant="contained" onClick={onSubmit}>
                 Save
               </Button>

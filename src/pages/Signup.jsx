@@ -13,7 +13,7 @@ import Container from '@mui/material/Container';
 import { styled } from '@mui/material/styles';
 
 import { useRef, useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 import { Pets } from '@mui/icons-material';
@@ -35,11 +35,14 @@ function Copyright(props) {
 
 export default function SignUp() {
 
-  const { setUser, setToken, token } = useStateContext();
+  const { setRole, setUser, setToken, token } = useStateContext();
 
-  if (token) {
-    return <Navigate to="/" />;
-  }
+  // if (token) {
+  //   return <Navigate to="/" />;
+  // }
+
+  const navigate = useNavigate();
+
 
   const emailRef = useRef();
   const usernameRef = useRef();
@@ -60,14 +63,15 @@ export default function SignUp() {
     axiosClient
       .post("/signup", payload)
       .then(({ data }) => {
-        setUser(data.user);
+        setUser(data.user.id);
         setToken(data.token);
+        setRole(data.user.role_id)
+        navigate("/")
       })
       .catch((err) => {
         const response = err.response;
         if (response && response.status == 422) {
           setErrors(response.data.errors);
-          // setErrors(err.response.data);
         }
       });
   };
@@ -107,7 +111,7 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" noValidate onSubmit={onSubmit} sx={{ mt: 3 }}>
+          <Box component="form" onSubmit={onSubmit} sx={{ mt: 3 }}>
           {errors && (
               <div className="alert">
                 {Object.keys(errors).map((key) => (
@@ -118,48 +122,41 @@ export default function SignUp() {
             <Grid container spacing={2}>
             <Grid item xs={12}>
                 <TextField
-                ref={usernameRef}
+                inputRef={usernameRef}
                   required
                   fullWidth
                   id="username"
                   label="Username"
                   name="username"
-                  autoComplete="username"
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                ref={emailRef}
-                  required
+                inputRef={emailRef}
                   fullWidth
                   id="email"
                   label="Email Address"
                   name="email"
-                  autoComplete="email"
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                ref={passwordRef}
-                  required
+                inputRef={passwordRef}
                   fullWidth
                   name="password"
                   label="Password"
                   type="password"
                   id="password"
-                  autoComplete="new-password"
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                ref={passwordConfirmationRef}
-                  required
+                inputRef={passwordConfirmationRef}
                   fullWidth
                   name="password confirmation"
                   label="Password Confirmation"
-                  type="password confirmation"
+                  type="password"
                   id="password confirmation"
-                  autoComplete="new-password confirmation"
                 />
               </Grid>
               <Grid item xs={12}>

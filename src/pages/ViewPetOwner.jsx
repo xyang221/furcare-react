@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { Alert, Button, CircularProgress, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Typography } from "@mui/material";
 import { ArrowBackIos, Edit } from "@mui/icons-material";
 import PetOwnerEdit from "../components/modals/PetOwnerEdit";
 import PetOwnerPets from "./PetOwnerPets";
@@ -15,14 +15,16 @@ export default function ViewPetOwner() {
   const [notification, setNotification] = useState(null);
 
   const [petownerdata, setPetownerdata] = useState({
-    // id: null,
+    id: null,
     firstname: "",
     lastname: "",
     contact_num: "",
+    address_id: null,
+    user_id: null
   });
 
   const [addressdata, setAddressdata] = useState({
-    // id: null,
+    id: null,
     zipcode_id: null,
     barangay: "",
     zone: "",
@@ -37,11 +39,17 @@ export default function ViewPetOwner() {
     role_id: null,
   });
 
-  const [petownerid, setPetownerid] = useState(null);
-  const [addressid, setAddressid] = useState(null);
-  const [userid, setUserid] = useState(null);
-  const [zipcode, setZipcode] = useState([]);
-  
+  const [zipcode, setZipcode] = useState({
+    id:null,
+    area: "",
+    province: "",
+    zipcode: "",
+  });
+
+  // const [petownerid, setPetownerid] = useState(null);
+  // const [addressid, setAddressid] = useState(null);
+  // const [userid, setUserid] = useState(null);
+  // const [zipcodeid, setZipcodeid] = useState(null);
 
   const [openuser, openuserchange] = useState(false);
   const [openPetowner, openPetownerchange] = useState(false);
@@ -52,18 +60,19 @@ export default function ViewPetOwner() {
   };
 
   const getPetowner = () => {
-    setNotification(null)
+    setNotification(null);
     setErrors(null);
     setLoading(true);
     axiosClient
       .get(`/petowners/${id}`)
       .then(({ data }) => {
         setLoading(false);
-        setPetownerid(data.id);
+        // setPetownerid(data.id);
         setPetownerdata(data);
-        setAddressid(data.address.id);
+        // setAddressid(data.address.id);
         setAddressdata(data.address);
-        setUserid(data.user.id);
+        setZipcode(data.address.zipcode);
+        // setUserid(data.user.id);
         setUserdata(data.user);
       })
       .catch(() => {
@@ -86,9 +95,32 @@ export default function ViewPetOwner() {
       });
   };
 
+  const [zipcodes, setZipcodes] = useState([]);
+
+  const getZipcodes = () => {
+    setLoading(true);
+    axiosClient
+      .get("/zipcodes")
+      .then(({ data }) => {
+        setLoading(false);
+        setZipcodes(data.data);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
+
+  const handleAddressChange = (event, newValue) => {
+    setAddressdata((prevAddress) => ({
+      ...prevAddress,
+      zipcode_id: newValue ? newValue.id : prevAddress.zipcode_id,
+    }));
+  };
+
   const onEdit = () => {
     getPetowner();
     setErrors(null);
+    getZipcodes()
     openPetownerchange(true);
   };
 
@@ -103,11 +135,11 @@ export default function ViewPetOwner() {
     setErrors(null);
     setLoading(true);
     axiosClient
-      .put(`/petowners/${petownerid}`, petownerdata)
+      .put(`/petowners/${petownerdata.id}`, petownerdata)
       .then(() => {
-          setNotification("Petowner was successfully updated");
+        setNotification("Petowner was successfully updated");
 
-        return axiosClient.put(`/addresses/${addressid}`, addressdata);
+        return axiosClient.put(`/addresses/${petownerdata.address_id}`, addressdata);
       })
       .then(() => {
         setLoading(false);
@@ -127,7 +159,7 @@ export default function ViewPetOwner() {
   const onSubmitUser = () => {
     setErrors(null);
     axiosClient
-      .put(`/users/${userid}`, userdata)
+      .put(`/users/${petownerdata.user_id}`, userdata)
       .then(() => {
         setNotification("User was successfully updated");
         openuserchange(false);
@@ -148,8 +180,21 @@ export default function ViewPetOwner() {
   return (
     <div>
       <div className="card animate fadeInDown">
+        
         <h1 className="title">Pet Owner Details</h1>
-        {loading && <div className="text-center">Loading...</div>}
+
+        {/* <Box
+  component="img"
+  sx={{
+    height: 233,
+    width: 350,
+    maxHeight: { xs: 233, md: 167 },
+    maxWidth: { xs: 350, md: 250 },
+  }}
+  alt="The house from the offer."
+  src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"
+/> */}
+        {/* {loading && <div className="text-center">Loading...</div>} */}
         {notification && <Alert severity="success">{notification}</Alert>}
         {/* {errors && (
           <div className="alert">
@@ -158,15 +203,14 @@ export default function ViewPetOwner() {
             ))}
           </div>
         )} */}
-        <p>
-          Name: {petownerdata.firstname} {petownerdata.lastname}{" "}
-        </p>
-        <p>
-          Address: {addressdata.zone}, {addressdata.barangay},
-          {/* {zipcode.area},{" "} */}
-          {/* {address.zipcode.province}, {address.zipcode.zipcode}{" "} */}
-        </p>
-        <p>Contact Number: {petownerdata.contact_num}</p>
+
+      <p>
+        Name: {petownerdata.firstname} {petownerdata.lastname}
+      </p>
+      <p>
+        Address: {addressdata.zone}, {addressdata.barangay}, {zipcode.area}, {zipcode.province}, {zipcode.zipcode}
+      </p>
+      <p>Contact Number: {petownerdata.contact_num}</p>
 
         <h2>Mobile Account</h2>
         <p>Username: {userdata.username} </p>
@@ -174,7 +218,6 @@ export default function ViewPetOwner() {
 
         <Button
           variant="contained"
-          size="small"
           color="info"
           onClick={() => onEdit()}
         >
@@ -192,14 +235,13 @@ export default function ViewPetOwner() {
           setPetowner={setPetownerdata}
           address={addressdata}
           setAddress={setAddressdata}
-          zipcode={zipcode}
+          zipcode={zipcodes}
           errors={errors}
           isUpdate={id}
         />
 
         <Button
           variant="contained"
-          size="small"
           color="info"
           onClick={() => onEditUSer()}
         >
@@ -217,12 +259,19 @@ export default function ViewPetOwner() {
           user={userdata}
           setUser={setUserdata}
           errors={errors}
-          isUpdate={userid !== null}
+          isUpdate={userdata.id}
         />
+
+<Button
+            component={Link}
+            to={`/admin/petowners/` + petownerdata.id + `/appointments`}
+            variant="contained"
+          >
+            <Typography>appointments</Typography>
+          </Button>
 
         <Button
           variant="contained"
-          size="small"
           color="error"
           onClick={() => navigate(-1)}
         >
@@ -231,7 +280,6 @@ export default function ViewPetOwner() {
         </Button>
 
         <PetOwnerPets />
-
       </div>
     </div>
   );

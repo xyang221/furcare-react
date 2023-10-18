@@ -76,11 +76,13 @@ export default function Roles() {
 
   //for modal
   const [open, openchange] = useState(false);
+
   const functionopenpopup = (ev) => {
-    openchange(true);
     setRole({})
     setErrors(null)
+    openchange(true);
   };
+  
   const closepopup = () => {
     openchange(false);
   };
@@ -109,7 +111,7 @@ export default function Roles() {
     openchange(true);
   };
 
-  const onSubmit = (role) => {
+  const onSubmit = () => {
     if (role.id) {
       axiosClient
         .put(`/roles/${role.id}`, role)
@@ -235,15 +237,13 @@ export default function Roles() {
                 <Button
                   color="primary"
                   variant="contained"
-                  onClick={() => onSubmit(role)}
+                  onClick={() => onSubmit()}
                 >
                   Save
                 </Button>
               </Stack>
             </DialogContent>
             <DialogActions>
-              {/* <Button color="success" variant="contained">Yes</Button>
-                    <Button onClick={closepopup} color="error" variant="contained">Close</Button> */}
             </DialogActions>
           </Dialog>
         )}

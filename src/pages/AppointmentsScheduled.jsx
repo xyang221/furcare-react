@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
+import { Link, useParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -15,25 +16,24 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
-import UserEdit from "../components/modals/UserEdit";
-import { Link } from "react-router-dom";
+import { Add, Archive, Edit } from "@mui/icons-material";
+import EditAppointment from "../components/modals/EditAppointment";
+import DropDownButtons from "../components/DropDownButtons";
 
-export default function Users() {
+export default function AppointmentsScheduled() {
   //for table
   const columns = [
-    { id: "id", name: "ID" },
-    { id: "name", name: "Username" },
-    { id: "email", name: "Email" },
-    // { id: "Created Date", name: "Created Date" },
-    { id: "Role", name: "Role" },
+    { id: "Date", name: "Date" },
+    { id: "client", name: "Client" },
+    { id: "Purpose", name: "Purpose" },
+    { id: "Service", name: "Service" },
+    { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
 
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
-
   const handleRowsPerPage = (event) => {
     rowperpagechange(+event.target.value);
     pagechange(0);
@@ -42,99 +42,140 @@ export default function Users() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const getUsers = () => {
+  const getAppointments = () => {
     setLoading(true);
     axiosClient
-      .get("/users")
+      .get("/appointments/scheduled")
       .then(({ data }) => {
         setLoading(false);
-        setUsers(data.data);
+        setAppointments(data.data);
       })
       .catch(() => {
         setLoading(false);
       });
   };
 
+  const onDelete = (po) => {
+    if (!window.confirm("Are you sure?")) {
+      return;
+    }
 
+    axiosClient.delete(`/appointments/${po.id}`).then(() => {
+      setNotification("Pet Owner deleted");
+      getAppointments();
+    });
+  };
 
-  const [roles, setRoles] = useState([]);
+  const [services, setServices] = useState([]);
 
-  const getRoles = () => {
-
-    setLoading(true);
+  const getServices = () => {
+    setModalloading(true);
     axiosClient
-      .get("/roles")
+      .get(`/services`)
       .then(({ data }) => {
-        setLoading(false);
-        setRoles(data.data);
+        setModalloading(false);
+        setServices(data.data);
       })
       .catch(() => {
-        setLoading(false);
+        setModalloading(false);
+      });
+  };
+
+  const [petowners, setPetowners] = useState([]);
+
+  const getPetowners = () => {
+    setModalloading(true);
+    axiosClient
+      .get(`/petowners`)
+      .then(({ data }) => {
+        setModalloading(false);
+        setPetowners(data.data);
+      })
+      .catch(() => {
+        setModalloading(false);
+      });
+  };
+  const [clientservice, setCS] = useState([]);
+
+
+  const getClientServices = () => {
+    setModalloading(true);
+    axiosClient
+      .get(`/clientservices`)
+      .then(({ data }) => {
+        setModalloading(false);
+        setCS(data.data);
+      })
+      .catch(() => {
+        setModalloading(false);
       });
   };
 
   //for modal
   const [errors, setErrors] = useState(null);
   const [modalloading, setModalloading] = useState(false);
-  const [user, setUser] = useState({
+  const [appointment, setAppointment] = useState({
     id: null,
-    username: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    role_id: null,
-   
+    date: "",
+    purpose: "",
+    remarks: "",
+    petowner_id: null,
+    client_service_id: null,
   });
   const [open, openchange] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
 
   const addModal = (ev) => {
-    setUser({})
-    setErrors(null);
+    getPetowners();
+    // setOpenAdd(true);
     openchange(true)
+    setAppointment({});
+    setErrors(null);
   };
 
   const closepopup = () => {
     openchange(false);
+    setOpenAdd(false);
+  };
+
+  const onDone = (r) => {
+    if (!window.confirm("Are you sure this appointment was done?")) {
+      return;
+    }
+
+    axiosClient.put(`/appointments/${r.id}/done`).then(() => {
+      setNotification("The appointment was done");
+      getAppointments();
+    });
   };
 
   const onEdit = (r) => {
-    setErrors(null)
+    setErrors(null);
     setModalloading(true);
     axiosClient
-      .get(`/users/${r.id}`)
+      .get(`/appointments/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
-        setUser(data);
+        setAppointment(data);
       })
       .catch(() => {
         setModalloading(false);
       });
     openchange(true);
   };
-  
-  const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this user?")) {
-      return;
-    }
-
-    axiosClient.delete(`/users/${u.id}/archive`).then(() => {
-      setNotification("User was archived");
-      getUsers();
-    });
-  };
 
   const onSubmit = () => {
-    if (user.id) {
+    if (appointment.id) {
       axiosClient
-        .put(`/users/${user.id}`, user)
+        .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
-          setNotification("User was successfully updated");
+          setNotification("Appointment was successfully updated");
           openchange(false);
-          getUsers();
+          getAppointments();
         })
         .catch((err) => {
           const response = err.response;
@@ -144,11 +185,11 @@ export default function Users() {
         });
     } else {
       axiosClient
-        .post(`/users`, user)
+        .post(`/appointments`, appointment)
         .then(() => {
-          setNotification("User was successfully created");
-          openchange(false);
-          getUsers();
+          setNotification("Appointment was successfully created");
+          setOpenAdd(false);
+          getAppointments();
         })
         .catch((err) => {
           const response = err.response;
@@ -160,63 +201,64 @@ export default function Users() {
   };
 
   useEffect(() => {
-    getUsers();
-    getRoles();
+    getClientServices();
+    getServices();
+    getAppointments();
   }, []);
 
   return (
     <>
       <Paper
         sx={{
+          minWidth: "90%",
           padding: "10px",
           margin: "10px",
         }}
       >
+        {notification && <Alert severity="success">{notification}</Alert>}
+        
         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Users</Typography>{" "}
-          
-          <Button
-            component={Link}
-            to={`/admin/users/archives`}
+          <Typography variant="h4">Scheduled Appointments</Typography>{" "}
+
+          <DropDownButtons
+            optionLink1="/admin/appointments"
+            optionLabel1="Today"
+            optionLink2="/admin/appointments/pending"
+            optionLabel2="Pending"
+            optionLink3="/admin/appointments/done"
+            optionLabel3="Done"
+          />
+
+          {/* <Button
+            //  component={Link}
+            //  to={"/admin/appointments/new"}
+            onClick={addModal}
             variant="contained"
             size="small"
           >
-            <Typography>Archives</Typography>
-          </Button>
-
-          <Button 
-          onClick={addModal}
-           variant="contained" size="small">
             <Add />
-          </Button>
+          </Button> */}
         </Box>
 
-        {notification && <Alert severity="success">{notification}</Alert>}
-
-        {/* <Backdrop open={modalloading} style={{ zIndex: 999 }}>
-          <CircularProgress color="inherit" />
-        </Backdrop> */}
-
-          <UserEdit
+        <EditAppointment
           open={open}
-          onClick={closepopup}
           onClose={closepopup}
+          onClick={closepopup}
           onSubmit={onSubmit}
           loading={modalloading}
-          roles={roles}
-          user={user}
-          setUser={setUser}
+          petowners={petowners}
+          appointment={appointment}
+          setAppointment={setAppointment}
           errors={errors}
-          isUpdate={user.id}
-          />
-          
-        <TableContainer sx={{ height: 380 }} 
-            maxwidth="sm">
+          isUpdate={appointment.id}
+        />
+
+        <TableContainer sx={{ height: 380 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -242,33 +284,35 @@ export default function Users() {
 
             {!loading && (
               <TableBody>
-                {users &&
-                  users
+                {appointments &&
+                  appointments
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        <TableCell>{r.id}</TableCell>
-                        <TableCell>{r.username}</TableCell>
-                        <TableCell>{r.email}</TableCell>
-                        {/* <TableCell>{r.created_at}</TableCell> */}
-                        <TableCell>{r.role_id}</TableCell>
+                        <TableCell>{r.date}</TableCell>
+                        <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
+                        <TableCell>{r.purpose}</TableCell>
+                        <TableCell>{r.clientservice.service.service}</TableCell>
+                        <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
+                           
                             <Button
                               variant="contained"
                               size="small"
                               color="info"
                               onClick={() => onEdit(r)}
                             >
-                              <Edit fontSize="small" />
+                              <Typography>edit</Typography>
                             </Button>
+
                             <Button
                               variant="contained"
-                              color="error"
                               size="small"
-                              onClick={() => onArchive(r)}
+                              color="success"
+                              onClick={() => onDone(r)}
                             >
-                              <Archive fontSize="small" />
+                              <Typography>done</Typography>
                             </Button>
                           </Stack>
                         </TableCell>
@@ -282,14 +326,12 @@ export default function Users() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={users.length}
+          count={appointments.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
       </Paper>
-      {/* </Box> */}
-      {/* </Stack> */}
     </>
   );
 }

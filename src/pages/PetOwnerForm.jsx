@@ -17,6 +17,7 @@ import {
   StepLabel,
   Typography,
   Alert,
+  InputAdornment,
 } from "@mui/material";
 import Password from "../components/Password";
 
@@ -180,11 +181,20 @@ export default function PetOwnerForm() {
               label="Contact Number"
               type="number"
               // helperText="Please enter your firstname"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              +63
+            </InputAdornment>
+          ),
+        }}
               value={petowner.contact_num}
-              onChange={(ev) =>
-                setPetowner({ ...petowner, contact_num: ev.target.value })
-              }
+              onChange={(ev) => { 
+                const input = ev.target.value.replace(/\D/g, '').slice(0, 10);
+                setPetowner({ ...petowner, contact_num: input });
+              }}
             />
+
             <TextField
               id="Zone"
               label="Zone"

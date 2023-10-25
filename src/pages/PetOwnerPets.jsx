@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  Divider,
   Paper,
   Stack,
   Table,
@@ -16,7 +17,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Delete, Edit, Search } from "@mui/icons-material";
+import { Add, Archive, Delete, Edit, Search, Visibility } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
@@ -24,12 +25,10 @@ import PetsModal from "../components/modals/PetsModal";
 
 export default function PetOwnerPets() {
   const { id } = useParams();
-  const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [imageData, setImageData] = useState("");
   const [notification, setNotification] = useState("");
-
 
   const [pet, setPet] = useState({
     id: null,
@@ -45,17 +44,16 @@ export default function PetOwnerPets() {
   const [breeds, setBreeds] = useState([]);
 
   const getBreeds = () => {
-    setLoading(true);
     axiosClient
       .get(`/breeds`)
       .then(({ data }) => {
-        setLoading(false);
         setBreeds(data.data);
       })
       .catch(() => {
-        setLoading(false);
       });
   };
+
+  const [pets, setPets] = useState([]);
 
   const getPets = () => {
     setLoading(true);
@@ -104,20 +102,6 @@ export default function PetOwnerPets() {
 
   const closepopup = () => {
     openchange(false);
-  };
-
-  const onEdit = (r) => {
-    setLoading(true);
-    axiosClient
-      .get(`/pets/${r.id}`)
-      .then(({ data }) => {
-        setLoading(false);
-        setPet(data);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-    openchange(true);
   };
 
   const onArchive = (u) => {
@@ -170,48 +154,43 @@ export default function PetOwnerPets() {
   }, []);
 
   return (
-    <Box>
-      {/* <Navbar /> */}
-      <Stack direction="row" justifyContent="space-between">
-        {/* <Sidebar /> */}
-        <Box flex={5}>
-          <Paper
+    <>
+      
+     
+          <Box
             sx={{
               minWidth: "90%",
-              padding: "10px",
-              margin: "10px",
             }}
           >
+            
             <Box
-              p={2}
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
-            >
-              <Typography variant="h4">My Pets</Typography>{" "}
+          p={2}
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
+        >
+            <Button
+          onClick={functionopenpopup}
+          variant="contained"
+          color="success"
+          size="small"
+        >
+          {/* <Add/> */}
+                      <Typography>Add pet</Typography>
 
-              <Button
+        </Button>
+        {/* <Button
             component={Link}
             to={`/admin/pets/archives`}
             variant="contained"
             size="small"
           >
             <Typography>Archives</Typography>
-          </Button>
-
-              <Button
-                onClick={functionopenpopup}
-                variant="contained"
-              >
-                <Add />
-              </Button>
-            </Box>
+          </Button> */}
+          </Box>
+          
 
             {notification && <Alert severity="success">{notification}</Alert>}
-
-            {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
-          <CircularProgress color="inherit" />
-        </Backdrop> */}
 
             <PetsModal
               open={open}
@@ -220,21 +199,21 @@ export default function PetOwnerPets() {
               // id={petdata.id}
               setImageData={setImageData}
               onSubmit={onSubmit}
-              loading={loading}
+              // loading={loading}
               breeds={breeds}
               pet={pet}
               setPet={setPet}
               errors={errors}
               isUpdate={pet.id}
             />
-
-            <TableContainer sx={{ height: 380 }}>
+<Divider/>
+            <TableContainer sx={{ height: 350 }}>
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                   <TableRow>
                     {columns.map((column) => (
                       <TableCell
-                        style={{ backgroundColor: "black", color: "white" }}
+                    style={{ backgroundColor: "black", color: "white" }}
                         key={column.id}
                       >
                         {column.name}
@@ -269,23 +248,23 @@ export default function PetOwnerPets() {
                             <TableCell>{r.breed.breed}</TableCell>
                             <TableCell>
                               <Stack direction="row" spacing={2}>
-                                <Button
-                                  onClick={() => onEdit(r)}
+                              <Button
                                   variant="contained"
-                                  size="small"
                                   color="info"
-                                >
-                                  <Edit fontSize="small" />
-                                </Button>
-
-                                <Button
-                                  variant="contained"
-                                  color="error"
                                   size="small"
-                                  onClick={() => onArchive(r)}
+                                  component={Link}
+                                  to={`/admin/pets/` + r.id +`/view`}
                                 >
-                                  <Archive fontSize="small" />
+                                  <Visibility fontSize="small" />
                                 </Button>
+                                <Button
+                                variant="contained"
+                                size="small"
+                                color="error"
+                                onClick={() => onArchive(r)}
+                              >
+                                <Archive fontSize="small" />
+                              </Button>
                               </Stack>
                             </TableCell>
                           </TableRow>
@@ -303,9 +282,7 @@ export default function PetOwnerPets() {
               onPageChange={handlechangepage}
               onRowsPerPageChange={handleRowsPerPage}
             ></TablePagination>
-          </Paper>
-        </Box>
-      </Stack>
-    </Box>
+          </Box>
+    </>
   );
 }

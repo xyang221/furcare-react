@@ -8,6 +8,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
   InputLabel,
   Menu,
@@ -18,6 +19,8 @@ import {
   TextareaAutosize,
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
+import { DatePicker, DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export default function EditAppointment(props) {
   const {
@@ -27,7 +30,7 @@ export default function EditAppointment(props) {
     onSubmit,
     loading,
     petowners,
-    clientservices,
+    services,
     appointment,
     setAppointment,
     errors,
@@ -65,54 +68,75 @@ export default function EditAppointment(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
-            <TextField
-                variant="outlined"
-                id="Status"
-                label="Status"
-                value={appointment.status}
-                onChange={(ev) => handleFieldChange("date", ev.target.value)}
-                disabled
-              />
+              {isUpdate && (
+                <TextField
+                  variant="outlined"
+                  id="Status"
+                  label="Status"
+                  value={appointment.status}
+                  onChange={(ev) =>
+                    handleFieldChange("status", ev.target.value)
+                  }
+                  disabled
+                />
+              )}
 
-              <TextField
-                variant="outlined"
-                id="Date"
-                label="Date"
-                type="date"
-                value={appointment.date}
-                onChange={(ev) => handleFieldChange("date", ev.target.value)}
-              />
+              {isUpdate ? (
+                <TextField
+                  variant="outlined"
+                  id="Date"
+                  label="Date"
+                  type="date"
+                  // value={appointment.date}
+                  value={new Date(appointment.date).toISOString().split("T")[0]}
+                  onChange={(ev) => handleFieldChange("date", ev.target.value)}
+                />
+              ) : (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    renderInput={(props) => (
+                      <TextField {...props} label="Date" />
+                    )} // You may need to import TextField from '@mui/material' if not already done
+                    label="Date"
+                    value={appointment.date}
+                    onChange={(newValue) => handleFieldChange("date", newValue)}
+                  />
+                </LocalizationProvider>
+              )}
 
-              <InputLabel>Pet Owner</InputLabel>
-              <Select
-                label="Pet Owner"
-                value={appointment.petowner_id || ""}
-                onChange={(ev) =>
-                  handleFieldChange("petowner_id", ev.target.value)
-                }
-              >
-                {petowners.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {`${item.firstname} ${item.lastname}`}
-                  </MenuItem>
-                ))}
-              </Select>
+              <FormControl>
+                <InputLabel>Pet Owner</InputLabel>
+                <Select
+                  label="Pet Owner"
+                  value={appointment.petowner_id || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("petowner_id", ev.target.value)
+                  }
+                >
+                  {petowners.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {`${item.firstname} ${item.lastname}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-              <InputLabel>Client</InputLabel>
-              <Select
-                label="Client"
-                value={appointment.client_service_id || ""}
-                onChange={(ev) =>
-                  handleFieldChange("client_service_id", ev.target.value)
-                }
-                placeholder="Client"
-              >
-                {clientservices.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {`${item.petowner.firstname} ${item.petowner.lastname}`}
-                  </MenuItem>
-                ))}
-              </Select>
+              <FormControl>
+                <InputLabel>Services</InputLabel>
+                <Select
+                  label="Services"
+                  value={appointment.service_id || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("service_id", ev.target.value)
+                  }
+                >
+                  {services.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {`${item.service} (${item.category.category})`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
               <TextField
                 variant="outlined"
@@ -122,18 +146,15 @@ export default function EditAppointment(props) {
                 onChange={(ev) => handleFieldChange("purpose", ev.target.value)}
               />
 
-                  <InputLabel>Remarks</InputLabel>
-                  <TextareaAutosize
-                    minRows={3}
-                    placeholder="Remarks"
-                    variant="outlined"
-                    id="Remarks"
-                    label="Remarks"
-                    value={appointment.remarks || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("remarks", ev.target.value)
-                    }
-                  />
+              <InputLabel>Remarks</InputLabel>
+              <TextareaAutosize
+                minRows={5}
+                variant="outlined"
+                id="Remarks"
+                label="Remarks"
+                value={appointment.remarks}
+                onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
+              />
 
               <Button color="primary" variant="contained" onClick={onSubmit}>
                 Save

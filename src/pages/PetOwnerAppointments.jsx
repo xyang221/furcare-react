@@ -27,7 +27,7 @@ export default function PetOwnerAppointments() {
     { id: "Service", name: "Service" },
     { id: "Status", name: "Status" },
     { id: "Remarks", name: "Remarks" },
-    { id: "Actions", name: "Actions" },
+    // { id: "Actions", name: "Actions" },
   ];
 
   const handlechangepage = (event, newpage) => {
@@ -61,7 +61,6 @@ export default function PetOwnerAppointments() {
       });
   };
 
-  console.log(appointments)
 
   const onDelete = (po) => {
     if (!window.confirm("Are you sure?")) {
@@ -88,21 +87,6 @@ export default function PetOwnerAppointments() {
         setModalloading(false);
       });
   };
-
-  // const [petowners, setPetowners] = useState([]);
-
-  // const getPetowners = () => {
-  //   setModalloading(true);
-  //   axiosClient
-  //     .get(`/petowners`)
-  //     .then(({ data }) => {
-  //       setModalloading(false);
-  //       setPetowners(data.data);
-  //     })
-  //     .catch(() => {
-  //       setModalloading(false);
-  //     });
-  // };
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -194,39 +178,31 @@ export default function PetOwnerAppointments() {
 
   return (
     <>
-      <Paper
+      <Box
         sx={{
           minWidth: "90%",
-          padding: "10px",
-          margin: "10px",
         }}
       >
         {notification && <Alert severity="success">{notification}</Alert>}
+        
         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">My Appointments</Typography>{" "}
         
           <Button
             //  component={Link}
             //  to={"/admin/appointments/new"}
             onClick={addModal}
             variant="contained"
+            color="success"
             size="small"
           >
             <Add />
           </Button>
-          <Button
-          variant="contained"
-          color="error"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowBackIos fontSize="small" />
-          <Typography>Back</Typography>
-        </Button>
+       
         </Box>
 
         {/* <EditAppointment
@@ -242,7 +218,7 @@ export default function PetOwnerAppointments() {
           isUpdate={appointment.id}
         /> */}
 
-        <TableContainer sx={{ height: 380 }}>
+        <TableContainer sx={{ height: 350 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -276,7 +252,7 @@ export default function PetOwnerAppointments() {
                         <TableCell>{r.date}</TableCell>
                         {/* <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell> */}
                         <TableCell>{r.purpose}</TableCell>
-                        <TableCell>{r.clientservice.service.service}</TableCell>
+                        <TableCell>{r.service.service}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
                         {/* <TableCell>
@@ -307,7 +283,7 @@ export default function PetOwnerAppointments() {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
-      </Paper>
+      </Box>
     </>
   );
 }

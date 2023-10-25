@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  InputAdornment,
   MenuItem,
   Select,
   Stack,
@@ -26,12 +27,17 @@ export default function PetOwnerEdit(props) {
     onSubmit,
     loading,
     petowner,
-    setPetowner, 
+    setPetowner,
     address,
     setAddress,
     zipcode,
     errors,
     isUpdate,
+    // value,
+    // setValue,
+    // inputValue,
+    // setInputValue,
+    // options,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -50,9 +56,9 @@ export default function PetOwnerEdit(props) {
 
   return (
     <>
-      <Backdrop open={loading} style={{ zIndex: 999 }}>
+      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
         <CircularProgress color="inherit" />
-      </Backdrop>
+      </Backdrop> */}
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
@@ -72,34 +78,48 @@ export default function PetOwnerEdit(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
-             
               <TextField
                 variant="outlined"
                 id="firstname"
-            label="Firstname"
-            value={petowner.firstname}
-                onChange={(ev) => handleFieldChange("firstname", ev.target.value)}
+                label="Firstname"
+                value={petowner.firstname}
+                onChange={(ev) =>
+                  handleFieldChange("firstname", ev.target.value)
+                }
               />
               <TextField
                 variant="outlined"
                 id="Lastname"
                 label="Lastname"
                 value={petowner.lastname}
-                onChange={(ev) => handleFieldChange("lastname", ev.target.value)}
+                onChange={(ev) =>
+                  handleFieldChange("lastname", ev.target.value)
+                }
               />
               <TextField
                 variant="outlined"
                 id="Contact Number"
                 label="Contact Number"
                 type="number"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      +63
+                    </InputAdornment>
+                  ),
+                }}
                 value={petowner.contact_num}
-                onChange={(ev) => handleFieldChange("contact_num", ev.target.value)}
+                onChange={(ev) =>{
+                  const input = ev.target.value.replace(/\D/g, '').slice(0, 10);
+                  handleFieldChange("contact_num", input)
+                }}
               />
+
               <TextField
                 variant="outlined"
                 id="Zone"
-            label="Zone"
-            value={address.zone}
+                label="Zone"
+                value={address.zone}
                 onChange={(ev) =>
                   handleFieldChangeAddress("zone", ev.target.value)
                 }
@@ -107,8 +127,8 @@ export default function PetOwnerEdit(props) {
               <TextField
                 variant="outlined"
                 id="Barangay"
-            label="Barangay"
-            value={address.barangay}
+                label="Barangay"
+                value={address.barangay}
                 onChange={(ev) =>
                   handleFieldChangeAddress("barangay", ev.target.value)
                 }
@@ -139,6 +159,31 @@ export default function PetOwnerEdit(props) {
                 }}
 
               />
+
+              {/* <Autocomplete
+                value={value}
+                onChange={(event, newValue) => {
+                  setValue(newValue);
+                }}
+                inputValue={inputValue}
+                onInputChange={(event, newInputValue) => {
+                  setInputValue(newInputValue);
+                }}
+                id="controllable-states-demo"
+                options={options} // Use the options from the API response
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    {option.area}, {option.province}, {option.zipcode}
+                  </li>
+                )}
+                getOptionLabel={(option) =>
+                  `${option.area}, ${option.province}, ${option.zipcode}`
+                }
+                sx={{ width: 300 }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Controllable" />
+                )}
+              /> */}
               <Button color="primary" variant="contained" onClick={onSubmit}>
                 Save
               </Button>

@@ -11,6 +11,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import Appointments from "./Appointments";
+import AppointmentTabs from "../components/AppointmentTabs";
 
 export default function ClientService() {
   const [notification, setNotification] = useState("");
@@ -135,6 +137,8 @@ export default function ClientService() {
         }}
       >
         {notification && <Alert severity="success">{notification}</Alert>}
+
+        <AppointmentTabs/>
         <Box
           p={2}
           display="flex"

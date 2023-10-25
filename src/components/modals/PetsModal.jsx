@@ -10,7 +10,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
+  InputLabel,
   LinearProgress,
   MenuItem,
   Select,
@@ -70,7 +72,7 @@ export default function PetsModal(props) {
                 </Box>
               )}
               <Stack spacing={2} margin={2}>
-                <TextField
+                {/* <TextField
                   variant="outlined"
                   id="Photo"
                   label="Photo"
@@ -78,65 +80,74 @@ export default function PetsModal(props) {
                   type="file"
                   // value={pet.photo}
                   onChange={(ev) => handleAddPhoto(ev.target.files)}
-                />
+                /> */}
 
                 <TextField
                   variant="outlined"
                   id="Name"
                   label="Name"
-                  value={pet.name}
+                  value={pet.name || ``}
                   onChange={(ev) => handleFieldChange("name", ev.target.value)}
                 />
+
                 <TextField
+                  label="Date"
                   variant="outlined"
                   id="Birthdate"
                   type="date"
-                  value={pet.birthdate}
+                  value={pet.birthdate || ``}
                   onChange={(ev) =>
                     handleFieldChange("birthdate", ev.target.value)
                   }
                 />
-            
-                <Select
-                  label="Gender"
-                  value={pet.gender || ""}
-                  onChange={(ev) =>
-                    handleFieldChange("gender", ev.target.value)
-                  }
-                >
-                  <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="Female">Female</MenuItem>
-                </Select>
+
+                <FormControl>
+                  <InputLabel>Gender</InputLabel>
+                  <Select
+                    label="Gender"
+                    value={pet.gender || ``}
+                    onChange={(ev) =>
+                      handleFieldChange("gender", ev.target.value)
+                    }
+                  >
+                    <MenuItem value="Male">Male</MenuItem>
+                    <MenuItem value="Female">Female</MenuItem>
+                  </Select>
+                </FormControl>
+
                 <TextField
                   variant="outlined"
                   id="Color"
                   label="Color"
-                  value={pet.color}
+                  value={pet.color || ``}
                   onChange={(ev) => handleFieldChange("color", ev.target.value)}
                 />
                 <TextField
                   variant="outlined"
                   id="QRCode"
                   label="QRCode"
-                  value={pet.qr_code}
+                  value={pet.qr_code || ``}
                   onChange={(ev) =>
                     handleFieldChange("qr_code", ev.target.value)
                   }
                 />
 
-                <Select
-                  label="Breed"
-                  value={pet.breed_id || ""}
-                  onChange={(ev) =>
-                    handleFieldChange("breed_id", ev.target.value)
-                  }
-                >
-                  {breeds.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.breed}
-                    </MenuItem>
-                  ))}
-                </Select>
+                <FormControl>
+                  <InputLabel>Breed</InputLabel>
+                  <Select
+                    label="Breed"
+                    value={pet.breed_id || null}
+                    onChange={(ev) =>
+                      handleFieldChange("breed_id", ev.target.value)
+                    }
+                  >
+                    {breeds.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.breed}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <Button color="primary" variant="contained" onClick={onSubmit}>
                   Save
                 </Button>

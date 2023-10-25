@@ -6,6 +6,7 @@ import {
     Box,
     Button,
     Paper,
+    Snackbar,
     Stack,
     Table,
     TableBody,
@@ -44,8 +45,19 @@ export default function AppointmentsPending() {
       const [rowperpage, rowperpagechange] = useState(10);
     
       const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState("");
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    const [open, setOpen] = useState(false);
+
+    const handleClose = (event, reason) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+  
+      setOpen(false);
+    };
 
     const getAppointments = () => {
 
@@ -55,8 +67,12 @@ export default function AppointmentsPending() {
                 setLoading(false);
                 setAppointments(data.data);
             })
-            .catch(() => {
-                setLoading(false);
+            .catch((mes) => {
+              const response = mes.response;
+              if (response && response.status == 404) {
+                setMessage(response.data.message);
+              }
+              setLoading(false);
             });
     };
 
@@ -95,12 +111,13 @@ export default function AppointmentsPending() {
   const [modalloading, setModalloading] = useState(false);
 
   const onAccept = (r) => {
-    if (!window.confirm("Are you sure to accept this appointment?")) {
+    if (!window.confirm("Are you sure to confirm this appointment?")) {
       return;
     }
 
-    axiosClient.put(`/appointments/${r.id}/schedule`).then(() => {
-      setNotification("The appointment was scheduled");
+    axiosClient.put(`/appointments/${r.id}/confirm`).then(() => {
+      setOpen(true)
+      setNotification("The appointment was confirmed");
       getAppointments();
     });
   };
@@ -111,6 +128,7 @@ export default function AppointmentsPending() {
     }
 
     axiosClient.put(`/appointments/${r.id}/cancel`).then(() => {
+      setOpen(true)
       setNotification("The appointment was cancelled");
       getAppointments();
     });
@@ -139,19 +157,16 @@ export default function AppointmentsPending() {
             <Typography variant="h4">Pending Appointments</Typography>{" "}
 
             <DropDownButtons
-            optionLink1="/admin/appointments/scheduled"
-            optionLabel1="Scheduled"
-            optionLink2="/admin/appointments/done"
-            optionLabel2="Done"
+            optionLink1="/admin/appointments/confirmed"
+            optionLabel1="Confirmed"
+            optionLink2="/admin/appointments/completed"
+            optionLabel2="Completed"
             optionLink3="/admin/appointments"
-            optionLabel3="Today"
+            optionLabel3="Scheduled"
           />
 
           </Box>
 
-          {notification && <Alert severity="success">{notification}</Alert>}
-          
-    
           <TableContainer sx={{ height: 380 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
@@ -169,12 +184,22 @@ export default function AppointmentsPending() {
               {loading && (
                 <TableBody>
                   <TableRow>
-                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       Loading...
                     </TableCell>
                   </TableRow>
                 </TableBody>
               )}
+
+{!loading && message && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                   {message}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
     
               {!loading && (
                 <TableBody>
@@ -183,10 +208,11 @@ export default function AppointmentsPending() {
                       .slice(page * rowperpage, page * rowperpage + rowperpage)
                       .map((r) => (
                         <TableRow hover role="checkbox" key={r.id}>
-                          <TableCell>{r.date}</TableCell>
+                          {/* <TableCell>{r.date}</TableCell> */}
+                        <TableCell>{new Date(r.date).toISOString().split("T")[0]}</TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
                           <TableCell>{r.purpose}</TableCell>
-                          <TableCell>{r.clientservice.service.service}</TableCell>
+                          <TableCell>{r.service.service}</TableCell>
                           <TableCell>{r.status}</TableCell>
                           <TableCell>
                             <Stack direction="row" spacing={2}>
@@ -198,7 +224,7 @@ export default function AppointmentsPending() {
                                 size="small"
                                 onClick={() => onAccept(r)}
                               >
-                                <Typography>ACCEPT</Typography>
+                                <Typography>confirm</Typography>
                               </Button>
                               <Button
                                 variant="contained"
@@ -225,6 +251,16 @@ export default function AppointmentsPending() {
             onPageChange={handlechangepage}
             onRowsPerPageChange={handleRowsPerPage}
           ></TablePagination>
+
+<Stack spacing={2} sx={{ width: '100%' }}>
+     
+     <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+       <Alert  severity="success" sx={{ width: '100%' }} onClose={handleClose} >
+         {notification}
+       </Alert>
+     </Snackbar>
+   </Stack>
+
         </Paper>
         </>
     );

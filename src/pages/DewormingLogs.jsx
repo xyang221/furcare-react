@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
+import { Link, useParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -15,22 +16,24 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
-import SpeciesModal from "../components/modals/SpeciesModal";
+import { Add, Archive, Visibility } from "@mui/icons-material";
+import DewormingLogsModal from "../components/modals/DewormingLogsModal";
 
-export default function Species() {
+export default function DewormingLogs() {
   //for table
   const columns = [
     { id: "id", name: "ID" },
-    { id: "Specie", name: "Specie" },
+    { id: "date", name: "Date" },
+    { id: "weight", name: "Weight" },
     { id: "Description", name: "Description" },
+    { id: "Administered", name: "Administered" },
+    { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
 
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
-
   const handleRowsPerPage = (event) => {
     rowperpagechange(+event.target.value);
     pagechange(0);
@@ -41,78 +44,86 @@ export default function Species() {
 
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState(null);
 
-  const [species, setSpecies] = useState([]);
+  const [deworminglogs, setDeworminglogs] = useState([]);
 
-  const getSpecies = () => {
+  const { id } = useParams();
+
+  const getDeworming = () => {
     setLoading(true);
     axiosClient
-      .get("/species")
+      .get(`/deworminglogs/pet/${id}`)
       .then(({ data }) => {
         setLoading(false);
-        setSpecies(data.data);
+        setDeworminglogs(data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+      });
+  };
+
+  const [pets, setPets] = useState([]);
+
+  const getPets = () => {
+    setLoading(true);
+    axiosClient
+      .get(`/pets`)
+      .then(({ data }) => {
+        setLoading(false);
+        setPets(data.data);
       })
       .catch(() => {
         setLoading(false);
       });
   };
 
-  //for modal
-  const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [specie, setSpecie] = useState({
+  const [deworminglog, setDeworminglog] = useState({
     id: null,
-    specie: "",
+    date: "",
+    weight: null,
     description: "",
+    administered: "",
+    status: "",
+    pet_id:null,
   });
 
-  const [open, openchange] = useState(false);
-
+  const [openAdd, setOpenAdd] = useState(false);
   const addModal = (ev) => {
-    setSpecie({})
+    getPets();
+    setOpenAdd(true);
+    setDeworminglog({});
     setErrors(null);
-    openchange(true)
   };
 
   const closepopup = () => {
-    openchange(false);
+    setOpenAdd(false);
   };
 
-  const onEdit = (r) => {
-    setErrors(null)
-    setModalloading(true);
-    axiosClient
-      .get(`/species/${r.id}`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setSpecie(data);
-        console.log(specie)
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-    openchange(true);
-  };
-  
-  const onArchive = (s) => {
-    if (!window.confirm("Are you sure to archive this specie?")) {
+  const onArchive = (u) => {
+    if (!window.confirm("Are you sure to archive this?")) {
       return;
     }
 
-    axiosClient.delete(`/species/${s.id}`).then(() => {
-      setNotification("Specie was deleted");
-      getSpecies();
+    axiosClient.delete(`/deworminglogs/${u.id}/archive`).then(() => {
+      setNotification("Pet Owner was archived");
+      getDeworming();
     });
   };
 
   const onSubmit = () => {
-    if (specie.id) {
+    if (deworminglog.id) {
       axiosClient
-        .put(`/species/${specie.id}`, specie)
+        .put(`/deworminglogs/${deworminglog.id}`, deworminglog)
         .then(() => {
-          setNotification("specie was successfully updated");
-          openchange(false);
-          getSpecies();
+          setNotification("deworminglog was successfully updated");
+          openAdd(false);
+          getDeworming();
         })
         .catch((err) => {
           const response = err.response;
@@ -122,11 +133,11 @@ export default function Species() {
         });
     } else {
       axiosClient
-        .post(`/species`, specie)
+        .post(`/deworminglog`, deworminglog)
         .then(() => {
-          setNotification("specie was successfully added");
-          openchange(false);
-          getSpecies();
+          setNotification("deworminglog was successfully created");
+          setOpenAdd(false);
+          getDeworming();
         })
         .catch((err) => {
           const response = err.response;
@@ -138,57 +149,59 @@ export default function Species() {
   };
 
   useEffect(() => {
-    getSpecies();
+    getDeworming();
   }, []);
 
   return (
     <>
-      <Paper
+      <Box
         sx={{
-          padding: "10px",
-          margin: "10px",
+          minWidth: "90%",
         }}
       >
-        <Box
+         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Species</Typography>{" "}
-          
-          {/* <Button
+        <Button
+          onClick={addModal}
+          variant="contained"
+          color="success"
+          size="small"
+        >
+          <Add />
+        </Button>
+        </Box>
+
+        <DewormingLogsModal
+          open={openAdd}
+          onClose={closepopup}
+          onClick={closepopup}
+          onSubmit={onSubmit}
+          loading={loading}
+          pets={pets}
+          deworminglog={deworminglog}
+          setDeworminglog={setDeworminglog}
+          // errors={errors}
+          petid={id}
+          isUpdate={deworminglog.id}
+        />
+
+        {/* <Button
             component={Link}
-            to={`/admin/species/archives`}
+            to={`/admin/deworminglogs/archives`}
             variant="contained"
+            color="success"
             size="small"
           >
             <Typography>Archives</Typography>
           </Button> */}
 
-          <Button 
-          onClick={addModal}
-           variant="contained" size="small">
-            <Add />
-          </Button>
-        </Box>
-
         {notification && <Alert severity="success">{notification}</Alert>}
 
-        <SpeciesModal
-        open={open}
-        onClose={closepopup}
-        onClick={closepopup}
-        onSubmit={onSubmit}
-        loading={modalloading}
-        specie={specie}
-        setSpecie={setSpecie}
-        errors={errors}
-        isUpdate={specie.id}
-        />
-
-        <TableContainer sx={{ height: 380 }} 
-            maxwidth="sm">
+        <TableContainer sx={{ height: 380 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -205,8 +218,18 @@ export default function Species() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
                     Loading...
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+
+            {!loading && message && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                    {message}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -214,28 +237,34 @@ export default function Species() {
 
             {!loading && (
               <TableBody>
-                {species &&
-                  species
+                {deworminglogs &&
+                  deworminglogs
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.id}</TableCell>
-                        <TableCell>{r.specie}</TableCell>
-                        <TableCell>{r.description}</TableCell>
+                        <TableCell>{`${r.firstname} ${r.lastname}`}</TableCell>
+                        <TableCell>{r.contact_num}</TableCell>
+                        <TableCell>
+                          {r.address.zone}, {r.address.barangay},{" "}
+                          {r.address.zipcode.area}
+                        </TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
+                              component={Link}
+                              to={`/admin/deworminglogs/` + r.id + `/view`}
                               variant="contained"
-                              size="small"
                               color="info"
-                              onClick={() => onEdit(r)}
+                              size="small"
                             >
-                              <Edit fontSize="small" />
+                              <Visibility fontSize="small" />
                             </Button>
+
                             <Button
                               variant="contained"
-                              color="error"
                               size="small"
+                              color="error"
                               onClick={() => onArchive(r)}
                             >
                               <Archive fontSize="small" />
@@ -252,14 +281,12 @@ export default function Species() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={species.length}
+          count={deworminglogs.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
-      </Paper>
-      {/* </Box> */}
-      {/* </Stack> */}
+      </Box>
     </>
   );
 }

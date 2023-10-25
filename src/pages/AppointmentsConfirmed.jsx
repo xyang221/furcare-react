@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Paper,
+  Snackbar,
   Stack,
   Table,
   TableBody,
@@ -20,7 +21,7 @@ import { Add, Archive, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
 
-export default function AppointmentsScheduled() {
+export default function AppointmentsConfirmed() {
   //for table
   const columns = [
     { id: "Date", name: "Date" },
@@ -43,31 +44,25 @@ export default function AppointmentsScheduled() {
   const [rowperpage, rowperpagechange] = useState(10);
 
   const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState("");
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const getAppointments = () => {
     setLoading(true);
     axiosClient
-      .get("/appointments/scheduled")
+      .get("/appointments/confirmed")
       .then(({ data }) => {
         setLoading(false);
         setAppointments(data.data);
       })
-      .catch(() => {
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
         setLoading(false);
       });
-  };
-
-  const onDelete = (po) => {
-    if (!window.confirm("Are you sure?")) {
-      return;
-    }
-
-    axiosClient.delete(`/appointments/${po.id}`).then(() => {
-      setNotification("Pet Owner deleted");
-      getAppointments();
-    });
   };
 
   const [services, setServices] = useState([]);
@@ -99,21 +94,6 @@ export default function AppointmentsScheduled() {
         setModalloading(false);
       });
   };
-  const [clientservice, setCS] = useState([]);
-
-
-  const getClientServices = () => {
-    setModalloading(true);
-    axiosClient
-      .get(`/clientservices`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setCS(data.data);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-  };
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -124,22 +104,12 @@ export default function AppointmentsScheduled() {
     purpose: "",
     remarks: "",
     petowner_id: null,
-    client_service_id: null,
+    service_id: null,
   });
   const [open, openchange] = useState(false);
-  const [openAdd, setOpenAdd] = useState(false);
-
-  const addModal = (ev) => {
-    getPetowners();
-    // setOpenAdd(true);
-    openchange(true)
-    setAppointment({});
-    setErrors(null);
-  };
 
   const closepopup = () => {
     openchange(false);
-    setOpenAdd(false);
   };
 
   const onDone = (r) => {
@@ -147,7 +117,7 @@ export default function AppointmentsScheduled() {
       return;
     }
 
-    axiosClient.put(`/appointments/${r.id}/done`).then(() => {
+    axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
       setNotification("The appointment was done");
       getAppointments();
     });
@@ -188,7 +158,7 @@ export default function AppointmentsScheduled() {
         .post(`/appointments`, appointment)
         .then(() => {
           setNotification("Appointment was successfully created");
-          setOpenAdd(false);
+          openchange(false);
           getAppointments();
         })
         .catch((err) => {
@@ -201,7 +171,6 @@ export default function AppointmentsScheduled() {
   };
 
   useEffect(() => {
-    getClientServices();
     getServices();
     getAppointments();
   }, []);
@@ -215,34 +184,22 @@ export default function AppointmentsScheduled() {
           margin: "10px",
         }}
       >
-        {notification && <Alert severity="success">{notification}</Alert>}
-        
+
         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Scheduled Appointments</Typography>{" "}
-
+          <Typography variant="h4">Confirmed Appointments</Typography>{" "}
           <DropDownButtons
             optionLink1="/admin/appointments"
-            optionLabel1="Today"
+            optionLabel1="Scheduled"
             optionLink2="/admin/appointments/pending"
             optionLabel2="Pending"
-            optionLink3="/admin/appointments/done"
-            optionLabel3="Done"
+            optionLink3="/admin/appointments/completed"
+            optionLabel3="Completed"
           />
-
-          {/* <Button
-            //  component={Link}
-            //  to={"/admin/appointments/new"}
-            onClick={addModal}
-            variant="contained"
-            size="small"
-          >
-            <Add />
-          </Button> */}
         </Box>
 
         <EditAppointment
@@ -252,6 +209,7 @@ export default function AppointmentsScheduled() {
           onSubmit={onSubmit}
           loading={modalloading}
           petowners={petowners}
+          services={services}
           appointment={appointment}
           setAppointment={setAppointment}
           errors={errors}
@@ -264,7 +222,6 @@ export default function AppointmentsScheduled() {
               <TableRow>
                 {columns.map((column) => (
                   <TableCell
-                    style={{ backgroundColor: "black", color: "white" }}
                     key={column.id}
                   >
                     {column.name}
@@ -282,6 +239,16 @@ export default function AppointmentsScheduled() {
               </TableBody>
             )}
 
+            {!loading && message && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                    {message}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+
             {!loading && (
               <TableBody>
                 {appointments &&
@@ -289,21 +256,25 @@ export default function AppointmentsScheduled() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        <TableCell>{r.date}</TableCell>
+                        {/* <TableCell>{r.date}</TableCell> */}
+                        <TableCell>
+                          {new Date(r.date).toISOString().split("T")[0]}
+                        </TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
-                        <TableCell>{r.clientservice.service.service}</TableCell>
+                        <TableCell>{r.service.service}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
-                           
                             <Button
                               variant="contained"
                               size="small"
                               color="info"
                               onClick={() => onEdit(r)}
                             >
-                              <Typography>edit</Typography>
+                              <Edit
+                              size="small"
+                              />
                             </Button>
 
                             <Button
@@ -312,7 +283,7 @@ export default function AppointmentsScheduled() {
                               color="success"
                               onClick={() => onDone(r)}
                             >
-                              <Typography>done</Typography>
+                              <Typography variant="body">completed</Typography>
                             </Button>
                           </Stack>
                         </TableCell>
@@ -331,6 +302,16 @@ export default function AppointmentsScheduled() {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
+
+<Stack spacing={2} sx={{ width: '100%' }}>
+     
+     <Snackbar open={open} autoHideDuration={6000}  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+       <Alert  severity="success" sx={{ width: '100%' }}  >
+         {notification}
+       </Alert>
+     </Snackbar>
+   </Stack>
+
       </Paper>
     </>
   );

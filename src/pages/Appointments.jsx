@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Paper,
+  Snackbar,
   Stack,
   Table,
   TableBody,
@@ -19,7 +20,6 @@ import {
 import { Add, Archive, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
-import AddAppointment from "../components/modals/AddAppointment";
 
 export default function Appointments() {
   //for table
@@ -45,8 +45,9 @@ export default function Appointments() {
 
   const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
-  const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [appointments, setAppointments] = useState([]);
 
   const getAppointments = () => {
     setLoading(true);
@@ -63,17 +64,6 @@ export default function Appointments() {
         }
         setLoading(false);
       });
-  };
-
-  const onDelete = (po) => {
-    if (!window.confirm("Are you sure?")) {
-      return;
-    }
-
-    axiosClient.delete(`/appointments/${po.id}`).then(() => {
-      setNotification("Pet Owner deleted");
-      getAppointments();
-    });
   };
 
   const [services, setServices] = useState([]);
@@ -106,20 +96,6 @@ export default function Appointments() {
       });
   };
 
-  const [clientservice, setCS] = useState([]);
-
-  const getClientServices = () => {
-    setModalloading(true);
-    axiosClient
-      .get(`/clientservices`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setCS(data.data);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-  };
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -130,7 +106,7 @@ export default function Appointments() {
     purpose: "",
     remarks: "",
     petowner_id: null,
-    client_service_id: null,
+    service_id: null,
   });
   const [open, openchange] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -149,12 +125,23 @@ export default function Appointments() {
   };
 
   const onDone = (r) => {
-    if (!window.confirm("Are you sure this appointment was done?")) {
+    if (!window.confirm("Are you sure this appointment was completed?")) {
       return;
     }
 
-    axiosClient.put(`/appointments/${r.id}/done`).then(() => {
-      setNotification("The appointment was done");
+    axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
+      setNotification("The appointment was completed");
+      getAppointments();
+    });
+  };
+
+  const onNoShow = (r) => {
+    if (!window.confirm("Are you sure the petowner didn't show up?")) {
+      return;
+    }
+
+    axiosClient.put(`/appointments/${r.id}/noshow`).then(() => {
+      setNotification("The appointment was not made");
       getAppointments();
     });
   };
@@ -194,7 +181,7 @@ export default function Appointments() {
         .post(`/appointments`, appointment)
         .then(() => {
           setNotification("Appointment was successfully created");
-          setOpenAdd(false);
+          openchange(false);
           getAppointments();
         })
         .catch((err) => {
@@ -209,7 +196,6 @@ export default function Appointments() {
   useEffect(() => {
     getServices();
     getAppointments();
-    getClientServices();
   }, []);
 
   return (
@@ -227,33 +213,19 @@ export default function Appointments() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Appointments {notification}</Typography>{" "}
+          <Typography variant="h4">Scheduled Appointments</Typography>{" "}
           <DropDownButtons
             optionLink1="/admin/appointments/pending"
             optionLabel1="Pending"
-            optionLink2="/admin/appointments/scheduled"
-            optionLabel2="Scheduled"
-            optionLink3="/admin/appointments/done"
-            optionLabel3="Done"
+            optionLink2="/admin/appointments/confirmed"
+            optionLabel2="Confirmed"
+            optionLink3="/admin/appointments/completed"
+            optionLabel3="Completed"
           />
           <Button onClick={addModal} variant="contained" size="small">
             <Add />
           </Button>
         </Box>
-
-        {notification && <Alert severity="success">{notification}</Alert>}
-
-        <AddAppointment
-          open={open}
-          onClose={closepopup}
-          onClick={closepopup}
-          onSubmit={onSubmit}
-          loading={modalloading}
-          petowners={petowners}
-          appointment={appointment}
-          setAppointment={setAppointment}
-          errors={errors}
-        />
 
         <EditAppointment
           open={open}
@@ -262,7 +234,7 @@ export default function Appointments() {
           onSubmit={onSubmit}
           loading={modalloading}
           petowners={petowners}
-          clientservices={clientservice}
+          services={services}
           appointment={appointment}
           setAppointment={setAppointment}
           errors={errors}
@@ -297,7 +269,7 @@ export default function Appointments() {
               <TableBody>
                 <TableRow>
                   <TableCell colSpan={6} style={{ textAlign: "center" }}>
-                    No Appointments For Today
+                   {message}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -310,10 +282,10 @@ export default function Appointments() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        <TableCell>{r.date}</TableCell>
+                        <TableCell>{new Date(r.date).toISOString().split("T")[0]}</TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
-                        <TableCell>{r.clientservice.service.service}</TableCell>
+                        <TableCell>{r.service.service}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
@@ -332,7 +304,15 @@ export default function Appointments() {
                               color="success"
                               onClick={() => onDone(r)}
                             >
-                              <Typography>done</Typography>
+                              <Typography>Completed</Typography>
+                            </Button>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              color="error"
+                              onClick={() => onNoShow(r)}
+                            >
+                              <Typography>no show</Typography>
                             </Button>
                           </Stack>
                         </TableCell>
@@ -351,6 +331,16 @@ export default function Appointments() {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
+
+<Stack spacing={2} sx={{ width: '100%' }}>
+     
+     <Snackbar open={open} autoHideDuration={6000}  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+       <Alert  severity="success" sx={{ width: '100%' }}  >
+         {notification}
+       </Alert>
+     </Snackbar>
+   </Stack>
+
       </Paper>
     </>
   );

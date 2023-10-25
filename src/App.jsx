@@ -23,12 +23,15 @@ import ClientService from "./pages/ClientService";
 import AppointmentsPending from "./pages/AppointmentsPending";
 import AppointmentsDone from "./pages/AppointmentsDone";
 import PetOwnerAppointments from "./pages/PetOwnerAppointments";
-import AppointmentsScheduled from "./pages/AppointmentsScheduled";
+import AppointmentsScheduled from "./pages/AppointmentsConfirmed";
 import PetOwnerArchives from "./pages/PetOwnersArchives";
 import Breeds from "./pages/Breeds";
 import Species from "./pages/Species";
 import StaffsArchives from "./pages/StaffsArchives";
 import PetsArchives from "./pages/PetsArchives";
+import AppointmentsConfirmed from "./pages/AppointmentsConfirmed";
+import Receipt from "./pages/Receipt";
+import ViewPet from "./pages/ViewPet";
 
 const roles = {
   ADMIN: "1",
@@ -74,6 +77,8 @@ function App() {
           <Route path="admin/petowners/:id/view" element={<ViewPetOwner />} />
           <Route path="admin/petowners/archives" element={<PetOwnerArchives />} />
 
+          <Route path="admin/pets/:id/view" element={<ViewPet />} />
+
           <Route path="admin/pets/archives" element={<PetsArchives />} />
 
           <Route path="admin/pets/species" element={<Species />} />
@@ -83,9 +88,13 @@ function App() {
           {/* <Route path="admin/petowners/:id/pets" element={<Pets />} /> */}
 
           <Route path="admin/appointments" element={<Appointments />} />
-          <Route path="admin/appointments/scheduled" element={<AppointmentsScheduled />} />
+          <Route path="admin/appointments/confirmed" element={<AppointmentsConfirmed />} />
           <Route path="admin/appointments/pending" element={<AppointmentsPending />} />
-          <Route path="admin/appointments/done" element={<AppointmentsDone />} />
+          <Route path="admin/appointments/completed" element={<AppointmentsDone />} />
+          <Route path="admin/:id/chargeslip" element={<Receipt />} />
+
+
+
           <Route path="admin/clientservice" element={<ClientService />} />
           
         </Route>

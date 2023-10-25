@@ -3,9 +3,8 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { Alert, Box, Button, CircularProgress, Typography } from "@mui/material";
 import { ArrowBackIos, Edit } from "@mui/icons-material";
-import PetOwnerEdit from "../components/modals/PetOwnerEdit";
-import PetOwnerPets from "./PetOwnerPets";
-import UserEdit from "../components/modals/UserEdit";
+import PetsModal from "../components/modals/PetsModal";
+import PetTabs from "../components/PetTabs";
 
 export default function ViewPet() {
   const { id } = useParams();
@@ -14,258 +13,154 @@ export default function ViewPet() {
   const [errors, setErrors] = useState(null);
   const [notification, setNotification] = useState(null);
 
-  const [petownerdata, setPetownerdata] = useState({
+  const [pet, setPet] = useState({
     id: null,
-    firstname: "",
+    name: "",
+    birthdate: "",
+    gender: "",
+    color: "",
+    qr_code: "",
+    petowner_id:null,
+    // photo: imageData,
+    breed_id: null,
+  });
+
+  const [petowner, setPetowner] = useState({
+    id: null,
+    firtname: "",
     lastname: "",
     contact_num: "",
   });
 
-  const [addressdata, setAddressdata] = useState({
-    id: null,
-    zipcode_id: null,
-    barangay: "",
-    zone: "",
-  });
-
-  const [userdata, setUserdata] = useState({
-    id: null,
-    username: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    role_id: null,
-  });
-
-  const [zipcode, setZipcode] = useState({
-    area: "",
-    province: "",
-    zipcode: "",
-  });
-
-  const [petownerid, setPetownerid] = useState(null);
-  const [addressid, setAddressid] = useState(null);
-  const [userid, setUserid] = useState(null);
-  const [zipcodeid, setZipcodeid] = useState(null);
-
-  const [openuser, openuserchange] = useState(false);
-  const [openPetowner, openPetownerchange] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const closepopup = () => {
-    openuserchange(false);
-    openPetownerchange(false);
+    setOpen(false);
   };
 
-  const getPetowner = () => {
+  const getPet = () => {
     setNotification(null);
     setErrors(null);
     setLoading(true);
     axiosClient
-      .get(`/petowners/${id}`)
+      .get(`/pets/${id}`)
       .then(({ data }) => {
         setLoading(false);
-        setPetownerid(data.id);
-        setPetownerdata(data);
-        setAddressid(data.address.id);
-        setAddressdata(data.address);
-        setZipcode(data.address.zipcode);
-        setUserid(data.user.id);
-        setUserdata(data.user);
+        setPet(data);
+        setPetowner(data.petowner);
       })
       .catch(() => {
         setLoading(false);
       });
   };
 
-  const [roles, setRoles] = useState([]);
+  const [breeds, setBreeds] = useState([]);
 
-  const getRoles = () => {
+  const getBreeds = () => {
     setLoading(true);
     axiosClient
-      .get("/roles")
+      .get("/breeds")
       .then(({ data }) => {
         setLoading(false);
-        setRoles(data.data);
+        setBreeds(data.data);
       })
       .catch(() => {
         setLoading(false);
       });
-  };
-
-  const [zipcodes, setZipcodes] = useState([]);
-
-  const getZipcodes = () => {
-    setLoading(true);
-    axiosClient
-      .get("/zipcodes")
-      .then(({ data }) => {
-        setLoading(false);
-        setZipcodes(data.data);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
-  const handleAddressChange = (event, newValue) => {
-    setAddressdata((prevAddress) => ({
-      ...prevAddress,
-      zipcode_id: newValue ? newValue.id : prevAddress.zipcode_id,
-    }));
   };
 
   const onEdit = () => {
-    getPetowner();
+    getPet();
     setErrors(null);
-    getZipcodes()
-    openPetownerchange(true);
+    getBreeds()
+    setOpen(true);
   };
 
-  const onEditUSer = () => {
-    getPetowner();
+  const addDeworming = () => {
+    getPet();
     setErrors(null);
-    getRoles();
-    openuserchange(true);
+    getBreeds()
+    setOpen(true);
   };
 
-  const onSubmit = () => {
-    setErrors(null);
-    setLoading(true);
-    axiosClient
-      .put(`/petowners/${petownerid}`, petownerdata)
-      .then(() => {
-        setNotification("Petowner was successfully updated");
 
-        return axiosClient.put(`/addresses/${addressid}`, addressdata);
-      })
-      .then(() => {
-        setLoading(false);
-        openPetownerchange(false);
-        getPetowner();
-        console.log("sucess daw");
-      })
-
-      .catch((err) => {
-        const response = err.response;
-        if (response && response.status == 422) {
-          setErrors(response.data.errors);
-        }
-      });
+  const onSubmit = (ev) => {
+    ev.preventDefault();
+    if (pet.id) {
+      axiosClient
+        .put(`/pets/${pet.id}`, pet)
+        .then(() => {
+          setNotification("Pet was successfully updated");
+          setOpen(false)
+          getPet();
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status == 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    } else {
+      axiosClient
+        .post(`/petowners/${id}/addpet`, pet)
+        .then(() => {
+          setNotification("Pet was successfully added");
+          setOpen(false)
+          getPet();
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status == 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    }
   };
 
-  const onSubmitUser = () => {
-    setErrors(null);
-    axiosClient
-      .put(`/users/${userid}`, userdata)
-      .then(() => {
-        setNotification("User was successfully updated");
-        openuserchange(false);
-        getPetowner();
-      })
-      .catch((err) => {
-        const response = err.response;
-        if (response && response.status == 422) {
-          setErrors(response.data.errors);
-        }
-      });
+  const [value, setValue] = useState('1');
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
   };
 
   useEffect(() => {
-    getPetowner();
+    getPet();
   }, []);
 
   return (
     <div>
+      <br></br>
       <div className="card animate fadeInDown">
-        
-        <h1 className="title">Pet Owner Details</h1>
-
-        {/* <Box
-  component="img"
-  sx={{
-    height: 233,
-    width: 350,
-    maxHeight: { xs: 233, md: 167 },
-    maxWidth: { xs: 350, md: 250 },
-  }}
-  alt="The house from the offer."
-  src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"
-/> */}
-        {/* {loading && <div className="text-center">Loading...</div>} */}
         {notification && <Alert severity="success">{notification}</Alert>}
-        {/* {errors && (
-          <div className="alert">
-            {Object.keys(errors).map((key) => (
-              <p key={key}>{errors[key][0]}</p>
-            ))}
-          </div>
-        )} */}
 
       <p>
-        Name: {petownerdata.firstname} {petownerdata.lastname}
+        Pet Owner: {petowner.firstname} {petowner.lastname} <br></br> 
+        Pet Name: {pet.name}
       </p>
-      <p>
-        Address: {addressdata.zone}, {addressdata.barangay}, {zipcode.area}, {zipcode.province}, {zipcode.zipcode}
-      </p>
-      <p>Contact Number: {petownerdata.contact_num}</p>
-
-        <h2>Mobile Account</h2>
-        <p>Username: {userdata.username} </p>
-        <p>Email: {userdata.email} </p>
+    
 
         <Button
           variant="contained"
           color="info"
           onClick={() => onEdit()}
         >
-          <Typography>Update Pet Owner</Typography> <Edit fontSize="small" />
+          <Typography>Update Pet</Typography> <Edit fontSize="small" />
         </Button>
 
-        <PetOwnerEdit
-          open={openPetowner}
-          onClose={closepopup}
-          onClick={closepopup}
-          // id={id}
-          onSubmit={onSubmit}
-          loading={loading}
-          petowner={petownerdata}
-          setPetowner={setPetownerdata}
-          address={addressdata}
-          setAddress={setAddressdata}
-          zipcode={zipcodes}
-          errors={errors}
-          isUpdate={id}
-        />
-
-        <Button
-          variant="contained"
-          color="info"
-          onClick={() => onEditUSer()}
-        >
-          <Typography>Update User Account</Typography> <Edit fontSize="small" />
-        </Button>
-
-        <UserEdit
-          open={openuser}
-          onClick={closepopup}
-          onClose={closepopup}
-          // id={userdata.id}
-          onSubmit={onSubmitUser}
-          loading={loading}
-          roles={roles}
-          user={userdata}
-          setUser={setUserdata}
-          errors={errors}
-          isUpdate={userid}
-        />
-
-<Button
-            component={Link}
-            to={`/admin/petowners/` + petownerid + `/appointments`}
-            variant="contained"
-          >
-            <Typography>appointments</Typography>
-          </Button>
+        <PetsModal
+              open={open}
+              onClick={closepopup}
+              onClose={closepopup}
+              // id={petdata.id}
+              // setImageData={setImageData}
+              onSubmit={onSubmit}
+              loading={loading}
+              breeds={breeds}
+              pet={pet}
+              setPet={setPet}
+              errors={errors}
+              isUpdate={pet.id}
+            />
 
         <Button
           variant="contained"
@@ -276,7 +171,10 @@ export default function ViewPet() {
           <Typography>Back</Typography>
         </Button>
 
-        <PetOwnerPets />
+        <PetTabs/>
+
+       
+
       </div>
     </div>
   );

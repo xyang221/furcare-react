@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { Alert, Box, Button, CircularProgress, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
 import { ArrowBackIos, Edit } from "@mui/icons-material";
 import PetOwnerEdit from "../components/modals/PetOwnerEdit";
 import PetOwnerPets from "./PetOwnerPets";
 import UserEdit from "../components/modals/UserEdit";
+import PetOwnerTabs from "../components/PetOwnerTabs";
 
 export default function ViewPetOwner() {
   const { id } = useParams();
@@ -46,11 +47,6 @@ export default function ViewPetOwner() {
     zipcode: "",
   });
 
-  // const [petownerid, setPetownerid] = useState(null);
-  // const [addressid, setAddressid] = useState(null);
-  // const [userid, setUserid] = useState(null);
-  // const [zipcodeid, setZipcodeid] = useState(null);
-
   const [openuser, openuserchange] = useState(false);
   const [openPetowner, openPetownerchange] = useState(false);
 
@@ -67,12 +63,9 @@ export default function ViewPetOwner() {
       .get(`/petowners/${id}`)
       .then(({ data }) => {
         setLoading(false);
-        // setPetownerid(data.id);
         setPetownerdata(data);
-        // setAddressid(data.address.id);
         setAddressdata(data.address);
         setZipcode(data.address.zipcode);
-        // setUserid(data.user.id);
         setUserdata(data.user);
       })
       .catch(() => {
@@ -110,12 +103,9 @@ export default function ViewPetOwner() {
       });
   };
 
-  const handleAddressChange = (event, newValue) => {
-    setAddressdata((prevAddress) => ({
-      ...prevAddress,
-      zipcode_id: newValue ? newValue.id : prevAddress.zipcode_id,
-    }));
-  };
+  const [value, setValue] = useState(zipcode.id);
+  const [inputValue, setInputValue] = useState('');
+
 
   const onEdit = () => {
     getPetowner();
@@ -145,7 +135,6 @@ export default function ViewPetOwner() {
         setLoading(false);
         openPetownerchange(false);
         getPetowner();
-        console.log("sucess daw");
       })
 
       .catch((err) => {
@@ -178,7 +167,11 @@ export default function ViewPetOwner() {
   }, []);
 
   return (
-    <div>
+    <Paper sx={{
+      minWidth: "90%",
+      padding: "10px",
+      margin: "10px",
+    }}>
       <div className="card animate fadeInDown">
         
         <h1 className="title">Pet Owner Details</h1>
@@ -238,6 +231,11 @@ export default function ViewPetOwner() {
           zipcode={zipcodes}
           errors={errors}
           isUpdate={id}
+    //       value={value}
+    // setValue={setValue}
+    // inputValue={inputValue}
+    // setInputValue={setInputValue}
+    // options={zipcodes}
         />
 
         <Button
@@ -262,25 +260,8 @@ export default function ViewPetOwner() {
           isUpdate={userdata.id}
         />
 
-<Button
-            component={Link}
-            to={`/admin/petowners/` + petownerdata.id + `/appointments`}
-            variant="contained"
-          >
-            <Typography>appointments</Typography>
-          </Button>
-
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowBackIos fontSize="small" />
-          <Typography>Back</Typography>
-        </Button>
-
-        <PetOwnerPets />
+        <PetOwnerTabs/>
       </div>
-    </div>
+    </Paper>
   );
 }

@@ -31,6 +31,7 @@ export default function ViewPetOwner() {
     zone: "",
   });
 
+
   const [userdata, setUserdata] = useState({
     id: null,
     username: "",
@@ -103,9 +104,9 @@ export default function ViewPetOwner() {
       });
   };
 
-  const [value, setValue] = useState(zipcode.id);
+  // const [value, setValue] = useState(zipcode.id);
   const [inputValue, setInputValue] = useState('');
-
+  const [value, setValue] = useState(null);
 
   const onEdit = () => {
     getPetowner();
@@ -231,10 +232,9 @@ export default function ViewPetOwner() {
           zipcode={zipcodes}
           errors={errors}
           isUpdate={id}
-    //       value={value}
-    // setValue={setValue}
-    // inputValue={inputValue}
-    // setInputValue={setInputValue}
+          zipcodeid={zipcode.id}
+    value={value}
+    setValue={setValue}
     // options={zipcodes}
         />
 

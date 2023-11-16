@@ -86,7 +86,6 @@ export default function Species() {
       .then(({ data }) => {
         setModalloading(false);
         setSpecie(data);
-        console.log(specie)
       })
       .catch(() => {
         setModalloading(false);

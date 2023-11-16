@@ -45,6 +45,7 @@ export default function AppointmentsPending() {
       const [rowperpage, rowperpagechange] = useState(10);
     
       const [notification, setNotification] = useState("");
+  const [opennotif, setOpennotif] = useState(false);
   const [message, setMessage] = useState("");
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -118,6 +119,7 @@ export default function AppointmentsPending() {
     axiosClient.put(`/appointments/${r.id}/confirm`).then(() => {
       setOpen(true)
       setNotification("The appointment was confirmed");
+      setOpennotif(true)
       getAppointments();
     });
   };
@@ -129,7 +131,8 @@ export default function AppointmentsPending() {
 
     axiosClient.put(`/appointments/${r.id}/cancel`).then(() => {
       setOpen(true)
-      setNotification("The appointment was cancelled");
+      setNotification(`The appointment of ${r.petowner.firstname} ${r.petowner.lastname} was cancelled`);
+      setOpennotif(true)
       getAppointments();
     });
   };
@@ -254,7 +257,7 @@ export default function AppointmentsPending() {
 
 <Stack spacing={2} sx={{ width: '100%' }}>
      
-     <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+     <Snackbar open={opennotif} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
        <Alert  severity="success" sx={{ width: '100%' }} onClose={handleClose} >
          {notification}
        </Alert>

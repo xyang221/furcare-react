@@ -37,23 +37,32 @@ export default function PetOwnerPets() {
     gender: "",
     color: "",
     qr_code: "",
-    photo: imageData,
+    photo: null,
     breed_id: null,
   });
 
   const [breeds, setBreeds] = useState([]);
+  const [uniqueCategories, setUniqueCategories] = useState([]);
 
   const getBreeds = () => {
     axiosClient
       .get(`/breeds`)
       .then(({ data }) => {
         setBreeds(data.data);
+
+        const uniqueCategoriesSet = new Set(
+          data.data.map((service) => service.category.category)
+        );
+        const uniqueCategoriesArray = Array.from(uniqueCategoriesSet);
+
+        setUniqueCategories(uniqueCategoriesArray);
       })
       .catch(() => {
       });
   };
 
   const [pets, setPets] = useState([]);
+  const [message, setMessage] = useState("");
 
   const getPets = () => {
     setLoading(true);
@@ -63,14 +72,37 @@ export default function PetOwnerPets() {
         setLoading(false);
         setPets(data.data);
       })
-      .catch(() => {
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+      });
+  };
+
+  const [petowners, setPetowners] = useState([]);
+
+  const getPetowners = () => {
+    setLoading(true);
+    axiosClient
+      .get(`/petowners`)
+      .then(({ data }) => {
+        setLoading(false);
+        setPetowners(data.data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
         setLoading(false);
       });
   };
 
   //for table
   const columns = [
-    // { id: "photo", name: "photo" },
+    { id: "Photo", name: "Photo" },
     { id: "id", name: "ID" },
     { id: "name", name: "Pet Name" },
     { id: "email", name: "Gender" },
@@ -95,6 +127,8 @@ export default function PetOwnerPets() {
 
   const functionopenpopup = (ev) => {
     // openchange(true);
+    getPetowners()
+    getBreeds()
     openchange(true);
     setPet({});
     setErrors(null);
@@ -117,6 +151,7 @@ export default function PetOwnerPets() {
 
   const onSubmit = (ev) => {
     ev.preventDefault();
+
     if (pet.id) {
       axiosClient
         .put(`/pets/${pet.id}`, pet)
@@ -132,8 +167,21 @@ export default function PetOwnerPets() {
           }
         });
     } else {
+
+      if (!pet.photo) {
+        setError("Please select an image to upload.");
+        return;
+      }
+  
+      const formData = new FormData();
+      formData.append("photo", pet.photo);
+
       axiosClient
-        .post(`/petowners/${id}/addpet`, pet)
+        .post(`/petowners/${id}/addpet`, pet, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        } )
         .then(() => {
           setNotification("Pet was successfully added");
           openchange(false)
@@ -148,14 +196,40 @@ export default function PetOwnerPets() {
     }
   };
 
+  const [error, setError] = useState(null);
+
+  const handleImage = (e) => {
+    const selectedFile = e.currentTarget.files?.[0] || null;
+
+    if (selectedFile) {
+      // Validate the file type
+      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
+      if (allowedTypes.includes(selectedFile.type)) {
+        setPet((prevImage) => ({
+          ...prevImage,
+          photo: selectedFile,
+        }));
+        setError(null);
+      } else {
+        setError("The selected file must be of type: jpg, png, jpeg, gif, svg.");
+      }
+    }
+  };
+
   useEffect(() => {
     getPets();
-    getBreeds();
+    // getBreeds();
   }, []);
 
   return (
     <>
-      
+         <Paper
+          sx={{
+            minWidth: "90%",
+            padding: "10px",
+            margin: "10px",
+          }}
+        >
      
           <Box
             sx={{
@@ -169,24 +243,17 @@ export default function PetOwnerPets() {
           flexDirection="row"
           justifyContent="space-between"
         >
-            <Button
+
+<Button
           onClick={functionopenpopup}
           variant="contained"
           color="success"
           size="small"
         >
-          {/* <Add/> */}
-                      <Typography>Add pet</Typography>
-
+          <Add />
         </Button>
-        {/* <Button
-            component={Link}
-            to={`/admin/pets/archives`}
-            variant="contained"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button> */}
+
+            {/* <Typography variant="h4">My Pets</Typography> */}
           </Box>
           
 
@@ -201,10 +268,15 @@ export default function PetOwnerPets() {
               onSubmit={onSubmit}
               // loading={loading}
               breeds={breeds}
+              petowners={petowners}
               pet={pet}
               setPet={setPet}
               errors={errors}
               isUpdate={pet.id}
+              petownerid={id}
+              addImage={true}
+              handleImage={handleImage}
+              error={error}
             />
 <Divider/>
             <TableContainer sx={{ height: 350 }}>
@@ -231,6 +303,16 @@ export default function PetOwnerPets() {
                   </TableBody>
                 )}
 
+                  {!loading && message && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                   {message}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+
                 {!loading && (
                   <TableBody>
                     {pets &&
@@ -241,7 +323,7 @@ export default function PetOwnerPets() {
                         )
                         .map((r) => (
                           <TableRow hover role="checkbox" key={r.id}>
-                            {/* <TableCell  ><img  src={`http://127.0.0.1:8000/${r.photo}`}/>  </TableCell> */}
+                           <TableCell>  <img src={`http://localhost:8000/` + r.photo} height="100"/> </TableCell>
                             <TableCell>{r.id}</TableCell>
                             <TableCell>{r.name}</TableCell>
                             <TableCell>{r.gender}</TableCell>
@@ -283,6 +365,7 @@ export default function PetOwnerPets() {
               onRowsPerPageChange={handleRowsPerPage}
             ></TablePagination>
           </Box>
+          </Paper>
     </>
   );
 }

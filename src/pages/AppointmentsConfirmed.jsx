@@ -44,6 +44,7 @@ export default function AppointmentsConfirmed() {
   const [rowperpage, rowperpagechange] = useState(10);
 
   const [notification, setNotification] = useState("");
+  const [opennotif, setOpennotif] = useState(false);
   const [message, setMessage] = useState("");
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -145,6 +146,7 @@ export default function AppointmentsConfirmed() {
         .then(() => {
           setNotification("Appointment was successfully updated");
           openchange(false);
+          setOpennotif(true)
           getAppointments();
         })
         .catch((err) => {
@@ -159,6 +161,7 @@ export default function AppointmentsConfirmed() {
         .then(() => {
           setNotification("Appointment was successfully created");
           openchange(false);
+          setOpennotif(true)
           getAppointments();
         })
         .catch((err) => {
@@ -169,6 +172,7 @@ export default function AppointmentsConfirmed() {
         });
     }
   };
+
 
   useEffect(() => {
     getServices();
@@ -222,6 +226,7 @@ export default function AppointmentsConfirmed() {
               <TableRow>
                 {columns.map((column) => (
                   <TableCell
+                  style={{ backgroundColor: "black", color: "white" }}
                     key={column.id}
                   >
                     {column.name}
@@ -302,15 +307,17 @@ export default function AppointmentsConfirmed() {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
-
-<Stack spacing={2} sx={{ width: '100%' }}>
-     
-     <Snackbar open={open} autoHideDuration={6000}  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-       <Alert  severity="success" sx={{ width: '100%' }}  >
-         {notification}
-       </Alert>
-     </Snackbar>
-   </Stack>
+ <Stack spacing={2} sx={{ width: "100%" }}>
+          <Snackbar
+            open={opennotif}
+            autoHideDuration={6000}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          >
+            <Alert severity="success" sx={{ width: "100%" }}>
+              {notification}
+            </Alert>
+          </Snackbar>
+        </Stack>
 
       </Paper>
     </>

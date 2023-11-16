@@ -3,6 +3,8 @@ import {
   Archive,
   Home,
   ListRounded,
+  MedicalServices,
+  MiscellaneousServices,
   People,
   Person,
   Person2,
@@ -65,7 +67,7 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        <ListItem>
+        {/* <ListItem>
           <ListItemButton
             selected={selectedIndex === 1}
             onClick={() => handleListItemClick(1)}
@@ -76,7 +78,7 @@ export default function Sidebar() {
               <People />
             </ListItemIcon>
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
         <ListItem>
           <ListItemButton
             selected={selectedIndex === 2}
@@ -89,7 +91,7 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        <ListItem>
+        {/* <ListItem>
           <ListItemButton
             selected={selectedIndex === 3}
             onClick={() => handleListItemClick(3)}
@@ -112,7 +114,7 @@ export default function Sidebar() {
               <Pets />
             </ListItemIcon>
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
         <ListItem>
           <ListItemButton
             selected={selectedIndex === 4}
@@ -120,6 +122,18 @@ export default function Sidebar() {
             to="/admin/petowners"
           >
             <ListItemText primary="Pet Owners"></ListItemText>
+            <ListItemIcon>
+              <People />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 9}
+            onClick={() => handleListItemClick(9)}
+            to="/admin/pets"
+          >
+            <ListItemText primary="Pets"></ListItemText>
             <ListItemIcon>
               <Pets />
             </ListItemIcon>
@@ -149,15 +163,51 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
+        {/* <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 12}
+            onClick={() => handleListItemClick(12)}
+            to="/admin/deworminglogs"
+          >
+            <ListItemText primary="Deworming Logs"></ListItemText>
+            <ListItemIcon>
+              <ListRounded />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 11}
+            onClick={() => handleListItemClick(11)}
+            to="/admin/vaccinationlogs"
+          >
+            <ListItemText primary="Vaccination Logs"></ListItemText>
+            <ListItemIcon>
+              <ListRounded />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem> */}
+        {/* <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 10}
+            onClick={() => handleListItemClick(10)}
+            to="/admin/diagnosis"
+          >
+            <ListItemText primary="Diagnosis"></ListItemText>
+            <ListItemIcon>
+              <ListRounded />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem> */}
         <ListItem>
           <ListItemButton
             selected={selectedIndex === 7}
             onClick={() => handleListItemClick(7)}
-            to="/admin/clientservice"
+            to="/admin/services/petowners"
           >
-            <ListItemText primary="Client Service"></ListItemText>
+            <ListItemText primary="Services"></ListItemText>
             <ListItemIcon>
-              <ListRounded />
+              <MiscellaneousServices />
             </ListItemIcon>
           </ListItemButton>
         </ListItem>

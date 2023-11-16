@@ -10,6 +10,7 @@ import {
   DialogTitle,
   FormControl,
   IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
@@ -42,9 +43,9 @@ export default function DewormingLogsModal(props) {
 
   return (
     <>
-      <Backdrop open={loading} style={{ zIndex: 999 }}>
+      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
         <CircularProgress color="inherit" />
-      </Backdrop>
+      </Backdrop> */}
 
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -66,27 +67,54 @@ export default function DewormingLogsModal(props) {
             )}
             <Stack spacing={2} margin={2}>
 
-              <FormControl>
-                <InputLabel>Pet</InputLabel>
-              <Select
-                label="Pet"
-                value={deworminglog.pet_id || petid}
-                onChange={(ev) => handleFieldChange("pet_id", ev.target.value)}
-                disabled
-              >
-                {pets.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              </FormControl>
+              {isUpdate ? (
+                <FormControl>
+                  <InputLabel>Pet</InputLabel>
+                  <Select
+                    label="Pet"
+                    value={deworminglog.pet_id}
+                    onChange={(ev) =>
+                      handleFieldChange("pet_id", ev.target.value)
+                    }
+                    disabled
+                  >
+                    {pets.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : (
+                <FormControl>
+                  <InputLabel>Pet</InputLabel>
+                  <Select
+                    label="Pet"
+                    value={deworminglog.pet_id || petid}
+                    onChange={(ev) =>
+                      handleFieldChange("pet_id", ev.target.value)
+                    }
+                  >
+                    {pets.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
 
               <TextField
                 variant="outlined"
                 id="Weight"
                 label="Weight"
                 type="number"
+                sx={{ width: "30%" }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">kg</InputAdornment>
+                  ),
+                }}
                 value={deworminglog.weight}
                 onChange={(ev) => handleFieldChange("weight", ev.target.value)}
               />
@@ -100,6 +128,20 @@ export default function DewormingLogsModal(props) {
                 }
               />
 
+              <FormControl>
+                <InputLabel>Administered</InputLabel>
+                <Select
+                  label="Administered"
+                  value={deworminglog.administered || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("administered", ev.target.value)
+                  }
+                >
+                  <MenuItem value="Doctor Reina">Doctor Reina</MenuItem>
+                  <MenuItem value="Doctor Philip">Doctor Philip</MenuItem>
+                </Select>
+              </FormControl>
+
               <TextField
                 variant="outlined"
                 id="Status"
@@ -108,21 +150,7 @@ export default function DewormingLogsModal(props) {
                 onChange={(ev) => handleFieldChange("status", ev.target.value)}
               />
 
-<FormControl>
-                <InputLabel>Doctor</InputLabel>
-              <Select
-                label="Doctor"
-                value={deworminglog.administered || ""}
-                onChange={(ev) => handleFieldChange("administered", ev.target.value)}
-              >
-                <MenuItem></MenuItem>
-                <MenuItem value="Doctor Reina">Doctor Reina</MenuItem>
-                <MenuItem value="Doctor Philip">Doctor Philip</MenuItem>
-                
-              </Select>
-              </FormControl>
-
-               {/* <TextField
+              {/* <TextField
                 variant="outlined"
                 id="Administered"
                 label="Administered"

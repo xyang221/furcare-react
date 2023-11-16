@@ -35,8 +35,9 @@ export default function PetOwnerEdit(props) {
     isUpdate,
     // value,
     // setValue,
-    // inputValue,
-    // setInputValue,
+    zipcodeid,
+    value,
+    setValue,
     // options,
   } = props;
 
@@ -82,7 +83,7 @@ export default function PetOwnerEdit(props) {
                 variant="outlined"
                 id="firstname"
                 label="Firstname"
-                value={petowner.firstname}
+                value={petowner.firstname || ""}
                 onChange={(ev) =>
                   handleFieldChange("firstname", ev.target.value)
                 }
@@ -91,7 +92,7 @@ export default function PetOwnerEdit(props) {
                 variant="outlined"
                 id="Lastname"
                 label="Lastname"
-                value={petowner.lastname}
+                value={petowner.lastname || ""}
                 onChange={(ev) =>
                   handleFieldChange("lastname", ev.target.value)
                 }
@@ -103,15 +104,13 @@ export default function PetOwnerEdit(props) {
                 type="number"
                 InputProps={{
                   startAdornment: (
-                    <InputAdornment position="start">
-                      +63
-                    </InputAdornment>
+                    <InputAdornment position="start">+63</InputAdornment>
                   ),
                 }}
-                value={petowner.contact_num}
-                onChange={(ev) =>{
-                  const input = ev.target.value.replace(/\D/g, '').slice(0, 10);
-                  handleFieldChange("contact_num", input)
+                value={petowner.contact_num || ""}
+                onChange={(ev) => {
+                  const input = ev.target.value.replace(/\D/g, "").slice(0, 10);
+                  handleFieldChange("contact_num", input);
                 }}
               />
 
@@ -133,7 +132,7 @@ export default function PetOwnerEdit(props) {
                   handleFieldChangeAddress("barangay", ev.target.value)
                 }
               />
-              <Autocomplete
+              {/* <Autocomplete
                 sx={{ width: "100%" }}
                 getOptionLabel={(option) =>
                   `${option.area}, ${option.province}, ${option.zipcode}`
@@ -149,41 +148,48 @@ export default function PetOwnerEdit(props) {
                 renderInput={(params) => (
                   <TextField {...params} label="City, Province, Zipcode" />
                 )}
-                value={address.zipcode_id || null}
+                // value={address.zipcode_id || null}
 
+                // key={address.zipcode_id}
+                value={address.zipcode_id || null}
                 onChange={(event, newValue) => {
-                  setAddress((prevAddress) => ({
+                  console.log(newValue);
+                  handleFieldChangeAddress((prevAddress) => ({
                     ...prevAddress,
-                    zipcode_id: newValue ? newValue.id : prevAddress.zipcode_id
+                    zipcode_id: newValue ? newValue.id : null,
                   }));
                 }}
-
-              />
-
-              {/* <Autocomplete
-                value={value}
-                onChange={(event, newValue) => {
-                  setValue(newValue);
-                }}
-                inputValue={inputValue}
-                onInputChange={(event, newInputValue) => {
-                  setInputValue(newInputValue);
-                }}
-                id="controllable-states-demo"
-                options={options} // Use the options from the API response
-                renderOption={(props, option) => (
-                  <li {...props}>
-                    {option.area}, {option.province}, {option.zipcode}
-                  </li>
-                )}
-                getOptionLabel={(option) =>
-                  `${option.area}, ${option.province}, ${option.zipcode}`
-                }
-                sx={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Controllable" />
-                )}
               /> */}
+
+              
+            <Autocomplete
+              sx={{ width: "100%" }}
+              getOptionLabel={(address) =>
+                `${address.area}, ${address.province}, ${address.zipcode}`
+              }
+              options={zipcode}
+              isOptionEqualToValue={(option, value) =>
+                option.area === value.area
+              }
+              noOptionsText="Not Found"
+              renderOption={(props, address) => (
+                <Box component="li" {...props} key={address.id}>
+                  {address.area}, {address.province}, {address.zipcode}
+                </Box>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="City, Province, Zipcode" />
+              )}
+              onChange={(event, newValue) => {
+                setValue(newValue);
+                setAddress({
+                  ...address,
+                  zipcode_id: newValue ? newValue.id : "",
+                });
+              }}
+              value={value}
+            />
+
               <Button color="primary" variant="contained" onClick={onSubmit}>
                 Save
               </Button>

@@ -11,10 +11,14 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
+  FormLabel,
   IconButton,
   InputLabel,
   LinearProgress,
   MenuItem,
+  Radio,
+  RadioGroup,
   Select,
   Stack,
   TextField,
@@ -31,9 +35,14 @@ export default function PetsModal(props) {
     breeds,
     pet,
     setPet,
+    petowners,
     errors,
     setImageData,
     isUpdate,
+    petownerid,
+    addImage,
+    handleImage,
+    uploadImage
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -43,9 +52,47 @@ export default function PetsModal(props) {
     setPet(updatedPet);
   };
 
-  const handleAddPhoto = (file) => {
-    setImageData(file[0]);
+  const [image, setImage] = useState({
+    name: null,
+  });
+
+  const [error, setError] = useState(null);
+
+
+  const submitImage = (e) => {
+    e.preventDefault();
+
+    if (!image.name) {
+      setError("Please select an image to upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("photo", image.name);
+
+    axiosClient
+      .post(`/pet/upload-image`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        // Clear the input after successful submission
+        setImage({ name: null });
+        setError(null);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
   };
+
+  // const handleAddPhoto = (file) => {
+  //   if (file && file.length > 0) {
+  //     setImageData(file[0]);
+  //   }
+  // };
 
   return (
     <>
@@ -53,6 +100,40 @@ export default function PetsModal(props) {
         <Backdrop open={loading} style={{ zIndex: 999 }}>
           <CircularProgress color="inherit" />
         </Backdrop>
+
+        {uploadImage &&  <>
+      {/* {!loading && ( */}
+          <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+            <DialogTitle>
+              Upload Image
+              <IconButton onClick={onClick} style={{ float: "right" }}>
+                <Close color="primary"></Close>
+              </IconButton>
+            </DialogTitle>
+            <DialogContent>
+             
+              <Stack spacing={2} margin={2}>
+      {/* <form onSubmit={submitImage} encType="multipart/form-data"> */}
+        <TextField
+          variant="outlined"
+          id="photo"
+          label="Photo"
+          type="file"
+          onChange={handleImage}
+        />
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {/* <Button type="submit" variant="contained" color="primary">
+          Upload
+        </Button> */}
+      {/* </form> */}
+                <Button color="primary" variant="contained" onClick={submitImage}>
+                  Save
+                </Button>
+              </Stack>
+            </DialogContent>
+          </Dialog>
+        {/* )} */}
+      </>}
         {!loading && (
           <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>
@@ -72,15 +153,53 @@ export default function PetsModal(props) {
                 </Box>
               )}
               <Stack spacing={2} margin={2}>
-                {/* <TextField
+                {addImage &&(
+                  <FormControl>
+                <TextField
                   variant="outlined"
-                  id="Photo"
+                  id="photo"
                   label="Photo"
-                  // component="input"
                   type="file"
-                  // value={pet.photo}
-                  onChange={(ev) => handleAddPhoto(ev.target.files)}
-                /> */}
+                  onChange={handleImage}
+                />
+                {error && <p style={{ color: "red" }}>{error}</p>}</FormControl>)}
+                {petownerid ? (
+                  <FormControl>
+                    <InputLabel>Pet Owner</InputLabel>
+                    <Select
+                      label="Pet Owner"
+                      // value={pet.petowner_id || petownerid|| ""}
+                      value={petownerid || ""}
+                      onChange={(ev) =>
+                        handleFieldChange("petowner_id", ev.target.value)
+                      }
+                      disabled
+                    >
+                      {petowners.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {`${item.firstname} ${item.lastname}`}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                ) : (
+                  <FormControl>
+                    <InputLabel>Pet Owner</InputLabel>
+                    <Select
+                      label="Pet Owner"
+                      value={pet.petowner_id || ""}
+                      onChange={(ev) =>
+                        handleFieldChange("petowner_id", ev.target.value)
+                      }
+                    >
+                      {petowners.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {`${item.firstname} ${item.lastname}`}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
 
                 <TextField
                   variant="outlined"
@@ -91,7 +210,7 @@ export default function PetsModal(props) {
                 />
 
                 <TextField
-                  label="Date"
+                  label="Birthdate"
                   variant="outlined"
                   id="Birthdate"
                   type="date"
@@ -102,17 +221,29 @@ export default function PetsModal(props) {
                 />
 
                 <FormControl>
-                  <InputLabel>Gender</InputLabel>
-                  <Select
-                    label="Gender"
+                  <FormLabel id="demo-controlled-radio-buttons-group">
+                    Gender
+                  </FormLabel>
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-controlled-radio-buttons-group"
+                    name="controlled-radio-buttons-group"
                     value={pet.gender || ``}
                     onChange={(ev) =>
                       handleFieldChange("gender", ev.target.value)
                     }
                   >
-                    <MenuItem value="Male">Male</MenuItem>
-                    <MenuItem value="Female">Female</MenuItem>
-                  </Select>
+                    <FormControlLabel
+                      value="Female"
+                      control={<Radio />}
+                      label="Female"
+                    />
+                    <FormControlLabel
+                      value="Male"
+                      control={<Radio />}
+                      label="Male"
+                    />
+                  </RadioGroup>
                 </FormControl>
 
                 <TextField
@@ -136,7 +267,7 @@ export default function PetsModal(props) {
                   <InputLabel>Breed</InputLabel>
                   <Select
                     label="Breed"
-                    value={pet.breed_id || null}
+                    value={pet.breed_id || ""}
                     onChange={(ev) =>
                       handleFieldChange("breed_id", ev.target.value)
                     }

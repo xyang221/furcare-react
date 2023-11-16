@@ -48,6 +48,7 @@ export default function PetsArchives () {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState("");
 
   const getPetsArchive = () => {
     setLoading(true);
@@ -57,7 +58,11 @@ export default function PetsArchives () {
         setLoading(false);
         setPets(data.data);
       })
-      .catch(() => {
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
         setLoading(false);
       });
   };
@@ -143,6 +148,16 @@ export default function PetsArchives () {
               </TableRow>
             </TableBody>
           )}
+
+{!loading && message && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                   {message}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
 
           {!loading && (
             <TableBody>

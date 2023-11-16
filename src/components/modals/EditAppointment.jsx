@@ -19,7 +19,11 @@ import {
   TextareaAutosize,
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
-import { DatePicker, DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import {
+  DatePicker,
+  DateTimePicker,
+  LocalizationProvider,
+} from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export default function EditAppointment(props) {
@@ -30,6 +34,7 @@ export default function EditAppointment(props) {
     onSubmit,
     loading,
     petowners,
+    petownerid,
     services,
     appointment,
     setAppointment,
@@ -68,6 +73,23 @@ export default function EditAppointment(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
+              <FormControl>
+                <InputLabel>Pet Owner</InputLabel>
+                <Select
+                  label="Pet Owner"
+                  value={appointment.petowner_id || petownerid || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("petowner_id", ev.target.value)
+                  }
+                >
+                  {petowners.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {`${item.firstname} ${item.lastname}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
               {isUpdate && (
                 <TextField
                   variant="outlined"
@@ -96,30 +118,13 @@ export default function EditAppointment(props) {
                   <DatePicker
                     renderInput={(props) => (
                       <TextField {...props} label="Date" />
-                    )} // You may need to import TextField from '@mui/material' if not already done
+                    )}
                     label="Date"
-                    value={appointment.date}
+                    value={appointment.date || ""}
                     onChange={(newValue) => handleFieldChange("date", newValue)}
                   />
                 </LocalizationProvider>
               )}
-
-              <FormControl>
-                <InputLabel>Pet Owner</InputLabel>
-                <Select
-                  label="Pet Owner"
-                  value={appointment.petowner_id || ""}
-                  onChange={(ev) =>
-                    handleFieldChange("petowner_id", ev.target.value)
-                  }
-                >
-                  {petowners.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {`${item.firstname} ${item.lastname}`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
 
               <FormControl>
                 <InputLabel>Services</InputLabel>
@@ -146,12 +151,12 @@ export default function EditAppointment(props) {
                 onChange={(ev) => handleFieldChange("purpose", ev.target.value)}
               />
 
-              <InputLabel>Remarks</InputLabel>
-              <TextareaAutosize
-                minRows={5}
+              <TextField
                 variant="outlined"
                 id="Remarks"
                 label="Remarks"
+                multiline
+                rows={3}
                 value={appointment.remarks}
                 onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
               />

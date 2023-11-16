@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -16,18 +16,20 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, ArrowBackIos, Edit } from "@mui/icons-material";
-import EditAppointment from "../components/modals/EditAppointment";
+import { Add, Archive, Visibility } from "@mui/icons-material";
+import VaccinationLogsModal from "../components/modals/VaccinationLogsModal";
 
-export default function PetOwnerAppointments() {
+export default function VaccinationLogs() {
   //for table
   const columns = [
-    { id: "Date", name: "Date" },
-    { id: "Purpose", name: "Purpose" },
-    { id: "Service", name: "Service" },
+    { id: "id", name: "ID" },
+    { id: "date", name: "Date" },
+    { id: "weight", name: "Weight" },
+    { id: "Description", name: "Description" },
+    { id: "Against", name: "Against" },
+    { id: "Administered", name: "Administered" },
     { id: "Status", name: "Status" },
-    { id: "Remarks", name: "Remarks" },
-    // { id: "Actions", name: "Actions" },
+    { id: "Actions", name: "Actions" },
   ];
 
   const handlechangepage = (event, newpage) => {
@@ -41,21 +43,22 @@ export default function PetOwnerAppointments() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
+  const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState(null);
 
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const [vaccinations, setVaccinationlogs] = useState([]);
 
-  const getAppointments = () => {
+  const [checkedItems, setCheckedItems] = useState({});
+
+  const getVaccination = () => {
     setLoading(true);
     axiosClient
-      .get(`/petowners/${id}/appointments`)
+      .get(`/vaccinationlogs`)
       .then(({ data }) => {
         setLoading(false);
-        setAppointments(data.data);
+        setVaccinationlogs(data.data);
       })
       .catch((mes) => {
         const response = mes.response;
@@ -66,112 +69,84 @@ export default function PetOwnerAppointments() {
       });
   };
 
-  const onDelete = (po) => {
-    if (!window.confirm("Are you sure?")) {
-      return;
-    }
+  const [pets, setPets] = useState([]);
 
-    axiosClient.delete(`/appointments/${po.id}`).then(() => {
-      setNotification("Pet Owner deleted");
-      getAppointments();
-    });
-  };
-
-  const [services, setServices] = useState([]);
-
-  const getServices = () => {
-    setModalloading(true);
+  const getPets = () => {
+    setLoading(true);
     axiosClient
-      .get(`/services`)
+      .get(`/pets`)
       .then(({ data }) => {
-        setModalloading(false);
-        setServices(data.data);
+        setLoading(false);
+        setPets(data.data);
       })
       .catch(() => {
-        setModalloading(false);
+        setLoading(false);
       });
   };
 
-  //for modal
-  const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [appointment, setAppointment] = useState({
-    id: null,
-    date: "",
-    purpose: "",
-    remarks: "",
-    client_service_id: null,
-  });
-  const [open, openchange] = useState(false);
-  const [openAdd, setOpenAdd] = useState(false);
+  const [againsts, setAgainsts] = useState([]);
 
-  const [petowners, setPetowners] = useState([]);
-
-  const getPetowners = () => {
+  const getAgainsts = () => {
     setLoading(true);
     axiosClient
-      .get(`/petowners`)
+      .get(`/againsts`)
       .then(({ data }) => {
         setLoading(false);
-        setPetowners(data.data);
+        setAgainsts(data.data);
       })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
+      .catch(() => {
         setLoading(false);
       });
   };
 
+  const [vaccination, setVaccination] = useState({
+    id: null,
+    date: "",
+    weight: null,
+    description: "",
+    administered: "",
+    status: "",
+    pet_id: null,
+  });
 
+  const [vaccination_against, setVaccination_against] = useState({
+    id: null,
+    vaccinationlog_id: null,
+    against_id: null,
+  });
+
+  const [openAdd, setOpenAdd] = useState(false);
   const addModal = (ev) => {
-    getPetowners();
-    getServices();
+    getPets();
+    getAgainsts();
     setOpenAdd(true);
-    setAppointment({});
+    setVaccination({});
     setErrors(null);
   };
 
   const closepopup = () => {
-    openchange(false);
     setOpenAdd(false);
   };
 
-  const onDone = (r) => {
-    if (!window.confirm("Are you sure this appointment was done?")) {
+  const onArchive = (u) => {
+    if (!window.confirm("Are you sure to archive this?")) {
       return;
     }
 
-    axiosClient.put(`/appointments/${r.id}/done`).then(() => {
-      setNotification("The appointment was done");
-      getAppointments();
+    axiosClient.delete(`/vaccination/${u.id}/archive`).then(() => {
+      setNotification("Pet Owner was archived");
+      getVaccination();
     });
   };
 
-  const onEdit = (r) => {
-    setErrors(null);
-    setModalloading(true);
-    axiosClient
-      .get(`/appointments/${r.id}`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setAppointment(data);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-    openchange(true);
-  };
-
   const onSubmit = () => {
-    if (appointment.id) {
+    if (vaccination.id) {
       axiosClient
-        .put(`/appointment/${appointment.id}`, appointment)
+        .put(`/vaccination/${vaccination.id}`, vaccination)
         .then(() => {
-          setNotification("appointment was successfully updated");
-          openchange(false);
-          getAppointments();
+          setNotification("vaccination was successfully updated");
+          openAdd(false);
+          getVaccination();
         })
         .catch((err) => {
           const response = err.response;
@@ -181,11 +156,11 @@ export default function PetOwnerAppointments() {
         });
     } else {
       axiosClient
-        .post(`/appointment`, appointment)
+        .post(`/vaccination`, vaccination)
         .then(() => {
-          setNotification("appointment was successfully created");
+          setNotification("vaccination was successfully created");
           setOpenAdd(false);
-          getAppointments();
+          getVaccination();
         })
         .catch((err) => {
           const response = err.response;
@@ -197,27 +172,26 @@ export default function PetOwnerAppointments() {
   };
 
   useEffect(() => {
-    getAppointments();
+    getVaccination();
   }, []);
 
   return (
     <>
-      <Box
+      <Paper
         sx={{
           minWidth: "90%",
+          padding: "10px",
+          margin: "10px",
         }}
       >
-        {notification && <Alert severity="success">{notification}</Alert>}
-
         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
+          <Typography variant="h4">Vaccination Logs</Typography>{" "}
           <Button
-            //  component={Link}
-            //  to={"/admin/appointments/new"}
             onClick={addModal}
             variant="contained"
             color="success"
@@ -227,22 +201,37 @@ export default function PetOwnerAppointments() {
           </Button>
         </Box>
 
-        <EditAppointment
+        <VaccinationLogsModal
           open={openAdd}
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
-          loading={modalloading}
-          petowners={petowners}
-          petownerid={id}
-          services={services}
-          appointment={appointment}
-          setAppointment={setAppointment}
+          loading={loading}
+          pets={pets}
+          // petid={id}
+          vaccination={vaccination}
+          setVaccination={setVaccination}
+          againsts={againsts}
+          checkedItems={checkedItems}
+          setCheckedItems={setCheckedItems}
           errors={errors}
-          isUpdate={appointment.id}
+          // petid={pet.id}
+          isUpdate={vaccination.id}
         />
 
-        <TableContainer sx={{ height: 350 }}>
+        {/* <Button
+            component={Link}
+            to={`/admin/vaccination/archives`}
+            variant="contained"
+            color="success"
+            size="small"
+          >
+            <Typography>Archives</Typography>
+          </Button> */}
+
+        {notification && <Alert severity="success">{notification}</Alert>}
+
+        <TableContainer sx={{ height: 380 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -259,7 +248,7 @@ export default function PetOwnerAppointments() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={8} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -269,7 +258,7 @@ export default function PetOwnerAppointments() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={8} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -278,30 +267,39 @@ export default function PetOwnerAppointments() {
 
             {!loading && (
               <TableBody>
-                {appointments &&
-                  appointments
+                {vaccinations &&
+                  vaccinations
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
+                        <TableCell>{r.id}</TableCell>
                         <TableCell>{r.date}</TableCell>
-                        {/* <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell> */}
-                        <TableCell>{r.purpose}</TableCell>
-                        <TableCell>{r.service.service}</TableCell>
+                        <TableCell>{r.wieght}</TableCell>
+                        <TableCell>{r.description}</TableCell>
+                        <TableCell>{r.administered}</TableCell>
                         <TableCell>{r.status}</TableCell>
-                        <TableCell>{r.remarks}</TableCell>
-                        {/* <TableCell>
+                        <TableCell>
                           <Stack direction="row" spacing={2}>
-                           
+                            <Button
+                              component={Link}
+                              to={`/admin/vaccinations/` + r.id + `/view`}
+                              variant="contained"
+                              color="info"
+                              size="small"
+                            >
+                              <Visibility fontSize="small" />
+                            </Button>
+
                             <Button
                               variant="contained"
                               size="small"
-                              color="success"
-                              onClick={() => onDone(r)}
+                              color="error"
+                              onClick={() => onArchive(r)}
                             >
-                              <Typography>done</Typography>
+                              <Archive fontSize="small" />
                             </Button>
                           </Stack>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -312,12 +310,12 @@ export default function PetOwnerAppointments() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={appointments.length}
+          count={vaccinations.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
-      </Box>
+      </Paper>
     </>
   );
 }

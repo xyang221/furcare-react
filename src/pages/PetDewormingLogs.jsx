@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -16,18 +16,19 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, ArrowBackIos, Edit } from "@mui/icons-material";
-import EditAppointment from "../components/modals/EditAppointment";
+import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
+import DewormingLogsModal from "../components/modals/DewormingLogsModal";
 
-export default function PetOwnerAppointments() {
+export default function PetDewormingLogs() {
   //for table
   const columns = [
-    { id: "Date", name: "Date" },
-    { id: "Purpose", name: "Purpose" },
-    { id: "Service", name: "Service" },
+    { id: "id", name: "ID" },
+    { id: "date", name: "Date" },
+    { id: "weight", name: "Weight" },
+    { id: "Description", name: "Description" },
+    { id: "Administered", name: "Administered" },
     { id: "Status", name: "Status" },
-    { id: "Remarks", name: "Remarks" },
-    // { id: "Actions", name: "Actions" },
+    { id: "Actions", name: "Actions" },
   ];
 
   const handlechangepage = (event, newpage) => {
@@ -41,21 +42,22 @@ export default function PetOwnerAppointments() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
+  const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState(null);
+
+  const [deworminglogs, setDeworminglogs] = useState([]);
 
   const { id } = useParams();
-  const navigate = useNavigate();
 
-  const getAppointments = () => {
+  const getDeworming = () => {
     setLoading(true);
     axiosClient
-      .get(`/petowners/${id}/appointments`)
+      .get(`/deworminglogs/pet/${id}`)
       .then(({ data }) => {
         setLoading(false);
-        setAppointments(data.data);
+        setDeworminglogs(data.data);
       })
       .catch((mes) => {
         const response = mes.response;
@@ -66,112 +68,78 @@ export default function PetOwnerAppointments() {
       });
   };
 
-  const onDelete = (po) => {
-    if (!window.confirm("Are you sure?")) {
-      return;
-    }
+  const [pets, setPets] = useState([]);
 
-    axiosClient.delete(`/appointments/${po.id}`).then(() => {
-      setNotification("Pet Owner deleted");
-      getAppointments();
-    });
-  };
-
-  const [services, setServices] = useState([]);
-
-  const getServices = () => {
-    setModalloading(true);
+  const getPets = () => {
+    setLoading(true);
     axiosClient
-      .get(`/services`)
+      .get(`/pets`)
       .then(({ data }) => {
-        setModalloading(false);
-        setServices(data.data);
+        setLoading(false);
+        setPets(data.data);
       })
       .catch(() => {
-        setModalloading(false);
+        setLoading(false);
       });
   };
 
-  //for modal
-  const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [appointment, setAppointment] = useState({
+  const [deworminglog, setDeworminglog] = useState({
     id: null,
-    date: "",
-    purpose: "",
-    remarks: "",
-    client_service_id: null,
+    weight: "",
+    description: "",
+    administered: "",
+    status: "",
+    pet_id:null,
   });
-  const [open, openchange] = useState(false);
+
   const [openAdd, setOpenAdd] = useState(false);
-
-  const [petowners, setPetowners] = useState([]);
-
-  const getPetowners = () => {
-    setLoading(true);
-    axiosClient
-      .get(`/petowners`)
-      .then(({ data }) => {
-        setLoading(false);
-        setPetowners(data.data);
-      })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
-        setLoading(false);
-      });
-  };
-
-
+  
   const addModal = (ev) => {
-    getPetowners();
-    getServices();
+    getPets();
     setOpenAdd(true);
-    setAppointment({});
+    setDeworminglog({});
     setErrors(null);
   };
 
   const closepopup = () => {
-    openchange(false);
     setOpenAdd(false);
   };
 
-  const onDone = (r) => {
-    if (!window.confirm("Are you sure this appointment was done?")) {
+  const onArchive = (u) => {
+    if (!window.confirm("Are you sure to archive this?")) {
       return;
     }
 
-    axiosClient.put(`/appointments/${r.id}/done`).then(() => {
-      setNotification("The appointment was done");
-      getAppointments();
+    axiosClient.delete(`/deworminglogs/${u.id}/archive`).then(() => {
+      setNotification("Pet Owner was archived");
+      getDeworming();
     });
   };
 
   const onEdit = (r) => {
-    setErrors(null);
-    setModalloading(true);
+    getPets()
+    setErrors(null)
+    setLoading(true);
     axiosClient
-      .get(`/appointments/${r.id}`)
+      .get(`/deworminglogs/${r.id}`)
       .then(({ data }) => {
-        setModalloading(false);
-        setAppointment(data);
+        setLoading(false);
+        setDeworminglog(data);
       })
       .catch(() => {
-        setModalloading(false);
+        setLoading(false);
       });
-    openchange(true);
+    setOpenAdd(true);
   };
 
   const onSubmit = () => {
-    if (appointment.id) {
+    if (deworminglog.id) {
       axiosClient
-        .put(`/appointment/${appointment.id}`, appointment)
+        .put(`/deworminglogs/${deworminglog.id}`, deworminglog)
         .then(() => {
-          setNotification("appointment was successfully updated");
-          openchange(false);
-          getAppointments();
+          setNotification("deworminglog was successfully updated");
+          setOpenAdd(false);
+          getDeworming();
         })
         .catch((err) => {
           const response = err.response;
@@ -181,11 +149,11 @@ export default function PetOwnerAppointments() {
         });
     } else {
       axiosClient
-        .post(`/appointment`, appointment)
+        .post(`/deworminglogs/pet/${id}`, deworminglog)
         .then(() => {
-          setNotification("appointment was successfully created");
+          setNotification("deworminglog was successfully created");
           setOpenAdd(false);
-          getAppointments();
+          getDeworming();
         })
         .catch((err) => {
           const response = err.response;
@@ -197,7 +165,7 @@ export default function PetOwnerAppointments() {
   };
 
   useEffect(() => {
-    getAppointments();
+    getDeworming();
   }, []);
 
   return (
@@ -207,42 +175,49 @@ export default function PetOwnerAppointments() {
           minWidth: "90%",
         }}
       >
-        {notification && <Alert severity="success">{notification}</Alert>}
-
-        <Box
+         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Button
-            //  component={Link}
-            //  to={"/admin/appointments/new"}
-            onClick={addModal}
-            variant="contained"
-            color="success"
-            size="small"
-          >
-            <Add />
-          </Button>
+        <Button
+          onClick={addModal}
+          variant="contained"
+          color="success"
+          size="small"
+        >
+          <Add />
+        </Button>
         </Box>
 
-        <EditAppointment
+        <DewormingLogsModal
           open={openAdd}
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
-          loading={modalloading}
-          petowners={petowners}
-          petownerid={id}
-          services={services}
-          appointment={appointment}
-          setAppointment={setAppointment}
+          loading={loading}
+          pets={pets}
+          petid={id}
+          deworminglog={deworminglog}
+          setDeworminglog={setDeworminglog}
           errors={errors}
-          isUpdate={appointment.id}
+          isUpdate={deworminglog.id}
         />
 
-        <TableContainer sx={{ height: 350 }}>
+        {/* <Button
+            component={Link}
+            to={`/admin/deworminglogs/archives`}
+            variant="contained"
+            color="success"
+            size="small"
+          >
+            <Typography>Archives</Typography>
+          </Button> */}
+
+        {notification && <Alert severity="success">{notification}</Alert>}
+
+        <TableContainer sx={{ height: 380 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -259,7 +234,7 @@ export default function PetOwnerAppointments() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -269,7 +244,7 @@ export default function PetOwnerAppointments() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -278,30 +253,38 @@ export default function PetOwnerAppointments() {
 
             {!loading && (
               <TableBody>
-                {appointments &&
-                  appointments
+                {deworminglogs &&
+                  deworminglogs
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
+                      <TableCell>{r.id}</TableCell>
                         <TableCell>{r.date}</TableCell>
-                        {/* <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell> */}
-                        <TableCell>{r.purpose}</TableCell>
-                        <TableCell>{r.service.service}</TableCell>
+                        <TableCell>{`${r.weight} kg`}</TableCell>
+                        <TableCell>{r.description}</TableCell>
+                        <TableCell>{r.administered}</TableCell>
                         <TableCell>{r.status}</TableCell>
-                        <TableCell>{r.remarks}</TableCell>
-                        {/* <TableCell>
+                        <TableCell>
                           <Stack direction="row" spacing={2}>
-                           
+                          <Button
+                              variant="contained"
+                              size="small"
+                              color="info"
+                              onClick={() => onEdit(r)}
+                            >
+                              <Edit fontSize="small" />
+                            </Button>
+
                             <Button
                               variant="contained"
                               size="small"
-                              color="success"
-                              onClick={() => onDone(r)}
+                              color="error"
+                              onClick={() => onArchive(r)}
                             >
-                              <Typography>done</Typography>
+                              <Archive fontSize="small" />
                             </Button>
                           </Stack>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -312,7 +295,7 @@ export default function PetOwnerAppointments() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={appointments.length}
+          count={deworminglogs.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}

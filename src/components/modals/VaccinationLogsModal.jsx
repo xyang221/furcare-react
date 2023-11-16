@@ -11,10 +11,14 @@ import {
   DialogTitle,
   FormControl,
   IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
   Stack,
+  TableBody,
+  TableCell,
+  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -29,8 +33,9 @@ export default function VaccinationLogsModal(props) {
     loading,
     pets,
     petid,
-    deworminglog,
-    setDeworminglog,
+    vaccination,
+    setVaccination,
+    vaccinationdesc,
     againsts,
     checkedItems,
     setCheckedItems,
@@ -39,22 +44,22 @@ export default function VaccinationLogsModal(props) {
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
-    // Create a copy of the deworminglog object and update the specified field
-    const updatedLogs = { ...deworminglog, [fieldName]: value };
-    // Update the deworminglog object with the updated value
-    setDeworminglog(updatedLogs);
+    // Create a copy of the vaccination object and update the specified field
+    const updatedLogs = { ...vaccination, [fieldName]: value };
+    // Update the vaccination object with the updated value
+    setVaccination(updatedLogs);
   };
 
   return (
     <>
-      <Backdrop open={loading} style={{ zIndex: 999 }}>
+      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
         <CircularProgress color="inherit" />
-      </Backdrop>
+      </Backdrop> */}
 
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            {isUpdate ? "Update Deworming Log" : "Add Deworming Log"}
+            {isUpdate ? "Update Vaccination Log" : "Add Vaccination Log"}
             <IconButton onClick={onClick} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
@@ -70,35 +75,60 @@ export default function VaccinationLogsModal(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
-              <FormControl>
+            {isUpdate && !petid ?  <FormControl>
                 <InputLabel>Pet</InputLabel>
-                <Select
-                  label="Pet"
-                  value={deworminglog.pet_id || petid}
-                  onChange={(ev) =>
-                    handleFieldChange("pet_id", ev.target.value)
-                  }
-                  disabled
-                >
-                  {pets.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Select
+                label="Pet"
+                value={vaccination.pet_id || ""}
+                onChange={(ev) => handleFieldChange("pet_id", ev.target.value)}
+                disabled
+              >
+                {pets.map((item) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              </FormControl> 
+              :
+                <FormControl>
+                <InputLabel>Pet</InputLabel>
+              <Select
+                label="Pet"
+                value={vaccination.pet_id || petid || ""}
+                onChange={(ev) => handleFieldChange("pet_id", ev.target.value)}
+              >
+                {pets.map((item) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              </FormControl>}
 
               <TextField
                 variant="outlined"
                 id="Weight"
                 label="Weight"
                 type="number"
-                value={deworminglog.weight}
+                sx={{width:"30%"}}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      kg
+                    </InputAdornment>
+                  ),
+                }}
+                value={vaccination.weight}
                 onChange={(ev) => handleFieldChange("weight", ev.target.value)}
               />
-              <Box>
+
+<Box border={1} p={2} >
+              <TableBody >
+              <InputLabel>Against</InputLabel>
+
                 {againsts.map((item) => (
-                  <Box hover role="checkbox" key={item.id}>
+                  <TableRow hover role="checkbox" key={item.id}>
                     <Checkbox
                       checked={checkedItems[item.id]}
                       onChange={() => {
@@ -108,35 +138,32 @@ export default function VaccinationLogsModal(props) {
                         }));
                       }}
                     />
-                    <Typography> {item.acronym}</Typography>
-                    <Typography> {item.description}</Typography>
-                  </Box>
+                    <TableCell> {item.acronym} </TableCell>
+                    <TableCell> {item.description}</TableCell>
+                  </TableRow>
                 ))}
+              </TableBody>
               </Box>
 
               <TextField
                 variant="outlined"
                 id="Description"
                 label="Description"
-                value={deworminglog.description}
+                multiline
+                defaultValue={vaccinationdesc}
+                value={vaccination.description}
                 onChange={(ev) =>
                   handleFieldChange("description", ev.target.value)
                 }
               />
 
-              <TextField
-                variant="outlined"
-                id="Status"
-                label="Status"
-                value={deworminglog.status}
-                onChange={(ev) => handleFieldChange("status", ev.target.value)}
-              />
+            
 
               <FormControl>
                 <InputLabel>Doctor</InputLabel>
                 <Select
-                  label="Doctor"
-                  value={deworminglog.administered || ""}
+                  label="Administered"
+                  value={vaccination.administered || ""}
                   onChange={(ev) =>
                     handleFieldChange("administered", ev.target.value)
                   }
@@ -147,11 +174,19 @@ export default function VaccinationLogsModal(props) {
                 </Select>
               </FormControl>
 
+              <TextField
+                variant="outlined"
+                id="Status"
+                label="Status"
+                value={vaccination.status}
+                onChange={(ev) => handleFieldChange("status", ev.target.value)}
+              />
+
               {/* <TextField
                 variant="outlined"
                 id="Administered"
                 label="Administered"
-                value={deworminglog.administered}
+                value={vaccination.administered}
                 onChange={(ev) => handleFieldChange("administered", ev.target.value)}
               /> */}
 

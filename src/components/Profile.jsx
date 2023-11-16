@@ -8,24 +8,16 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
 import {
-  Alert,
   Avatar,
-  Box,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Select,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useStateContext } from "../contexts/ContextProvider";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { Close } from "@mui/icons-material";
+import UserEdit from "./modals/UserEdit";
 
 export default function Profile() {
-  const { user, setUser, token, setToken, setRole } = useStateContext();
+  const { user, setToken } = useStateContext();
   const navigate = useNavigate();
   const userval = parseInt(user)
 
@@ -33,16 +25,14 @@ export default function Profile() {
     ev.preventDefault();
 
     axiosClient.post("/logout").then(() => {
-      setUser(null);
       setToken(null);
-      setRole(null);
       navigate("/login");
     });
   };
 
   //for modal
   const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
+  const [loading, setloading] = useState(false);
   const [notification, setNotification] = useState(false);
 
   const [userprofile, setUserprofile] = useState({
@@ -58,19 +48,6 @@ export default function Profile() {
 
   const [roles, setRoles] = useState([]);
 
-  // const getRoles = () => {
-  //   setModalloading(true);
-  //   axiosClient
-  //     .get("/roles")
-  //     .then(({ data }) => {
-  //       setModalloading(false);
-  //       setRoles(data.data);
-  //     })
-  //     .catch(() => {
-  //       setModalloading(false);
-  //     });
-  // };
-
   const getRoles = () => {
     axiosClient
       .get("/roles")
@@ -82,43 +59,29 @@ export default function Profile() {
       });
   };
 
-  const functionopenpopup = (ev) => {
-    setopenchange(true);
-    setUserprofile({});
-    setErrors(null);
-  };
-
   const closepopup = () => {
     setopenchange(false);
   };
 
-  // const getUser = () => {
-  //   setModalloading(true);
-  //   axiosClient
-  //     .get(`/users/${userval}`)
-  //     .then(({ data }) => {
-  //       setModalloading(false);
-  //       setUserprofile(data);
-  //     })
-  //     .catch(() => {
-  //       setModalloading(false);
-  //     });
-  // }
-
   const getUser = () => {
+setloading(true)
     axiosClient
-      .get(`/users/${userval}`)
+      .get(`/users/${user.id}`)
       .then(({ data }) => {
         setUserprofile(data);
+        setloading(false)
       })
       .catch(() => {
         setNotification("There is something wrong in the users api");
+        setloading(false)
       });
   }
 
   const onEdit = () => {
+    getRoles();
     setErrors(null)
     setopenchange(true);
+    getUser();
   };
   
   const onSubmit = () => {
@@ -188,11 +151,6 @@ export default function Profile() {
     prevOpen.current = open;
   }, [open]);
 
-  useEffect(() => {
-    getUser();
-    getRoles();
-  }, []);
-
   return (
     <Stack direction="row" spacing={2}>
       <div>
@@ -206,7 +164,7 @@ export default function Profile() {
         >
           <Avatar sx={{ width: 30, height: 30 }} />
           <Typography variant="span" color="white">
-            {userprofile.username}
+           {user.username}
           </Typography>
         </Button>
         <Popper
@@ -243,104 +201,20 @@ export default function Profile() {
           )}
         </Popper>
       </div>
-      {!modalloading && (
-        <Dialog
-          // fullScreen
+      <UserEdit
           open={openchange}
+          onClick={closepopup}
           onClose={closepopup}
-          fullWidth
-          maxWidth="sm"
-        >
-          {userval && (
-            <DialogTitle>
-              Edit Profile
-              <IconButton onClick={closepopup} style={{ float: "right" }}>
-                <Close color="primary"></Close>
-              </IconButton>{" "}
-            </DialogTitle>
-          )}
+          // id={userdata.id}
+          onSubmit={onSubmit}
+          loading={loading}
+          roles={roles}
+          user={userprofile}
+          setUser={setUserprofile}
+          errors={errors}
+          isUpdate={userprofile.id}
+        />
 
-          <DialogContent>
-            {errors && (
-              <Box>
-                {Object.keys(errors).map((key) => (
-                  <Alert severity="error" key={key}>
-                    {errors[key][0]}
-                  </Alert>
-                ))}
-              </Box>
-            )}
-            <Stack spacing={2} margin={2}>
-              {userprofile.role_id && (
-                <Select
-                  label="Role"
-                  value={userprofile.role_id || ""}
-                  // onChange={(ev) =>
-                  //   setUser({ ...user, role_id: ev.target.value })
-                  // }
-                  disabled
-                >
-                  {roles.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.role}
-                    </MenuItem>
-                  ))}
-                </Select>
-              )}
-
-              <TextField
-                variant="outlined"
-                id="Username"
-                label="Username"
-                value={userprofile.username}
-                onChange={(ev) =>
-                  setUserprofile({ ...userprofile, username: ev.target.value })
-                }
-              />
-              <TextField
-                variant="outlined"
-                id="Email"
-                label="Email"
-                type="email"
-                value={userprofile.email}
-                onChange={(ev) =>
-                  setUserprofile({ ...userprofile, email: ev.target.value })
-                }
-              />
-              <TextField
-                variant="outlined"
-                id="Password"
-                label="Password"
-                type="password"
-                value={userprofile.password}
-                onChange={(ev) =>
-                  setUserprofile({ ...userprofile, password: ev.target.value })
-                }
-              />
-              <TextField
-                variant="outlined"
-                id="Password Confirmation"
-                label="Password Confirmation"
-                type="password"
-                value={userprofile.password_confirmation}
-                onChange={(ev) =>
-                  setUserprofile({
-                    ...userprofile,
-                    password_confirmation: ev.target.value,
-                  })
-                }
-              />
-              <Button
-                color="primary"
-                variant="contained"
-                onClick={() => onSubmit()}
-              >
-                Save
-              </Button>
-            </Stack>
-          </DialogContent>
-        </Dialog>
-      )}
     </Stack>
   );
 }

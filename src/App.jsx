@@ -32,6 +32,13 @@ import PetsArchives from "./pages/PetsArchives";
 import AppointmentsConfirmed from "./pages/AppointmentsConfirmed";
 import Receipt from "./pages/Receipt";
 import ViewPet from "./pages/ViewPet";
+import Pets from "./pages/Pets";
+import DewormingLogs from "./pages/DewormingLogs";
+import VaccinationLogs from "./pages/VaccinationLogs";
+import Services from "./pages/Services";
+import Diagnosis from "./pages/Diagnosis";
+import PetOwnerAvail from "./pages/PetOwnerAvail";
+import PetownerAvailService from "./pages/PetOwnerAvailService";
 
 const roles = {
   ADMIN: "1",
@@ -79,6 +86,7 @@ function App() {
 
           <Route path="admin/pets/:id/view" element={<ViewPet />} />
 
+          <Route path="admin/pets" element={<Pets />} />
           <Route path="admin/pets/archives" element={<PetsArchives />} />
 
           <Route path="admin/pets/species" element={<Species />} />
@@ -91,7 +99,17 @@ function App() {
           <Route path="admin/appointments/confirmed" element={<AppointmentsConfirmed />} />
           <Route path="admin/appointments/pending" element={<AppointmentsPending />} />
           <Route path="admin/appointments/completed" element={<AppointmentsDone />} />
+
           <Route path="admin/:id/chargeslip" element={<Receipt />} />
+
+          <Route path="admin/services/petowners" element={<PetOwnerAvail />} />
+          <Route path="admin/services/petowners/:id/avail" element={<PetownerAvailService />} />
+          {/* <Route path="admin/services" element={<Services />} /> */}
+          <Route path="admin/services/consultation" element={<Diagnosis />} />
+
+
+          <Route path="admin/deworminglogs" element={<DewormingLogs />} />
+          <Route path="admin/vaccinationlogs" element={<VaccinationLogs />} />
 
 
 
@@ -107,7 +125,7 @@ function App() {
         <Route element={<RequireAuth allowedRoles={[roles.PETOWNER]} />}>
           {/* <Route path="dashboard" element={<PetOwnerLayout />} /> */}
           <Route path="pets" element={<PetOwnerPets />} />
-          <Route path="appointments" element={<Appointments />} />
+          <Route path="appointments" element={<PetOwnerAppointments />} />
         </Route>
         </Route>
         </Route>

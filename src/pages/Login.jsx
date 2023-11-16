@@ -37,7 +37,7 @@ function Copyright(props) {
 }
 
 export default function Login() {
-  const { setUser, setToken, setRole, token } = useStateContext();
+  const {user,updateUser, setToken, setRole, token } = useStateContext();
 
   // if (token) {
   //   return <Navigate to="/" />;
@@ -64,8 +64,10 @@ export default function Login() {
     axiosClient
       .post("/login", payload)
       .then(({ data }) => {
-        // setUser(data.user);
-        setUser(data.user.id);
+        // setUser(data.user.username);
+        // console.log(user)
+        updateUser(data.user)
+        // setUser(data.user.id);
         setToken(data.token);
         setRole(data.user.role_id);
         navigate("/")
@@ -154,10 +156,10 @@ export default function Login() {
               type="password"
               id="password"
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
-            />
+            /> */}
             <Button
               type="submit"
               fullWidth

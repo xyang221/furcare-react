@@ -8,9 +8,10 @@ import StaffSidebar from "./StaffSidebar";
 import PetOwnerSidebar from "./PetOwnerSidebar";
 import Dashboard from "../pages/Dashboard";
 import Modaltry from "./Modal";
+import UploadImage from "./UploadImage";
 
 export default function MainLayout() {
-  const { role, token } = useStateContext();
+  const { user, token } = useStateContext();
 
   // Redirect to the login page if there's no token
   if (!token) {
@@ -20,7 +21,7 @@ export default function MainLayout() {
   let sidebarComponent = null;
   let dashboardComponent = null;
 
-  switch (role) {
+  switch (user.role_id) {
     case "1":
       sidebarComponent = <Sidebar />;
       dashboardComponent = <Dashboard/>
@@ -47,6 +48,7 @@ export default function MainLayout() {
             {/* <Box position="fixed"> */}
             {/* main layout sagol ang dashboard */}
             <Outlet />
+            <UploadImage/>
             {/* </Box> */}
           </Box>
         </Box>

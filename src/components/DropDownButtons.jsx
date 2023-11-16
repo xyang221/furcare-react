@@ -31,7 +31,7 @@ export default function DropDownButtons(props) {
         onClick={handleOpenMenu}
         endIcon={<ArrowDropDownIcon />}
       >
-        Open Dropdown
+        Filter
       </Button>
       <Menu
         id="button-menu"

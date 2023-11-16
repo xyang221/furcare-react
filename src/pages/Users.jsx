@@ -92,6 +92,7 @@ export default function Users() {
   const [open, openchange] = useState(false);
 
   const addModal = (ev) => {
+    getRoles();
     setUser({})
     setErrors(null);
     openchange(true)
@@ -102,6 +103,7 @@ export default function Users() {
   };
 
   const onEdit = (r) => {
+    getRoles();
     setErrors(null)
     setModalloading(true);
     axiosClient
@@ -161,7 +163,6 @@ export default function Users() {
 
   useEffect(() => {
     getUsers();
-    getRoles();
   }, []);
 
   return (

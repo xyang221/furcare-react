@@ -96,7 +96,6 @@ export default function Appointments() {
       });
   };
 
-
   //for modal
   const [errors, setErrors] = useState(null);
   const [modalloading, setModalloading] = useState(false);
@@ -116,6 +115,7 @@ export default function Appointments() {
     // setOpenAdd(true);
     setAppointment({});
     setErrors(null);
+    setNotification("");
     openchange(true);
   };
 
@@ -168,6 +168,7 @@ export default function Appointments() {
         .then(() => {
           setNotification("Appointment was successfully updated");
           openchange(false);
+          setOpennotif(true)
           getAppointments();
         })
         .catch((err) => {
@@ -182,6 +183,7 @@ export default function Appointments() {
         .then(() => {
           setNotification("Appointment was successfully created");
           openchange(false);
+          setOpennotif(true)
           getAppointments();
         })
         .catch((err) => {
@@ -192,6 +194,9 @@ export default function Appointments() {
         });
     }
   };
+
+  const [opennotif, setOpennotif] = useState(false);
+
 
   useEffect(() => {
     getServices();
@@ -269,7 +274,7 @@ export default function Appointments() {
               <TableBody>
                 <TableRow>
                   <TableCell colSpan={6} style={{ textAlign: "center" }}>
-                   {message}
+                    {message}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -282,7 +287,9 @@ export default function Appointments() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        <TableCell>{new Date(r.date).toISOString().split("T")[0]}</TableCell>
+                        <TableCell>
+                          {new Date(r.date).toISOString().split("T")[0]}
+                        </TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
@@ -332,15 +339,17 @@ export default function Appointments() {
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
 
-<Stack spacing={2} sx={{ width: '100%' }}>
-     
-     <Snackbar open={open} autoHideDuration={6000}  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-       <Alert  severity="success" sx={{ width: '100%' }}  >
-         {notification}
-       </Alert>
-     </Snackbar>
-   </Stack>
-
+        <Stack spacing={2} sx={{ width: "100%" }}>
+          <Snackbar
+            open={opennotif}
+            autoHideDuration={6000}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          >
+            <Alert severity="success" sx={{ width: "100%" }}>
+              {notification}
+            </Alert>
+          </Snackbar>
+        </Stack>
       </Paper>
     </>
   );

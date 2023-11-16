@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
-// import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { Tab } from '@mui/material';
-import ViewPet from '../pages/ViewPet';
-import DewormingLogs from '../pages/DewormingLogs';
+import PetVaccinationLogs from '../pages/PetVaccinationLogs';
+import PetDewormingLogs from '../pages/PetDewormingLogs';
+import Diagnosis from '../pages/Diagnosis';
+import Services from '../pages/Services';
 
 export default function PetTabs() {
   const [value, setValue] = useState('1');
@@ -19,15 +20,15 @@ export default function PetTabs() {
     <Box sx={{ width: '100%', typography: 'body1' }}>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="Deworming Logs" value="1" />
-            <Tab label="Medical Extract" value="2" />
-            <Tab label="Item Three" value="3" />
+          <TabList onChange={handleChange} aria-label="lab API tabs">
+            <Tab label="Avail Service" value="1" />
+            <Tab label="Vaccination Logs" value="2" />
+            <Tab label="Deworming Logs" value="3" />
           </TabList>
         </Box>
-        <TabPanel value="1"><DewormingLogs/></TabPanel>
-        <TabPanel value="2">jkjkjk </TabPanel>
-        <TabPanel value="3">Item Three</TabPanel>
+        <TabPanel value="1"><Services/></TabPanel>
+        <TabPanel value="2"><PetVaccinationLogs/> </TabPanel>
+        <TabPanel value="3"><PetDewormingLogs/></TabPanel>
       </TabContext>
     </Box>
   );

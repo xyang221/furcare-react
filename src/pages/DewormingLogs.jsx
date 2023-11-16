@@ -16,7 +16,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Visibility } from "@mui/icons-material";
+import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
 import DewormingLogsModal from "../components/modals/DewormingLogsModal";
 
 export default function DewormingLogs() {
@@ -49,15 +49,13 @@ export default function DewormingLogs() {
 
   const [deworminglogs, setDeworminglogs] = useState([]);
 
-  const { id } = useParams();
-
   const getDeworming = () => {
     setLoading(true);
     axiosClient
-      .get(`/deworminglogs/pet/${id}`)
+      .get(`/deworminglogs`)
       .then(({ data }) => {
         setLoading(false);
-        setDeworminglogs(data);
+        setDeworminglogs(data.data);
       })
       .catch((mes) => {
         const response = mes.response;
@@ -85,7 +83,6 @@ export default function DewormingLogs() {
 
   const [deworminglog, setDeworminglog] = useState({
     id: null,
-    date: "",
     weight: null,
     description: "",
     administered: "",
@@ -105,12 +102,28 @@ export default function DewormingLogs() {
     setOpenAdd(false);
   };
 
-  const onArchive = (u) => {
+  const onEdit = (r) => {
+    getPets()
+    setErrors(null)
+    setLoading(true);
+    axiosClient
+      .get(`/deworminglogs/${r.id}`)
+      .then(({ data }) => {
+        setLoading(false);
+        setDeworminglog(data);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+    setOpenAdd(true);
+  };
+
+  const onArchive = (r) => {
     if (!window.confirm("Are you sure to archive this?")) {
       return;
     }
 
-    axiosClient.delete(`/deworminglogs/${u.id}/archive`).then(() => {
+    axiosClient.delete(`/deworminglogs/${r.id}/archive`).then(() => {
       setNotification("Pet Owner was archived");
       getDeworming();
     });
@@ -122,6 +135,7 @@ export default function DewormingLogs() {
         .put(`/deworminglogs/${deworminglog.id}`, deworminglog)
         .then(() => {
           setNotification("deworminglog was successfully updated");
+          setMessage(null)
           openAdd(false);
           getDeworming();
         })
@@ -133,9 +147,10 @@ export default function DewormingLogs() {
         });
     } else {
       axiosClient
-        .post(`/deworminglog`, deworminglog)
+        .post(`/deworminglogs/pet/${deworminglog.pet_id}`, deworminglog)
         .then(() => {
-          setNotification("deworminglog was successfully created");
+          setNotification("Deworming Log was successfully created");
+          setMessage(null)
           setOpenAdd(false);
           getDeworming();
         })
@@ -154,17 +169,21 @@ export default function DewormingLogs() {
 
   return (
     <>
-      <Box
-        sx={{
-          minWidth: "90%",
-        }}
-      >
+      <Paper
+          sx={{
+            minWidth: "90%",
+            padding: "10px",
+            margin: "10px",
+          }}
+        >
          <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
+            <Typography variant="h4">Deworming Logs</Typography>{" "}
+
         <Button
           onClick={addModal}
           variant="contained"
@@ -184,9 +203,10 @@ export default function DewormingLogs() {
           pets={pets}
           deworminglog={deworminglog}
           setDeworminglog={setDeworminglog}
-          // errors={errors}
-          petid={id}
-          isUpdate={deworminglog.id}
+          errors={errors}
+          // petid={null}
+          // petid={deworminglog.pet_id || null}
+          isUpdate={deworminglog.id || null}
         />
 
         {/* <Button
@@ -243,22 +263,20 @@ export default function DewormingLogs() {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.id}</TableCell>
-                        <TableCell>{`${r.firstname} ${r.lastname}`}</TableCell>
-                        <TableCell>{r.contact_num}</TableCell>
-                        <TableCell>
-                          {r.address.zone}, {r.address.barangay},{" "}
-                          {r.address.zipcode.area}
-                        </TableCell>
+                        <TableCell>{r.date}</TableCell>
+                        <TableCell>{`${r.weight} kg`}</TableCell>
+                        <TableCell>{r.description}</TableCell>
+                        <TableCell>{r.administered}</TableCell>
+                        <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
-                            <Button
-                              component={Link}
-                              to={`/admin/deworminglogs/` + r.id + `/view`}
+                          <Button
                               variant="contained"
-                              color="info"
                               size="small"
+                              color="info"
+                              onClick={() => onEdit(r)}
                             >
-                              <Visibility fontSize="small" />
+                              <Edit fontSize="small" />
                             </Button>
 
                             <Button
@@ -286,7 +304,7 @@ export default function DewormingLogs() {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
-      </Box>
+      </Paper>
     </>
   );
 }

@@ -180,7 +180,6 @@ export default function PetOwnerForm() {
               id="Contact Number"
               label="Contact Number"
               type="number"
-              // helperText="Please enter your firstname"
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -190,7 +189,8 @@ export default function PetOwnerForm() {
         }}
               value={petowner.contact_num}
               onChange={(ev) => { 
-                const input = ev.target.value.replace(/\D/g, '').slice(0, 10);
+                const input = ev.target.value.slice(0, 10);
+                // const input = ev.target.value.replace(/\D/g, '').slice(0, 10);
                 setPetowner({ ...petowner, contact_num: input });
               }}
             />
@@ -198,7 +198,6 @@ export default function PetOwnerForm() {
             <TextField
               id="Zone"
               label="Zone"
-              // helperText="Please enter your firstname"
               value={petowner.zone}
               onChange={(ev) =>
                 setPetowner({ ...petowner, zone: ev.target.value })
@@ -207,7 +206,6 @@ export default function PetOwnerForm() {
             <TextField
               id="Barangay"
               label="Barangay"
-              // helperText="Please enter your firstname"
               value={petowner.barangay}
               onChange={(ev) =>
                 setPetowner({ ...petowner, barangay: ev.target.value })
@@ -236,7 +234,7 @@ export default function PetOwnerForm() {
                 setValue(newValue);
                 setPetowner({
                   ...petowner,
-                  zipcode_id: newValue ? newValue.id : null,
+                  zipcode_id: newValue ? newValue.id : "",
                 });
               }}
               value={value}

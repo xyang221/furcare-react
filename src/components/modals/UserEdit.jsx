@@ -42,9 +42,10 @@ export default function UserEdit(props) {
 
   return (
     <>
-      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
+      <Backdrop open={loading} style={{ zIndex: 999 }}>
         <CircularProgress color="inherit" />
-      </Backdrop> */}
+      </Backdrop>
+      
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
@@ -69,7 +70,7 @@ export default function UserEdit(props) {
               
                <Select
                   label="Role"
-                  value={user.role_id ||null}
+                  value={user.role_id ||""}
                   onChange={(ev) => handleFieldChange("role_id", ev.target.value)}
                   disabled
                 >
@@ -82,7 +83,7 @@ export default function UserEdit(props) {
                 ) :
                 (<Select
                   label="Role"
-                  value={user.role_id || null}
+                  value={user.role_id || ""}
                   onChange={(ev) => handleFieldChange("role_id", ev.target.value)}
                 >
                   {roles.map((item) => (

@@ -46,20 +46,20 @@ export default function PetOwnerForm() {
     password_confirmation: "",
   });
 
-  useEffect(() => {
-    if (id) {
-      setLoading(true);
-      axiosClient
-        .get(`/petowners/${id}`)
-        .then(({ data }) => {
-          setLoading(false);
-          setPetowner(data);
-        })
-        .catch(() => {
-          setLoading(false);
-        });
-    }
-  }, [id]);
+  // useEffect(() => {
+  //   if (id) {
+  //     setLoading(true);
+  //     axiosClient
+  //       .get(`/petowners/${id}`)
+  //       .then(({ data }) => {
+  //         setLoading(false);
+  //         setPetowner(data);
+  //       })
+  //       .catch(() => {
+  //         setLoading(false);
+  //       });
+  //   }
+  // }, [id]);
 
   const onSubmit = (ev) => {
     ev.preventDefault();
@@ -68,7 +68,7 @@ export default function PetOwnerForm() {
         .put(`/petowners/${petowner.id}`, petowner)
         .then(() => {
           setNotification("Petowner successfully updated");
-          navigate("/admin/petowners");
+          navigate(`/admin/petowners/` + petowner.id + `/view`);
         })
         .catch((err) => {
           handleErrors(err);
@@ -78,7 +78,7 @@ export default function PetOwnerForm() {
         .post(`/petowners`, petowner)
         .then(() => {
           setNotification("Pet Owner successfully created");
-          navigate("/admin/petowners");
+          navigate(`/admin/petowners/` + petowner.id + `/view`);
         })
         .catch((err) => {
           handleErrors(err);
@@ -125,7 +125,12 @@ export default function PetOwnerForm() {
 
   const [activeStep, setActiveStep] = useState(0);
 
-  const handleNext = () => {
+  const handleNext = (e) => {
+    e.preventDefault();
+    if (activeStep === 1) {
+      onSubmit(e);
+      return true;
+    }
     setActiveStep((prevStep) => prevStep + 1);
   };
 
@@ -153,7 +158,7 @@ export default function PetOwnerForm() {
               margin: "auto",
             }}
           >
-            <Typography variant="h4" >Pet Owner Registration</Typography>
+            <Typography variant="h4">Pet Owner Registration</Typography>
 
             <TextField
               variant="outlined"
@@ -164,6 +169,7 @@ export default function PetOwnerForm() {
               onChange={(ev) =>
                 setPetowner({ ...petowner, firstname: ev.target.value })
               }
+              required
             />
             <TextField
               variant="outlined"
@@ -174,21 +180,24 @@ export default function PetOwnerForm() {
               onChange={(ev) =>
                 setPetowner({ ...petowner, lastname: ev.target.value })
               }
+              required
             />
             <TextField
               variant="outlined"
               id="Contact Number"
               label="Contact Number"
               type="number"
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              +63
-            </InputAdornment>
-          ),
-        }}
+              inputProps={{
+                minLength: 10,
+              }}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">+63</InputAdornment>
+                ),
+              }}
               value={petowner.contact_num}
-              onChange={(ev) => { 
+              onChange={(ev) => {
                 const input = ev.target.value.slice(0, 10);
                 // const input = ev.target.value.replace(/\D/g, '').slice(0, 10);
                 setPetowner({ ...petowner, contact_num: input });
@@ -197,11 +206,12 @@ export default function PetOwnerForm() {
 
             <TextField
               id="Zone"
-              label="Zone"
+              label="Zone/Block/Street"
               value={petowner.zone}
               onChange={(ev) =>
                 setPetowner({ ...petowner, zone: ev.target.value })
               }
+              required
             />
             <TextField
               id="Barangay"
@@ -210,6 +220,7 @@ export default function PetOwnerForm() {
               onChange={(ev) =>
                 setPetowner({ ...petowner, barangay: ev.target.value })
               }
+              required
             />
 
             <Autocomplete
@@ -238,6 +249,7 @@ export default function PetOwnerForm() {
                 });
               }}
               value={value}
+              required
             />
           </Box>
         );
@@ -253,7 +265,7 @@ export default function PetOwnerForm() {
             }}
           >
             <Typography variant="h4">Create an Account</Typography>
-            <FormControl sx={{ m: 1, minWidth: 120 }} >
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id="demo-select-small-label">Role</InputLabel>
               <Select
                 labelId="demo-select-small-label"
@@ -279,6 +291,7 @@ export default function PetOwnerForm() {
               onChange={(ev) =>
                 setPetowner({ ...petowner, username: ev.target.value })
               }
+              required
             />
             <TextField
               id="Email"
@@ -288,27 +301,31 @@ export default function PetOwnerForm() {
               onChange={(ev) =>
                 setPetowner({ ...petowner, email: ev.target.value })
               }
+              required
             />
-             <TextField
-                  variant="outlined"
-                  id="Password"
-                  label="Password"
-                  type="password"
-                  value={petowner.password}
-                  onChange={(ev) =>
-                    setPetowner({ ...petowner, password: ev.target.value })
-                  }
-                />
-                <TextField
-                  variant="outlined"
-                  id="Password Confirmation"
-                  label="Password Confirmation"
-                  type="password"
-                  value={petowner.password_confirmation}
-                  onChange={(ev) =>
-                    setPetowner({ ...petowner, password_confirmation: ev.target.value })
-                  }
-                />
+            <TextField
+              variant="outlined"
+              id="Password"
+              label="Password"
+              type="password"
+              value={petowner.password}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, password: ev.target.value })
+              }
+            />
+            <TextField
+              variant="outlined"
+              id="Password Confirmation"
+              label="Password Confirmation"
+              type="password"
+              value={petowner.password_confirmation}
+              onChange={(ev) =>
+                setPetowner({
+                  ...petowner,
+                  password_confirmation: ev.target.value,
+                })
+              }
+            />
           </Box>
         );
       default:
@@ -322,7 +339,9 @@ export default function PetOwnerForm() {
       {errors && (
         <Box p={2}>
           {Object.keys(errors).map((key) => (
-            <Alert severity="error" key={key}>{errors[key][0]}</Alert>
+            <Alert severity="error" key={key}>
+              {errors[key][0]}
+            </Alert>
           ))}
         </Box>
       )}
@@ -341,34 +360,28 @@ export default function PetOwnerForm() {
           </div>
         ) : (
           <div>
-            {getStepContent(activeStep)}
-            <div>
-              <Button disabled={activeStep === 0} onClick={handlePrev}>
-                Back
-              </Button>
-              {activeStep === 0 && (
-                <>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNext}
-                  >
-                    Next
-                  </Button>
-                </>
-              )}
-              {activeStep === 1 && (
-                <>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={onSubmit}
-                  >
-                    Finish
-                  </Button>
-                </>
-              )}
-            </div>
+            <form onSubmit={(e) => handleNext(e)}>
+              {getStepContent(activeStep)}
+              <div>
+                <Button disabled={activeStep === 0} onClick={handlePrev}>
+                  Back
+                </Button>
+                {activeStep === 0 && (
+                  <>
+                    <Button variant="contained" color="primary" type="submit">
+                      Next
+                    </Button>
+                  </>
+                )}
+                {activeStep === 1 && (
+                  <>
+                    <Button variant="contained" color="primary" type="submit">
+                      Finish
+                    </Button>
+                  </>
+                )}
+              </div>
+            </form>
           </div>
         )}
       </div>

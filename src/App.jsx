@@ -39,6 +39,9 @@ import Services from "./pages/Services";
 import Diagnosis from "./pages/Diagnosis";
 import PetOwnerAvail from "./pages/PetOwnerAvail";
 import PetownerAvailService from "./pages/PetOwnerAvailService";
+import ClientServiceForm from "./pages/ClientServiceForm";
+import TreatmentForm from "./pages/TreatmentForm";
+import ServiceCatBtns from "./components/ServiceCatTabs";
 
 const roles = {
   ADMIN: "1",
@@ -103,7 +106,7 @@ function App() {
           <Route path="admin/:id/chargeslip" element={<Receipt />} />
 
           <Route path="admin/services/petowners" element={<PetOwnerAvail />} />
-          <Route path="admin/services/petowners/:id/avail" element={<PetownerAvailService />} />
+          <Route path="admin/services/petowners/:id/avail" element={<ServiceCatBtns />} />
           {/* <Route path="admin/services" element={<Services />} /> */}
           <Route path="admin/services/consultation" element={<Diagnosis />} />
 
@@ -111,7 +114,8 @@ function App() {
           <Route path="admin/deworminglogs" element={<DewormingLogs />} />
           <Route path="admin/vaccinationlogs" element={<VaccinationLogs />} />
 
-
+          <Route path="admin/services/petowner/:id/avail/admission" element={<ClientServiceForm />} />
+          <Route path="admin/services/petowner/:id/avail/admission/treatment" element={<TreatmentForm />} />
 
           <Route path="admin/clientservice" element={<ClientService />} />
           

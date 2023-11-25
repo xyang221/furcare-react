@@ -42,7 +42,7 @@ export default function PetsModal(props) {
     petownerid,
     addImage,
     handleImage,
-    uploadImage
+    uploadImage,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -57,7 +57,6 @@ export default function PetsModal(props) {
   });
 
   const [error, setError] = useState(null);
-
 
   const submitImage = (e) => {
     e.preventDefault();
@@ -85,7 +84,6 @@ export default function PetsModal(props) {
       .catch((error) => {
         console.error(error);
       });
-
   };
 
   // const handleAddPhoto = (file) => {
@@ -101,39 +99,45 @@ export default function PetsModal(props) {
           <CircularProgress color="inherit" />
         </Backdrop>
 
-        {uploadImage &&  <>
-      {/* {!loading && ( */}
-          <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>
-              Upload Image
-              <IconButton onClick={onClick} style={{ float: "right" }}>
-                <Close color="primary"></Close>
-              </IconButton>
-            </DialogTitle>
-            <DialogContent>
-             
-              <Stack spacing={2} margin={2}>
-      {/* <form onSubmit={submitImage} encType="multipart/form-data"> */}
-        <TextField
-          variant="outlined"
-          id="photo"
-          label="Photo"
-          type="file"
-          onChange={handleImage}
-        />
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {/* <Button type="submit" variant="contained" color="primary">
+        {uploadImage && (
+          <>
+            {/* {!loading && ( */}
+            <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+              <DialogTitle>
+                Upload Image
+                <IconButton onClick={onClick} style={{ float: "right" }}>
+                  <Close color="primary"></Close>
+                </IconButton>
+              </DialogTitle>
+              <DialogContent>
+                <Stack spacing={2} margin={2}>
+                  {/* <form onSubmit={submitImage} encType="multipart/form-data"> */}
+                  <TextField
+                    variant="outlined"
+                    id="photo"
+                    label="Photo"
+                    type="file"
+                    onChange={handleImage}
+                    defaultValue={null}
+                  />
+                  {error && <p style={{ color: "red" }}>{error}</p>}
+                  {/* <Button type="submit" variant="contained" color="primary">
           Upload
         </Button> */}
-      {/* </form> */}
-                <Button color="primary" variant="contained" onClick={submitImage}>
-                  Save
-                </Button>
-              </Stack>
-            </DialogContent>
-          </Dialog>
-        {/* )} */}
-      </>}
+                  {/* </form> */}
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={submitImage}
+                  >
+                    Save
+                  </Button>
+                </Stack>
+              </DialogContent>
+            </Dialog>
+            {/* )} */}
+          </>
+        )}
         {!loading && (
           <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>
@@ -153,16 +157,19 @@ export default function PetsModal(props) {
                 </Box>
               )}
               <Stack spacing={2} margin={2}>
-                {addImage &&(
+                {addImage && (
                   <FormControl>
-                <TextField
-                  variant="outlined"
-                  id="photo"
-                  label="Photo"
-                  type="file"
-                  onChange={handleImage}
-                />
-                {error && <p style={{ color: "red" }}>{error}</p>}</FormControl>)}
+                    <TextField
+                      variant="outlined"
+                      id="photo"
+                      label="Photo"
+                      type="file"
+                      onChange={handleImage}
+                      defaultValue={null}
+                    />
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+                  </FormControl>
+                )}
                 {petownerid ? (
                   <FormControl>
                     <InputLabel>Pet Owner</InputLabel>
@@ -215,6 +222,7 @@ export default function PetsModal(props) {
                   id="Birthdate"
                   type="date"
                   value={pet.birthdate || ``}
+                  defaultValue={null}
                   onChange={(ev) =>
                     handleFieldChange("birthdate", ev.target.value)
                   }
@@ -253,16 +261,6 @@ export default function PetsModal(props) {
                   value={pet.color || ``}
                   onChange={(ev) => handleFieldChange("color", ev.target.value)}
                 />
-                <TextField
-                  variant="outlined"
-                  id="QRCode"
-                  label="QRCode"
-                  value={pet.qr_code || ``}
-                  onChange={(ev) =>
-                    handleFieldChange("qr_code", ev.target.value)
-                  }
-                />
-
                 <FormControl>
                   <InputLabel>Breed</InputLabel>
                   <Select

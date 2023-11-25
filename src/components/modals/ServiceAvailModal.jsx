@@ -19,15 +19,15 @@ import {
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
-export default function DiagnosisModal(props) {
+export default function ServiceAvailModal(props) {
   const {
     open,
     onClose,
     onSubmit,
+    title,
     loading,
-    petname,
-    diagnosis,
-    setDiagnosis,
+    serviceavail,
+    setServiceavail,
     errors,
     pets,
     addpet
@@ -35,9 +35,9 @@ export default function DiagnosisModal(props) {
 
   const handleFieldChange = (fieldName, value) => {
     // Create a copy of the breed object and update the specified field
-    const updatedDiagnosis = { ...diagnosis, [fieldName]: value };
+    const updatedServiceAvail = { ...serviceavail, [fieldName]: value };
     // Update the breed object with the updated value
-    setDiagnosis(updatedDiagnosis);
+    setServiceavail(updatedServiceAvail);
   };
 
   const [date, setDate] = useState(new Date());
@@ -52,7 +52,7 @@ export default function DiagnosisModal(props) {
         
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
         <DialogTitle>
-          Consultation
+          {title}
           <IconButton onClick={onClose} style={{ float: "right" }}>
             <Close color="primary"></Close>
           </IconButton>
@@ -69,25 +69,13 @@ export default function DiagnosisModal(props) {
           )}
           <Stack spacing={2} margin={2}>
 
-          {/* <Select
-                  label="Service"
-                  value={diagnosis.service_id || ''}
-                  onChange={(ev) => handleFieldChange("service_id", ev.target.value)}
-                >
-                  {services.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.service}
-                    </MenuItem>
-                  ))}
-                </Select> */}
-
             <Box
               display="flex"
               flexDirection="row"
               justifyContent="space-between"
             >
               
-              <Typography variant="h6">Diagnosis </Typography>
+              <Typography variant="h6">{title} </Typography>
 
               <Typography variant="h6">
                 Date: {date.toDateString()}{" "}
@@ -99,7 +87,7 @@ export default function DiagnosisModal(props) {
                   <InputLabel>Pet</InputLabel>
                   <Select
                     label="Pet"
-                    value={diagnosis.pet_id || ""}
+                    value={serviceavail.pet_id || ""}
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
@@ -112,23 +100,7 @@ export default function DiagnosisModal(props) {
                   </Select>
                 </FormControl>
               }
-            {/* <Box display="flex" flexDirection="row">
-              <Typography variant="h6">Pet Name: {petname}</Typography>
-            </Box> */}
-
-            <TextField
-              id="outlined-multiline-static"
-              label="Remarks"
-              multiline
-              rows={5}
-              fullWidth
-              placeholder="write your remarks here..."
-              value={diagnosis.remarks || ""}
-                  onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
-            />
-
-            <br></br>
-
+      
             <Button
               color="primary"
               variant="contained"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../axios-client";
+import axiosClient from "../../axios-client";
 import { Link, useParams } from "react-router-dom";
 import {
   Alert,
@@ -17,16 +17,17 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
-import DewormingLogsModal from "../components/modals/DewormingLogsModal";
+import DewormingLogsModal from "../../components/modals/DewormingLogsModal";
 
-export default function PetDewormingLogs() {
+export default function PetDewormingLogs({ sid }) {
   //for table
   const columns = [
-    { id: "id", name: "ID" },
     { id: "date", name: "Date" },
+    { id: "Pet", name: "Pet" },
     { id: "weight", name: "Weight" },
     { id: "Description", name: "Description" },
     { id: "Administered", name: "Administered" },
+    { id: "Return", name: "Return" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
@@ -44,7 +45,7 @@ export default function PetDewormingLogs() {
 
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(null);
   const [errors, setErrors] = useState(null);
 
   const [deworminglogs, setDeworminglogs] = useState([]);
@@ -52,9 +53,10 @@ export default function PetDewormingLogs() {
   const { id } = useParams();
 
   const getDeworming = () => {
+    setMessage(null);
     setLoading(true);
     axiosClient
-      .get(`/deworminglogs/pet/${id}`)
+      .get(`/deworminglogs/petowner/${id}/service/${sid}`)
       .then(({ data }) => {
         setLoading(false);
         setDeworminglogs(data.data);
@@ -71,16 +73,12 @@ export default function PetDewormingLogs() {
   const [pets, setPets] = useState([]);
 
   const getPets = () => {
-    setLoading(true);
     axiosClient
-      .get(`/pets`)
+      .get(`/petowners/${id}/pets`)
       .then(({ data }) => {
-        setLoading(false);
         setPets(data.data);
       })
-      .catch(() => {
-        setLoading(false);
-      });
+      .catch(() => {});
   };
 
   const [deworminglog, setDeworminglog] = useState({
@@ -88,12 +86,12 @@ export default function PetDewormingLogs() {
     weight: "",
     description: "",
     administered: "",
-    status: "",
-    pet_id:null,
+    return: "",
+    pet_id: null,
   });
 
   const [openAdd, setOpenAdd] = useState(false);
-  
+
   const addModal = (ev) => {
     getPets();
     setOpenAdd(true);
@@ -117,8 +115,8 @@ export default function PetDewormingLogs() {
   };
 
   const onEdit = (r) => {
-    getPets()
-    setErrors(null)
+    getPets();
+    setErrors(null);
     setLoading(true);
     axiosClient
       .get(`/deworminglogs/${r.id}`)
@@ -149,7 +147,7 @@ export default function PetDewormingLogs() {
         });
     } else {
       axiosClient
-        .post(`/deworminglogs/pet/${id}`, deworminglog)
+        .post(`/deworminglogs/petowner/${id}/service/${sid}`, deworminglog)
         .then(() => {
           setNotification("deworminglog was successfully created");
           setOpenAdd(false);
@@ -175,20 +173,20 @@ export default function PetDewormingLogs() {
           minWidth: "90%",
         }}
       >
-         <Box
+        <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-        <Button
-          onClick={addModal}
-          variant="contained"
-          color="success"
-          size="small"
-        >
-          <Add />
-        </Button>
+          <Button
+            onClick={addModal}
+            variant="contained"
+            color="success"
+            size="small"
+          >
+            <Add />
+          </Button>
         </Box>
 
         <DewormingLogsModal
@@ -198,7 +196,7 @@ export default function PetDewormingLogs() {
           onSubmit={onSubmit}
           loading={loading}
           pets={pets}
-          petid={id}
+          // petid={id}
           deworminglog={deworminglog}
           setDeworminglog={setDeworminglog}
           errors={errors}
@@ -234,7 +232,7 @@ export default function PetDewormingLogs() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -244,7 +242,7 @@ export default function PetDewormingLogs() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -258,15 +256,16 @@ export default function PetDewormingLogs() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                      <TableCell>{r.id}</TableCell>
                         <TableCell>{r.date}</TableCell>
+                        <TableCell>{r.pet.name}</TableCell>
                         <TableCell>{`${r.weight} kg`}</TableCell>
                         <TableCell>{r.description}</TableCell>
                         <TableCell>{r.administered}</TableCell>
-                        <TableCell>{r.status}</TableCell>
+                        <TableCell>{r.return}</TableCell>
+                        <TableCell>{r.servicesavailed.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
-                          <Button
+                            <Button
                               variant="contained"
                               size="small"
                               color="info"

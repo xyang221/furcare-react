@@ -39,6 +39,7 @@ export default function VaccinationLogsModal(props) {
     againsts,
     checkedItems,
     setCheckedItems,
+    handleCheckboxChange,
     errors,
     isUpdate,
   } = props;
@@ -50,6 +51,8 @@ export default function VaccinationLogsModal(props) {
     setVaccination(updatedLogs);
   };
 
+  
+
   return (
     <>
       {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
@@ -59,7 +62,7 @@ export default function VaccinationLogsModal(props) {
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            {isUpdate ? "Update Vaccination Log" : "Add Vaccination Log"}
+            {isUpdate ? "Update Vaccination" : "Add Vaccination"}
             <IconButton onClick={onClick} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
@@ -137,6 +140,7 @@ export default function VaccinationLogsModal(props) {
                           [item.id]: !prevCheckedItems[item.id],
                         }));
                       }}
+                      // onChange={() => handleCheckboxChange(item.id)}
                     />
                     <TableCell> {item.acronym} </TableCell>
                     <TableCell> {item.description}</TableCell>

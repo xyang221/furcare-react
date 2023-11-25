@@ -67,7 +67,7 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        {/* <ListItem>
+        <ListItem>
           <ListItemButton
             selected={selectedIndex === 1}
             onClick={() => handleListItemClick(1)}
@@ -78,7 +78,7 @@ export default function Sidebar() {
               <People />
             </ListItemIcon>
           </ListItemButton>
-        </ListItem> */}
+        </ListItem>
         <ListItem>
           <ListItemButton
             selected={selectedIndex === 2}
@@ -91,7 +91,7 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-        {/* <ListItem>
+        <ListItem>
           <ListItemButton
             selected={selectedIndex === 3}
             onClick={() => handleListItemClick(3)}
@@ -114,7 +114,7 @@ export default function Sidebar() {
               <Pets />
             </ListItemIcon>
           </ListItemButton>
-        </ListItem> */}
+        </ListItem>
         <ListItem>
           <ListItemButton
             selected={selectedIndex === 4}
@@ -199,7 +199,7 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem> */}
-        <ListItem>
+        {/* <ListItem>
           <ListItemButton
             selected={selectedIndex === 7}
             onClick={() => handleListItemClick(7)}
@@ -210,7 +210,7 @@ export default function Sidebar() {
               <MiscellaneousServices />
             </ListItemIcon>
           </ListItemButton>
-        </ListItem>
+        </ListItem> */}
       </StyledList>
     </Box>
     //  </Box>

@@ -50,6 +50,7 @@ export default function PetOwnerAppointments() {
   const navigate = useNavigate();
 
   const getAppointments = () => {
+    setMessage("")
     setLoading(true);
     axiosClient
       .get(`/petowners/${id}/appointments`)
@@ -100,7 +101,6 @@ export default function PetOwnerAppointments() {
     date: "",
     purpose: "",
     remarks: "",
-    client_service_id: null,
   });
   const [open, openchange] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -167,7 +167,7 @@ export default function PetOwnerAppointments() {
   const onSubmit = () => {
     if (appointment.id) {
       axiosClient
-        .put(`/appointment/${appointment.id}`, appointment)
+        .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
           setNotification("appointment was successfully updated");
           openchange(false);
@@ -181,7 +181,7 @@ export default function PetOwnerAppointments() {
         });
     } else {
       axiosClient
-        .post(`/appointment`, appointment)
+        .post(`/appointments/petowner/${id}`, appointment)
         .then(() => {
           setNotification("appointment was successfully created");
           setOpenAdd(false);

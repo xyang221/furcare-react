@@ -50,7 +50,6 @@ export default function VaccinationLogs() {
 
   const [vaccinations, setVaccinationlogs] = useState([]);
 
-  const [checkedItems, setCheckedItems] = useState({});
 
   const getVaccination = () => {
     setLoading(true);
@@ -171,7 +170,24 @@ export default function VaccinationLogs() {
     }
   };
 
+  const [checkedItems, setCheckedItems] = useState({});
+
+  // const handleCheckboxChange = (itemId) => {
+  //   setCheckedItems((prevCheckedItems) => ({
+  //     ...prevCheckedItems,
+  //     [itemId]: !prevCheckedItems[itemId],
+  //   }));
+  // };
+
+  // const [against, setAgainst] = useState({});
+  const [selectedItems, setSelectedItems] = useState([]);
+  const addSelectedService = () => {
+    setSelectedItems([...selectedItems, checkedItems]);
+  };
+  console.log(checkedItems)
+
   useEffect(() => {
+    // addSelectedService()
     getVaccination();
   }, []);
 
@@ -214,6 +230,7 @@ export default function VaccinationLogs() {
           againsts={againsts}
           checkedItems={checkedItems}
           setCheckedItems={setCheckedItems}
+          // handleCheckboxChange={handleCheckboxChange}
           errors={errors}
           // petid={pet.id}
           isUpdate={vaccination.id}

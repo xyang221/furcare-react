@@ -8,7 +8,6 @@ import StaffSidebar from "./StaffSidebar";
 import PetOwnerSidebar from "./PetOwnerSidebar";
 import Dashboard from "../pages/Dashboard";
 import Modaltry from "./Modal";
-import UploadImage from "./UploadImage";
 
 export default function MainLayout() {
   const { user, token } = useStateContext();
@@ -48,7 +47,6 @@ export default function MainLayout() {
             {/* <Box position="fixed"> */}
             {/* main layout sagol ang dashboard */}
             <Outlet />
-            <UploadImage/>
             {/* </Box> */}
           </Box>
         </Box>

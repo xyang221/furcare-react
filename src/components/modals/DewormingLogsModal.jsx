@@ -41,6 +41,8 @@ export default function DewormingLogsModal(props) {
     setDeworminglog(updatedLogs);
   };
 
+  const [date, setDate] = useState(new Date());
+
   return (
     <>
       {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
@@ -50,7 +52,7 @@ export default function DewormingLogsModal(props) {
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            {isUpdate ? "Update Deworming Log" : "Add Deworming Log"}
+            {isUpdate ? "Update Deworming" : "Add Deworming"}
             <IconButton onClick={onClick} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
@@ -66,7 +68,6 @@ export default function DewormingLogsModal(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
-
               {isUpdate ? (
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
@@ -90,7 +91,7 @@ export default function DewormingLogsModal(props) {
                   <InputLabel>Pet</InputLabel>
                   <Select
                     label="Pet"
-                    value={deworminglog.pet_id || petid}
+                    value={deworminglog.pet_id || ``}
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
@@ -143,20 +144,14 @@ export default function DewormingLogsModal(props) {
               </FormControl>
 
               <TextField
+                label="Return"
                 variant="outlined"
-                id="Status"
-                label="Status"
-                value={deworminglog.status}
-                onChange={(ev) => handleFieldChange("status", ev.target.value)}
+                id="Return"
+                type="date"
+                value={deworminglog.return || ``}
+                defaultValue={null}
+                onChange={(ev) => handleFieldChange("return", ev.target.value)}
               />
-
-              {/* <TextField
-                variant="outlined"
-                id="Administered"
-                label="Administered"
-                value={deworminglog.administered}
-                onChange={(ev) => handleFieldChange("administered", ev.target.value)}
-              /> */}
 
               <Button color="primary" variant="contained" onClick={onSubmit}>
                 Save

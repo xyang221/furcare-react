@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { Alert, Box, Button, CircularProgress, Paper, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { ArrowBackIos, Edit } from "@mui/icons-material";
 import PetOwnerEdit from "../components/modals/PetOwnerEdit";
 import PetOwnerPets from "./PetOwnerPets";
@@ -21,7 +30,7 @@ export default function ViewPetOwner() {
     lastname: "",
     contact_num: "",
     address_id: null,
-    user_id: null
+    user_id: null,
   });
 
   const [addressdata, setAddressdata] = useState({
@@ -30,7 +39,6 @@ export default function ViewPetOwner() {
     barangay: "",
     zone: "",
   });
-
 
   const [userdata, setUserdata] = useState({
     id: null,
@@ -42,7 +50,7 @@ export default function ViewPetOwner() {
   });
 
   const [zipcode, setZipcode] = useState({
-    id:null,
+    id: null,
     area: "",
     province: "",
     zipcode: "",
@@ -105,13 +113,13 @@ export default function ViewPetOwner() {
   };
 
   // const [value, setValue] = useState(zipcode.id);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [value, setValue] = useState(null);
 
   const onEdit = () => {
     getPetowner();
     setErrors(null);
-    getZipcodes()
+    getZipcodes();
     openPetownerchange(true);
   };
 
@@ -130,7 +138,10 @@ export default function ViewPetOwner() {
       .then(() => {
         setNotification("Petowner was successfully updated");
 
-        return axiosClient.put(`/addresses/${petownerdata.address_id}`, addressdata);
+        return axiosClient.put(
+          `/addresses/${petownerdata.address_id}`,
+          addressdata
+        );
       })
       .then(() => {
         setLoading(false);
@@ -168,26 +179,14 @@ export default function ViewPetOwner() {
   }, []);
 
   return (
-    <Paper sx={{
-      minWidth: "90%",
-      padding: "10px",
-      margin: "10px",
-    }}>
+    <Paper
+      sx={{
+        minWidth: "90%",
+        padding: "10px",
+        margin: "10px",
+      }}
+    >
       <div className="card animate fadeInDown">
-        
-        <h1 className="title">Pet Owner Details</h1>
-
-        {/* <Box
-  component="img"
-  sx={{
-    height: 233,
-    width: 350,
-    maxHeight: { xs: 233, md: 167 },
-    maxWidth: { xs: 350, md: 250 },
-  }}
-  alt="The house from the offer."
-  src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"
-/> */}
         {/* {loading && <div className="text-center">Loading...</div>} */}
         {notification && <Alert severity="success">{notification}</Alert>}
         {/* {errors && (
@@ -198,25 +197,46 @@ export default function ViewPetOwner() {
           </div>
         )} */}
 
-      <p>
-        Name: {petownerdata.firstname} {petownerdata.lastname}
-      </p>
-      <p>
-        Address: {addressdata.zone}, {addressdata.barangay}, {zipcode.area}, {zipcode.province}, {zipcode.zipcode}
-      </p>
-      <p>Contact Number: {petownerdata.contact_num}</p>
+        <Stack flexDirection="row">
+          <Stack p={2}>
+            <Typography variant="h5">
+              Pet Owner Details{" "}
+              <IconButton
+                variant="contained"
+                color="info"
+                onClick={() => onEdit()}
+              >
+                <Edit fontSize="small" />
+              </IconButton>
+            </Typography>
+            <Typography>
+              {" "}
+              Name: {petownerdata.firstname} {petownerdata.lastname}
+            </Typography>
+            <Typography>
+              {" "}
+              Address: {addressdata.zone}, {addressdata.barangay},{" "}
+              {zipcode.area}, {zipcode.province}, {zipcode.zipcode}
+            </Typography>
+            <Typography> Contact Number: +63 {petownerdata.contact_num}</Typography>
+          </Stack>
 
-        <h2>Mobile Account</h2>
-        <p>Username: {userdata.username} </p>
-        <p>Email: {userdata.email} </p>
-
-        <Button
-          variant="contained"
-          color="info"
-          onClick={() => onEdit()}
-        >
-          <Typography>Update Pet Owner</Typography> <Edit fontSize="small" />
-        </Button>
+          <Stack p={2}>
+            <Typography variant="h5">
+              {" "}
+              Mobile Account{" "}
+              <IconButton
+                variant="contained"
+                color="info"
+                onClick={() => onEditUSer()}
+              >
+                <Edit fontSize="small" />
+              </IconButton>
+            </Typography>
+            <Typography>Username: {userdata.username}</Typography>
+            <Typography>Email: {userdata.email} </Typography>
+          </Stack>
+        </Stack>
 
         <PetOwnerEdit
           open={openPetowner}
@@ -233,19 +253,10 @@ export default function ViewPetOwner() {
           errors={errors}
           isUpdate={id}
           zipcodeid={zipcode.id}
-    value={value}
-    setValue={setValue}
-    // options={zipcodes}
+          value={value}
+          setValue={setValue}
+          // options={zipcodes}
         />
-
-        <Button
-          variant="contained"
-          color="info"
-          onClick={() => onEditUSer()}
-        >
-          <Typography>Update User Account</Typography> <Edit fontSize="small" />
-        </Button>
-
         <UserEdit
           open={openuser}
           onClick={closepopup}
@@ -260,7 +271,7 @@ export default function ViewPetOwner() {
           isUpdate={userdata.id}
         />
 
-        <PetOwnerTabs/>
+        <PetOwnerTabs />
       </div>
     </Paper>
   );

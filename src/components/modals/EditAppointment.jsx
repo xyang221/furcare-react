@@ -114,16 +114,17 @@ export default function EditAppointment(props) {
                   onChange={(ev) => handleFieldChange("date", ev.target.value)}
                 />
               ) : (
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    renderInput={(props) => (
-                      <TextField {...props} label="Date" />
-                    )}
-                    label="Date"
-                    value={appointment.date || ""}
-                    onChange={(newValue) => handleFieldChange("date", newValue)}
-                  />
-                </LocalizationProvider>
+                <TextField
+                label="Date"
+                variant="outlined"
+                id="Date"
+                type="date"
+                value={appointment.date || ``}
+                defaultValue={null}
+                onChange={(ev) =>
+                  handleFieldChange("date", ev.target.value)
+                }
+              />
               )}
 
               <FormControl>

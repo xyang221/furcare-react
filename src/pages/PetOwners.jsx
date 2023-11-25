@@ -2,101 +2,99 @@ import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import { Link } from "react-router-dom";
 import {
-    Alert,
-    Backdrop,
-    Box,
-    Button,
-    CircularProgress,
-    Paper,
-    Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    Typography,
-  } from "@mui/material";
-  import {
-      Add,
-      Archive,
-    Visibility,
-  } from "@mui/icons-material";
+  Alert,
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Typography,
+} from "@mui/material";
+import { Add, Archive, Visibility } from "@mui/icons-material";
 
 export default function PetOwners() {
-
   //for table
-    const columns = [
-        { id: "id", name: "ID" },
-        { id: "name", name: "Name" },
-        { id: "contact_num", name: "Contact Number" },
-        { id: "address", name: "Address" },
-        { id: "Actions", name: "Actions" },
-      ];
-    
-      const handlechangepage = (event, newpage) => {
-        pagechange(newpage);
-      };
-      const handleRowsPerPage = (event) => {
-        rowperpagechange(+event.target.value);
-        pagechange(0);
-      };
-    
-      const [page, pagechange] = useState(0);
-      const [rowperpage, rowperpagechange] = useState(10);
-    
-      const [loading, setLoading] = useState(false);
-      const [notification, setNotification] = useState("");
-    const [petowners, setPetowners] = useState([]);
+  const columns = [
+    { id: "id", name: "ID" },
+    { id: "name", name: "Name" },
+    { id: "contact_num", name: "Contact Number" },
+    { id: "address", name: "Address" },
+    { id: "Actions", name: "Actions" },
+  ];
 
-    const getPetowners = () => {
+  const handlechangepage = (event, newpage) => {
+    pagechange(newpage);
+  };
+  const handleRowsPerPage = (event) => {
+    rowperpagechange(+event.target.value);
+    pagechange(0);
+  };
 
-        setLoading(true);
-        axiosClient.get('/petowners')
-            .then(({ data }) => {
-                setLoading(false);
-                setPetowners(data.data);
-            })
-            .catch(() => {
-                setLoading(false);
-            });
-    };
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
 
-    const onArchive = (u) => {
-      if (!window.confirm("Are you sure to archive this pet owner?")) {
-        return;
-      }
-  
-      axiosClient.delete(`/petowners/${u.id}/archive`).then(() => {
-        setNotification("Pet Owner was archived");
-        getPetowners();
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState(null);
+  const [petowners, setPetowners] = useState([]);
+
+  const getPetowners = () => {
+    setLoading(true);
+    axiosClient
+      .get("/petowners")
+      .then(({ data }) => {
+        setLoading(false);
+        setPetowners(data.data);
+      })
+      .catch((error) => {
+        const response = error.response;
+        if (response && response.status === 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
       });
-    };
+  };
 
+  const onArchive = (u) => {
+    if (!window.confirm("Are you sure to archive this pet owner?")) {
+      return;
+    }
 
-    useEffect(() => {
-        getPetowners();
-    }, []);
+    axiosClient.delete(`/petowners/${u.id}/archive`).then(() => {
+      setNotification("Pet Owner was archived");
+      getPetowners();
+    });
+  };
 
-    return (
-        <>
-        <Paper
-          sx={{
-            minWidth: "90%",
-            padding: "10px",
-            margin: "10px",
-          }}
+  useEffect(() => {
+    getPetowners();
+  }, []);
+
+  return (
+    <>
+      <Paper
+        sx={{
+          minWidth: "90%",
+          padding: "10px",
+          margin: "10px",
+        }}
+      >
+        <Box
+          p={2}
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
         >
-          <Box
-            p={2}
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
-          >
-            <Typography variant="h4">Pet Owners</Typography>{" "}
-            
-            <Button
+          <Typography variant="h4">Pet Owners</Typography>{" "}
+          <Button
             component={Link}
             to={`/admin/petowners/archives`}
             variant="contained"
@@ -104,8 +102,7 @@ export default function PetOwners() {
           >
             <Typography>Archives</Typography>
           </Button>
-
-            <Button
+          <Button
             component={Link}
             to={"/admin/petowners/new"}
             variant="contained"
@@ -113,84 +110,97 @@ export default function PetOwners() {
           >
             <Add />
           </Button>
-          </Box>
+        </Box>
 
-          {notification && <Alert severity="success">{notification}</Alert>}
+        {notification && <Alert severity="success">{notification}</Alert>}
 
-          <TableContainer sx={{ height: 380 }}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
+        <TableContainer sx={{ height: 380 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableCell
+                    style={{ backgroundColor: "black", color: "white" }}
+                    key={column.id}
+                  >
+                    {column.name}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            {loading && (
+              <TableBody>
                 <TableRow>
-                  {columns.map((column) => (
-                    <TableCell
-                      style={{ backgroundColor: "black", color: "white" }}
-                      key={column.id}
-                    >
-                      {column.name}
-                    </TableCell>
-                  ))}
+                  <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                    Loading...
+                  </TableCell>
                 </TableRow>
-              </TableHead>
-              {loading && (
-                <TableBody>
-                  <TableRow>
-                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
-                      Loading...
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              )}
-    
-              {!loading && (
-                <TableBody>
-                  {petowners &&
-                    petowners
-                      .slice(page * rowperpage, page * rowperpage + rowperpage)
-                      .map((r) => (
-                        <TableRow hover role="checkbox" key={r.id}>
-                          <TableCell>{r.id}</TableCell>
+              </TableBody>
+            )}
+
+            {!loading && message && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                    {message}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+
+            {!loading && (
+              <TableBody>
+                {petowners &&
+                  petowners
+                    .slice(page * rowperpage, page * rowperpage + rowperpage)
+                    .map((r) => (
+                      <TableRow hover role="checkbox" key={r.id}>
+                        <TableCell>{r.id}</TableCell>
                         <TableCell>{`${r.firstname} ${r.lastname}`}</TableCell>
-                          <TableCell>{r.contact_num}</TableCell>
-                          <TableCell>{r.address.zone}, {r.address.barangay}, {r.address.zipcode.area}</TableCell>
-                          <TableCell>
-                            <Stack direction="row" spacing={2}>
+                        <TableCell>{r.contact_num}</TableCell>
+                        <TableCell>
+                          {r.address.zone}, {r.address.barangay},{" "}
+                          {r.address.zipcode.area}
+                        </TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={2}>
                             <Button
                               component={Link}
                               to={`/admin/petowners/` + r.id + `/view`}
-                                variant="contained"
-                                color="info"
-                                size="small"
-                              >
-                                <Visibility fontSize="small" />
-                                {/* <Typography>view</Typography> */}
-                              </Button>
-                            
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="error"
-                                onClick={() => onArchive(r)}
-                              >
-                                <Archive fontSize="small" />
-                              </Button>
-                            </Stack>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                </TableBody>
-              )}
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 15, 25]}
-            rowsPerPage={rowperpage}
-            page={page}
-            count={petowners.length}
-            component="div"
-            onPageChange={handlechangepage}
-            onRowsPerPageChange={handleRowsPerPage}
-          ></TablePagination>
-        </Paper>
-        </>
-    );
+                              variant="contained"
+                              color="info"
+                              size="small"
+                            >
+                              <Visibility fontSize="small" />
+                              {/* <Typography>view</Typography> */}
+                            </Button>
+
+                            <Button
+                              variant="contained"
+                              size="small"
+                              color="error"
+                              onClick={() => onArchive(r)}
+                            >
+                              <Archive fontSize="small" />
+                            </Button>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            )}
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 15, 25]}
+          rowsPerPage={rowperpage}
+          page={page}
+          count={petowners.length}
+          component="div"
+          onPageChange={handlechangepage}
+          onRowsPerPageChange={handleRowsPerPage}
+        ></TablePagination>
+      </Paper>
+    </>
+  );
 }

@@ -4,20 +4,26 @@ import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 import { Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 
-export default function ClientServiceForm() {
+export default function TreatmentForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const { setNotification } = useStateContext();
 
-  const [clientservice, setClientService] = useState({
+  const [treatment, setTreatment] = useState({
     id: null,
-    deposit: "",
-    balance: "",
-    rendered_by: "none",
-    // petowner_id: null,
-    services_id: 1,
+    diagnosis: "",
+    body_weight: "",
+    heart_rate:"",
+    mucous_membrane:"",
+    pr_prealbumin:"",
+    temp:"",
+    respiration_rate:"",
+    caspillar_refill_time:"",
+    body_condition_Score:"",
+    fluid_rate:"",
+    comments:""
   });
 
   const [petowner, setPetowner] = useState([]);
@@ -53,30 +59,40 @@ export default function ClientServiceForm() {
   const getPetowners = () => {
     setLoading(true);
     axiosClient
-      .get("/clientservices")
+      .get("/treatments")
       .then(({ data }) => {
         setLoading(false);
-        setClientService(data.data);
+        setTreatment(data.data);
       })
       .catch(() => {
         setLoading(false);
       });
+
+    // axiosClient
+    //   .get("/petowners")
+    //   .then(({ data }) => {
+    //     setLoading(false);
+    //     setPetowners(data.data);
+    //   })
+    //   .catch(() => {
+    //     setLoading(false);
+    //   });
   };
 
   useEffect(() => {
     getPetowner()
     getPetownerPets()
-    getPetowners();
+    // getPetowners();
   }, []);
 
   const onSubmit = (ev) => {
     ev.preventDefault();
-    if (clientservice.id) {
+    if (treatment.id) {
       axiosClient
-        .put(`/clientservices/${clientservice.id}`, clientservice)
+        .put(`/treatments/${treatment.id}`, treatment)
         .then(() => {
-          setNotification("clientservice successfully updated");
-          navigate("/clientservices");
+          setNotification("treatment successfully updated");
+          navigate("/treatments");
         })
         .catch((err) => {
           const response = err.response;
@@ -86,10 +102,10 @@ export default function ClientServiceForm() {
         });
     } else {
       axiosClient
-        .post(`/clientservices/petowner/${id}`, clientservice)
+        .post(`/treatments/petowner/${id}`, treatment)
         .then(() => {
-          setNotification("clientservice successfully created");
-          navigate(`/admin/services/petowner/${id}/avail/admission/treatment`);
+          setNotification("treatment successfully created");
+          navigate(`/admin/services/petowner/${id}/avail/admission`);
         })
         .catch((err) => {
           const response = err.response;
@@ -104,16 +120,15 @@ export default function ClientServiceForm() {
 
   const handleFieldChange = (fieldName, value) => {
     // Create a copy of the breed object and update the specified field
-    const updatedDiagnosis = { ...clientservice, [fieldName]: value };
+    const updatedDiagnosis = { ...treatment, [fieldName]: value };
     // Update the breed object with the updated value
-    setClientService(updatedDiagnosis);
+    setTreatment(updatedDiagnosis);
   };
 
 
   return (
     <div>
-      {clientservice.id && <h1 className="title">Update Client Service</h1>}
-      {!clientservice.id && (
+      {!treatment.id && (
         <h1 className="title">Client Service (Consent For Treatment)</h1>
       )}
 
@@ -140,7 +155,7 @@ export default function ClientServiceForm() {
                   <InputLabel>Pet</InputLabel>
                   <Select
                     label="Pet"
-                    value={clientservice.pet_id || ""}
+                    value={treatment.pet_id || ""}
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
@@ -155,25 +170,25 @@ export default function ClientServiceForm() {
           <br></br>
             <TextField
               type="number"
-              value={clientservice.deposit || ""}
+              value={treatment.deposit}
               onChange={(ev) =>
                 handleFieldChange("deposit", ev.target.value)
               }
               placeholder="Deposit"
             />
 
-            {/* <TextField
+            <TextField
               type="text"
-              value={clientservice.balance || ""}
+              value={treatment.balance}
               onChange={(ev) =>
                 handleFieldChange("balance", ev.target.value)
               }
               placeholder="Balance"
-            /> */}
+            />
 
 <TextField
               type="text"
-              value={clientservice.rendered_by || ""}
+              value={treatment.rendered_by}
               onChange={(ev) =>
                 handleFieldChange("rendered_by", ev.target.value)
               }

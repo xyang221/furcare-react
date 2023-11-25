@@ -20,55 +20,47 @@ import {
 import {
   Add,
   Archive,
-  Delete,
-  Edit,
-  Search,
   Visibility,
 } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
-import axiosClient from "../axios-client";
-import { useStateContext } from "../contexts/ContextProvider";
-import PetsModal from "../components/modals/PetsModal";
+import axiosClient from "../../axios-client";
+import { useStateContext } from "../../contexts/ContextProvider";
+import TestResultModal from "../../components/modals/TestResultModal";
 
-export default function PetOwnerPets() {
+export default function TestResults({sid}) {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [imageData, setImageData] = useState("");
   const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState(null);
 
-  const [pet, setPet] = useState({
+  const [testresults, setTestresults] = useState([]);
+  const [pets, setPets] = useState([]);
+
+  const [testresult, setTestresult] = useState({
     id: null,
-    name: "",
-    birthdate: "",
-    gender: "",
-    color: "",
-    qr_code: "",
-    photo: null,
-    breed_id: null,
+    pet_id: null,
+    attachment: null,
+    description: "",
   });
 
-  const [breeds, setBreeds] = useState([]);
-  const [uniqueCategories, setUniqueCategories] = useState([]);
-
-  const getBreeds = () => {
+  const getTestresults = () => {
+    setLoading(true);
     axiosClient
-      .get(`/breeds`)
+      .get(`/testresults/petowner/${id}/service/${sid}`)
       .then(({ data }) => {
-        setBreeds(data.data);
-
-        const uniqueCategoriesSet = new Set(
-          data.data.map((service) => service.category.category)
-        );
-        const uniqueCategoriesArray = Array.from(uniqueCategoriesSet);
-
-        setUniqueCategories(uniqueCategoriesArray);
+        setLoading(false);
+        setTestresults(data.data);
       })
-      .catch(() => {});
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+      });
   };
-
-  const [pets, setPets] = useState([]);
-  const [message, setMessage] = useState("");
 
   const getPets = () => {
     setLoading(true);
@@ -87,32 +79,11 @@ export default function PetOwnerPets() {
       });
   };
 
-  const [petowners, setPetowners] = useState([]);
-
-  const getPetowners = () => {
-    setLoading(true);
-    axiosClient
-      .get(`/petowners`)
-      .then(({ data }) => {
-        setLoading(false);
-        setPetowners(data.data);
-      })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
-        setLoading(false);
-      });
-  };
-
   //for table
   const columns = [
-    { id: "Photo", name: "Photo" },
-    { id: "id", name: "ID" },
-    { id: "name", name: "Pet Name" },
-    { id: "email", name: "Gender" },
-    { id: "breed", name: "Breed" },
+    { id: "Pet", name: "Pet" },
+    { id: "Attachment", name: "Attachment" },
+    { id: "Description", name: "Description" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -128,15 +99,11 @@ export default function PetOwnerPets() {
   const [rowperpage, rowperpagechange] = useState(10);
 
   //for modal
-
   const [open, openchange] = useState(false);
 
   const functionopenpopup = (ev) => {
-    // openchange(true);
-    getPetowners();
-    getBreeds();
+    getPets()
     openchange(true);
-    setPet({});
     setErrors(null);
   };
 
@@ -151,20 +118,19 @@ export default function PetOwnerPets() {
 
     axiosClient.delete(`/pets/${u.id}/archive`).then(() => {
       setNotification("Pet was archived");
-      getPets();
+      getTestresults();
     });
   };
 
-  const onSubmit = (ev) => {
-    ev.preventDefault();
-
-    if (pet.id) {
+  const onSubmit = () => {
+    // ev.preventDefault();
+    if (testresult.id) {
       axiosClient
-        .put(`/pets/${pet.id}`, pet)
+        .put(`/testresults/${testresult.id}`, testresult)
         .then(() => {
           setNotification("Pet was successfully updated");
           openchange(false);
-          getPets();
+          getTestresults();
         })
         .catch((err) => {
           const response = err.response;
@@ -173,24 +139,24 @@ export default function PetOwnerPets() {
           }
         });
     } else {
-      if (!pet.photo) {
+      if (!testresult.attachment) {
         setError("Please select an image to upload.");
         return;
       }
 
       const formData = new FormData();
-      formData.append("photo", pet.photo);
+      formData.append("attachment", testresult.attachment);
 
       axiosClient
-        .post(`/petowners/${id}/addpet`, pet, {
+        .post(`/testresults/petowner/${id}/service/${sid}`, testresult, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         })
         .then(() => {
-          setNotification("Pet was successfully added");
+          setNotification("Test result was successfully saved.");
           openchange(false);
-          getPets();
+          getTestresults();
         })
         .catch((err) => {
           const response = err.response;
@@ -215,9 +181,9 @@ export default function PetOwnerPets() {
         "image/svg+xml",
       ];
       if (allowedTypes.includes(selectedFile.type)) {
-        setPet((prevImage) => ({
+        setTestresult((prevImage) => ({
           ...prevImage,
-          photo: selectedFile,
+          attachement: selectedFile,
         }));
         setError(null);
       } else {
@@ -229,8 +195,7 @@ export default function PetOwnerPets() {
   };
 
   useEffect(() => {
-    getPets();
-    // getBreeds();
+    getTestresults();
   }, []);
 
   return (
@@ -264,24 +229,18 @@ export default function PetOwnerPets() {
           </Box>
           {notification && <Alert severity="success">{notification}</Alert>}
 
-          <PetsModal
+          <TestResultModal
             open={open}
             onClick={closepopup}
             onClose={closepopup}
-            // id={petdata.id}
-            setImageData={setImageData}
             onSubmit={onSubmit}
-            // loading={loading}
-            breeds={breeds}
-            petowners={petowners}
-            pet={pet}
-            setPet={setPet}
+            pets={pets}
             errors={errors}
-            isUpdate={pet.id}
-            petownerid={id}
-            addImage={true}
+            testresult={testresult}
+            setTestresult={setTestresult}
+            isUpdate={testresult.id}
+            petid={null}
             handleImage={handleImage}
-            error={error}
           />
           <Divider />
           <TableContainer sx={{ height: 350 }}>
@@ -320,22 +279,19 @@ export default function PetOwnerPets() {
 
               {!loading && (
                 <TableBody>
-                  {pets &&
-                    pets
+                  {testresults &&
+                    testresults
                       .slice(page * rowperpage, page * rowperpage + rowperpage)
                       .map((r) => (
                         <TableRow hover role="checkbox" key={r.id}>
+                          <TableCell>{r.pet.name}</TableCell>
                           <TableCell>
-                            {" "}
                             <img
-                              src={`http://localhost:8000/` + r.photo}
+                              src={`http://localhost:8000/` + r.attachement}
                               height="100"
                             />{" "}
                           </TableCell>
-                          <TableCell>{r.id}</TableCell>
-                          <TableCell>{r.name}</TableCell>
-                          <TableCell>{r.gender}</TableCell>
-                          <TableCell>{r.breed.breed}</TableCell>
+                          <TableCell>{r.description}</TableCell>
                           <TableCell>
                             <Stack direction="row" spacing={2}>
                               <Button
@@ -367,7 +323,7 @@ export default function PetOwnerPets() {
             rowsPerPageOptions={[10, 15, 25]}
             rowsPerPage={rowperpage}
             page={page}
-            count={pets.length}
+            count={testresults.length}
             component="div"
             onPageChange={handlechangepage}
             onRowsPerPageChange={handleRowsPerPage}

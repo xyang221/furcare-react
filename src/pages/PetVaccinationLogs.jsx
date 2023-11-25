@@ -19,9 +19,8 @@ import {
 import { Add, Archive, Edit } from "@mui/icons-material";
 import VaccinationLogsModal from "../components/modals/VaccinationLogsModal";
 
-export default function PetVaccinationLogs() {
+export default function PetVaccinationLogs({sid}) {
   const columns = [
-    { id: "id", name: "ID" },
     { id: "date", name: "Date" },
     { id: "weight", name: "Weight" },
     { id: "Description", name: "Description" },
@@ -190,6 +189,12 @@ export default function PetVaccinationLogs() {
 
   return (
     <>
+     <Paper
+        sx={{
+          minWidth: "90%",
+          padding: "10px",
+        }}
+      >
       <Box sx={{ minWidth: "90%" }}>
         <Box
           p={2}
@@ -267,7 +272,6 @@ export default function PetVaccinationLogs() {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((record) => (
                       <TableRow hover role="checkbox" key={record.id}>
-                        <TableCell>{record.id}</TableCell>
                         <TableCell>{record.date}</TableCell>
                         <TableCell>{`${record.weight} kg`}</TableCell>
                         <TableCell>{record.description}</TableCell>
@@ -310,6 +314,7 @@ export default function PetVaccinationLogs() {
           onRowsPerPageChange={handleRowsPerPageChange}
         ></TablePagination>
       </Box>
+      </Paper>
     </>
   );
 }

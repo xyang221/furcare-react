@@ -5,7 +5,7 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { Tab } from '@mui/material';
 import PetVaccinationLogs from '../pages/PetVaccinationLogs';
-import PetDewormingLogs from '../pages/PetDewormingLogs';
+import PetDewormingLogs from '../pages/Services/PetDewormingLogs';
 import Diagnosis from '../pages/Diagnosis';
 import Services from '../pages/Services';
 

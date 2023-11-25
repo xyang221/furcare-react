@@ -10,7 +10,6 @@ import UserForm from "./pages/UserForm";
 import PetOwners from "./pages/PetOwners";
 import PetOwnerForm from "./pages/PetOwnerForm";
 import Pets from "./pages/Pets";
-import PetForm from "./pages/PetForm";
 import Staffs from "./pages/Staffs";
 import StaffForm from "./pages/StaffForm";
 import ViewStaff from "./pages/ViewStaff";
@@ -118,16 +117,6 @@ const router = createBrowserRouter([
       {
         path: "/petowners/:id/pets",
         element: <Pets key="viewPets" />,
-      },
-
-      {
-        path: "/pets/:id",
-        element: <PetForm key="updatePets" />,
-      },
-
-      {
-        path: "/pets/new",
-        element: <PetForm />,
       },
 
        {

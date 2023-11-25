@@ -8,6 +8,8 @@ import PetOwnerPets from '../pages/PetOwnerPets';
 import Receipt from '../pages/Receipt';
 import PetOwnerAppointments from '../pages/PetOwnerAppointments';
 import PetOwnerPayments from '../pages/PetOwnerPayments';
+import ServiceCatBtns from './ServiceCatTabs';
+import GenerateBilling from '../pages/Billing/GenerateBilling';
 
 export default function PetOWnerTabs() {
   const [value, setValue] = useState('1');
@@ -22,13 +24,15 @@ export default function PetOWnerTabs() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Pets" value="1" />
-            <Tab label="Payments" value="2" />
-            <Tab label="Appointments" value="3" />
+            <Tab label="Appointments" value="2" />
+            <Tab label="Avail Service" value="3" />
+            <Tab label="Billing" value="4" />
           </TabList>
         </Box>
         <TabPanel value="1"><PetOwnerPets/></TabPanel>
-        <TabPanel value="2"><PetOwnerPayments/> </TabPanel>
-        <TabPanel value="3"><PetOwnerAppointments/></TabPanel>
+        <TabPanel value="2"><PetOwnerAppointments/></TabPanel>
+        <TabPanel value="3"><ServiceCatBtns/> </TabPanel>
+        <TabPanel value="4"><GenerateBilling/></TabPanel>
       </TabContext>
     </Box>
   );

@@ -73,13 +73,6 @@ export default function PetownerAvailService() {
       });
   };
 
-  // const [petowner, setPetowner] = useState({
-  //   id: null,
-  //   firstname: "",
-  //   lastname: "",
-  //   contact_num: "",
-  // });
-
   const [petowner,setPetowner] = useState([]);
 
   const getPetowner = () => {
@@ -268,6 +261,16 @@ export default function PetownerAvailService() {
   };
 
   //for receipt
+  const [serviceavailed, setServiceavailed] = useState({
+    id: null,
+    quantity: "",
+    unit: "",
+    unit_price: "",
+    service_id: null,
+    petowner_id: null,
+    pet_id: null,
+  });
+  
   const [checkedItems, setCheckedItems] = useState({});
   const [selectedItems, setSelectedItems] = useState([]);
   const [quantities, setQuantities] = useState({});
@@ -354,6 +357,15 @@ export default function PetownerAvailService() {
         >
           <Typography variant="h4">Services</Typography>{" "}
         </Box>
+        <Button
+        component={Link}
+        to={`/admin/services/petowner/${id}/avail/admission`}
+                        variant="contained"
+                        size="small"
+                        sx={{ height: 70, width: 180 }}
+                      >
+                        <Typography>admission</Typography>
+                      </Button>
         {/* <Stack flexDirection="row">  */}
         <Box p={2} sx={{ flexGrow: 1 }}>
           <Grid

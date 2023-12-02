@@ -37,7 +37,7 @@ function Copyright(props) {
 }
 
 export default function Login() {
-  const {user,updateUser, setToken, setRole, token } = useStateContext();
+  const { user, updateUser, setToken, setRole, token } = useStateContext();
 
   // if (token) {
   //   return <Navigate to="/" />;
@@ -64,14 +64,11 @@ export default function Login() {
     axiosClient
       .post("/login", payload)
       .then(({ data }) => {
-        // setUser(data.user.username);
-        // console.log(user)
-        updateUser(data.user)
-        // setUser(data.user.id);
+        updateUser(data.user);
         setToken(data.token);
         setRole(data.user.role_id);
-        navigate("/")
-        
+        navigate("/");
+
         // navigate(from, { replace: true });
       })
       .catch((err) => {

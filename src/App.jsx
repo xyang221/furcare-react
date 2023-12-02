@@ -42,7 +42,8 @@ import PetownerAvailService from "./pages/PetOwnerAvailService";
 import ClientServiceForm from "./pages/ClientServiceForm";
 import TreatmentForm from "./pages/TreatmentForm";
 import ServiceCatBtns from "./components/ServiceCatTabs";
-import PrintComponent from "./pages/ChargeSlipPrint";
+import PrintComponent from "./pages/Billing/ChargeSlipPrint";
+import Settings from "./pages/Settings";
 
 const roles = {
   ADMIN: "1",
@@ -95,6 +96,7 @@ function App() {
 
           <Route path="admin/pets/species" element={<Species />} />
           <Route path="admin/pets/breeds" element={<Breeds />} />
+          <Route path="admin/settings" element={<Settings />} />
           
 
           {/* <Route path="admin/petowners/:id/pets" element={<Pets />} /> */}

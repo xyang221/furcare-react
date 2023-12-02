@@ -11,13 +11,27 @@ import ServiceAvail from "../pages/Services/ServiceAvail";
 import PetDewormingLogs from "../pages/Services/PetDewormingLogs";
 import TestResults from "../pages/Services/TestResults";
 import { Link, useParams } from "react-router-dom";
+import {
+  Apartment,
+  ContentCut,
+  ControlPointDuplicate,
+  FolderCopy,
+  Healing,
+  Home,
+  Hotel,
+  LocalHospital,
+  MedicalServices,
+  Medication,
+  Pets,
+  Vaccines,
+} from "@mui/icons-material";
+import TreatmentForm from "../pages/TreatmentForm";
 
 export default function ServiceCatBtns() {
   const [servicesCat, setServicesCat] = useState([]);
   const [services, setServices] = useState([]);
   const [value, setValue] = useState("0");
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const {id}= useParams()
 
   useEffect(() => {
     getServices();
@@ -38,9 +52,24 @@ export default function ServiceCatBtns() {
       });
   };
 
+  const categoryIcons = {
+    Consultation: <MedicalServices />,
+    "Home Service": <Home />,
+    Boarding: <Apartment />,
+    Grooming: <ContentCut />,
+    Surgery: <Healing />,
+    Vaccination: <Vaccines />,
+    Deworming: <Vaccines />,
+    Tests: <FolderCopy />,
+    Medicines: <Medication />,
+    "Tick/Flea Treatment": <Medication />,
+    Admission: <LocalHospital />,
+    Others: <ControlPointDuplicate />,
+  };
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
+    setValue("0")
   };
 
   return (
@@ -52,20 +81,12 @@ export default function ServiceCatBtns() {
             onClick={() => handleCategoryClick(category)}
             variant="contained"
             size="small"
-            sx={{ margin: 1, height:"35px", width:"180px" }}
+            startIcon={categoryIcons[category]}
+            sx={{ margin: 1, height: "35px", width: "200px" }}
           >
             {category}
           </Button>
         ))}
-        {servicesCat && (<Button
-            variant="contained"
-            size="small"
-            sx={{ margin: 1, height:"35px", width:"180px" }}
-            component={Link}
-            to={`/admin/services/petowner/${id}/avail/admission`}
-          >
-            admission
-          </Button>)}
       </Box>
       {selectedCategory && (
         <Box sx={{ width: "100%", typography: "body1" }}>
@@ -116,6 +137,10 @@ export default function ServiceCatBtns() {
                   {service.id == 16 && <TestResults sid={service.id} />}
                   {service.id == 17 && <TestResults sid={service.id} />}
                   {service.id == 18 && <TestResults sid={service.id} />}
+                  {service.id == 19 && (
+                    <ServiceAvail title="Medicines" sid={service.id} />
+                  )}
+                  {service.id == 22 && <TreatmentForm sid={service.id} />}
                 </TabPanel>
               ))}
           </TabContext>

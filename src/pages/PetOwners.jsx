@@ -121,15 +121,15 @@ export default function PetOwners() {
           justifyContent="space-between"
         >
           <Typography variant="h4">Pet Owners</Typography>{" "}
-           {/* <Button
-            component={Link}
-            to={"/admin/petowners/new"}
-            variant="contained"
-            color="success"
-            size="small"
-          >
-            <Add />
-          </Button> */}
+            <Button
+              component={Link}
+              to={"/admin/petowners/new"}
+              variant="contained"
+              color="success"
+              size="small"
+            >
+              <Add />
+            </Button>
           <SearchPetOwner query={query} setQuery={setQuery} search={search} getPetowners={getPetowners}/>
           {/* <Button
             component={Link}
@@ -187,7 +187,7 @@ export default function PetOwners() {
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.id}</TableCell>
                         <TableCell>{`${r.firstname} ${r.lastname}`}</TableCell>
-                        <TableCell>{r.contact_num}</TableCell>
+                        <TableCell>0{r.contact_num}</TableCell>
                         <TableCell>
                           {r.address.zone}, {r.address.barangay},{" "}
                           {r.address.zipcode.area}

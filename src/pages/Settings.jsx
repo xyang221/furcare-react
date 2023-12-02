@@ -17,10 +17,11 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Paper,
 } from "@mui/material";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 
-const StyledList = styled(List)(({theme}) => ({
+const StyledList = styled(List)({
   // selected and (selected + hover) states
   "&& .Mui-selected, && .Mui-selected:hover": {
     backgroundColor: "black",
@@ -35,10 +36,9 @@ const StyledList = styled(List)(({theme}) => ({
       color: "white",
     },
   },
-}));
+});
 
-export default function Sidebar() {
-
+export default function Settings() {
   const [selectedIndex, setSelectedIndex] = useState(
     parseInt(localStorage.getItem("selectedIndex")) || 0
   );
@@ -49,7 +49,7 @@ export default function Sidebar() {
   };
 
   return (
-    <Box
+    <Paper
       flex={1}
       sx={{ backgroundColor: "white", display: { xs: "none", sm: "block" }, overflow:"auto" }}
       position="fixed"
@@ -58,36 +58,11 @@ export default function Sidebar() {
       <StyledList>
         <ListItem>
           <ListItemButton
-            selected={selectedIndex === 6}
-            onClick={() => handleListItemClick(6)}
-            to="/"
+            selected={selectedIndex === 1}
+            onClick={() => handleListItemClick(1)}
+            to="/admin/roles"
           >
-            <ListItemText primary="Dashboard"></ListItemText>
-            <ListItemIcon>
-              <Home />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton
-            selected={selectedIndex === 7}
-            onClick={() => handleListItemClick(7)}
-            to="/admin/appointments"
-          >
-            <ListItemText primary="Appointments"></ListItemText>
-            <ListItemIcon>
-              <ListRounded />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-     
-        <ListItem>
-          <ListItemButton
-            selected={selectedIndex === 4}
-            onClick={() => handleListItemClick(4)}
-            to="/admin/petowners"
-          >
-            <ListItemText primary="Pet Owners"></ListItemText>
+            <ListItemText primary="Roles"></ListItemText>
             <ListItemIcon>
               <People />
             </ListItemIcon>
@@ -95,18 +70,55 @@ export default function Sidebar() {
         </ListItem>
         <ListItem>
           <ListItemButton
-            selected={selectedIndex === 9}
-            onClick={() => handleListItemClick(9)}
-            to="/admin/pets"
+            selected={selectedIndex === 2}
+            onClick={() => handleListItemClick(2)}
+            to="/admin/users"
           >
-            <ListItemText primary="Pets"></ListItemText>
+            <ListItemText primary="Users"></ListItemText>
+            <ListItemIcon>
+              <Person />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 5}
+            onClick={() => handleListItemClick(5)}
+            to="/admin/staffs"
+          >
+            <ListItemText primary="Staffs"></ListItemText>
+            <ListItemIcon>
+              <Person2 />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 3}
+            onClick={() => handleListItemClick(3)}
+            to="/admin/pets/breeds"
+          >
+            <ListItemText primary="Breeds"></ListItemText>
             <ListItemIcon>
               <Pets />
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-       
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 8}
+            onClick={() => handleListItemClick(8)}
+            to="/admin/pets/species"
+          >
+            <ListItemText primary="Species"></ListItemText>
+            <ListItemIcon>
+              <Pets />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+     
+      
       </StyledList>
-    </Box>
+    </Paper>
   );
 }

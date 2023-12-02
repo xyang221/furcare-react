@@ -43,7 +43,7 @@ export default function VaccinationLogsModal(props) {
     errors,
     isUpdate,
     selectedItems,
-    setSelectedItems
+    setSelectedItems,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -137,8 +137,15 @@ export default function VaccinationLogsModal(props) {
                   {againsts.map((item) => (
                     <TableRow hover role="checkbox" key={item.id}>
                       <Checkbox
-                        checked={vaccination.vaccination_againsts.includes(item.id)}
-                        onChange={() => handleCheckboxChange(item.id)}
+                      
+                        checked={checkedItems[item.id]}
+                        onChange={() => {
+                          // setCheckedItems((prevCheckedItems) => ({
+                          //   ...prevCheckedItems,
+                          //   [item.id]: !prevCheckedItems[item.id],
+                          // }));
+                          handleCheckboxChange(item);
+                        }}
                       />
                       <TableCell> {item.acronym} </TableCell>
                       <TableCell> {item.description}</TableCell>
@@ -175,11 +182,13 @@ export default function VaccinationLogsModal(props) {
               </FormControl>
 
               <TextField
+                label="Return"
                 variant="outlined"
-                id="Status"
-                label="Status"
-                value={vaccination.status}
-                onChange={(ev) => handleFieldChange("status", ev.target.value)}
+                id="Return"
+                type="date"
+                value={vaccination.return || ``}
+                defaultValue={null}
+                onChange={(ev) => handleFieldChange("return", ev.target.value)}
               />
 
               {/* <TextField

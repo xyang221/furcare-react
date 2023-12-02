@@ -67,33 +67,28 @@ export default function DiagnosisModal(props) {
               ))}
             </Box>
           )}
+          
           <Stack spacing={2} margin={2}>
-
-          {/* <Select
-                  label="Service"
-                  value={diagnosis.service_id || ''}
-                  onChange={(ev) => handleFieldChange("service_id", ev.target.value)}
-                >
-                  {services.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.service}
-                    </MenuItem>
-                  ))}
-                </Select> */}
-
+        
+        
             <Box
               display="flex"
               flexDirection="row"
               justifyContent="space-between"
             >
-              
               <Typography variant="h6">Diagnosis </Typography>
 
               <Typography variant="h6">
                 Date: {date.toDateString()}{" "}
               </Typography>
             </Box>
-
+            <TextField
+              label="Price"
+              variant="standard"
+              type="number"
+              // value={diagnosis.remarks || ""}
+              // onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
+            />
             {addpet &&
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
@@ -112,10 +107,7 @@ export default function DiagnosisModal(props) {
                   </Select>
                 </FormControl>
               }
-            {/* <Box display="flex" flexDirection="row">
-              <Typography variant="h6">Pet Name: {petname}</Typography>
-            </Box> */}
-
+      
             <TextField
               id="outlined-multiline-static"
               label="Remarks"
@@ -126,6 +118,8 @@ export default function DiagnosisModal(props) {
               value={diagnosis.remarks || ""}
                   onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
             />
+
+            
 
             <br></br>
 

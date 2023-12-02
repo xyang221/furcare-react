@@ -73,11 +73,28 @@ export default function EditAppointment(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
-              <FormControl>
+              {petownerid ? (  <FormControl>
                 <InputLabel>Pet Owner</InputLabel>
                 <Select
                   label="Pet Owner"
-                  value={appointment.petowner_id || petownerid || ""}
+                  value={appointment.petowner_id || petownerid}
+                  onChange={(ev) =>
+                    handleFieldChange("petowner_id", ev.target.value)
+                  }
+                  disabled
+                >
+                  {petowners.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {`${item.firstname} ${item.lastname}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>)
+              :(  <FormControl>
+                <InputLabel>Pet Owner</InputLabel>
+                <Select
+                  label="Pet Owner"
+                  value={appointment.petowner_id || ""}
                   onChange={(ev) =>
                     handleFieldChange("petowner_id", ev.target.value)
                   }
@@ -88,7 +105,8 @@ export default function EditAppointment(props) {
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </FormControl>)}
+            
 
               {isUpdate && (
                 <TextField

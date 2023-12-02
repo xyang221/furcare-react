@@ -19,7 +19,6 @@ import UserEdit from "./modals/UserEdit";
 export default function Profile() {
   const { user, setToken } = useStateContext();
   const navigate = useNavigate();
-  const userval = parseInt(user)
 
   const onLogout = (ev) => {
     ev.preventDefault();
@@ -193,6 +192,12 @@ setloading(true)
                     <MenuItem onClick={() => onEdit()}>
                       Edit Profile
                     </MenuItem>
+                    <MenuItem 
+                    onClick={() => navigate('/admin/settings')}
+                    >
+                      Settings
+                    </MenuItem>
+                    
                     <MenuItem onClick={onLogout}>Logout</MenuItem>
                   </MenuList>
                 </ClickAwayListener>

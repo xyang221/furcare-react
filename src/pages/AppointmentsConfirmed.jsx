@@ -69,30 +69,24 @@ export default function AppointmentsConfirmed() {
   const [services, setServices] = useState([]);
 
   const getServices = () => {
-    setModalloading(true);
     axiosClient
       .get(`/services`)
       .then(({ data }) => {
-        setModalloading(false);
         setServices(data.data);
       })
       .catch(() => {
-        setModalloading(false);
       });
   };
 
   const [petowners, setPetowners] = useState([]);
 
   const getPetowners = () => {
-    setModalloading(true);
     axiosClient
       .get(`/petowners`)
       .then(({ data }) => {
-        setModalloading(false);
         setPetowners(data.data);
       })
       .catch(() => {
-        setModalloading(false);
       });
   };
 
@@ -126,6 +120,7 @@ export default function AppointmentsConfirmed() {
 
   const onEdit = (r) => {
     setErrors(null);
+    getPetowners()
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)

@@ -19,10 +19,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Close, Refresh, Remove } from "@mui/icons-material";
-import ChargeSlipModal from "../../components/modals/ChargeSlipModal";
-import ReactToPrint from "react-to-print";
 import { useRef } from "react";
-import PrintComponent from "../ChargeSlipPrint";
 
 export default function GenerateBilling() {
   const { id } = useParams();
@@ -44,7 +41,6 @@ export default function GenerateBilling() {
   const [clientservice, setClientservice] = useState([]);
   const [servicesavailedpaid, setServicesavailedpaid] = useState([]);
   const [petowner, setPetowner] = useState([]);
-  let componentRef = useRef();
 
   const [serviceAvailedPrices, setServiceAvailedPrices] = useState({});
   const [cash, setCash] = useState(null);
@@ -57,7 +53,6 @@ export default function GenerateBilling() {
       .then(({ data }) => {
         setLoading(false);
         setServicesavailed(data.data);
-        
       })
       .catch((mes) => {
         const response = mes.response;
@@ -74,7 +69,7 @@ export default function GenerateBilling() {
       .get(`/clientservices/petowner/${id}`)
       .then(({ data }) => {
         setClientservice(data);
-        setPetowner(data.petowner)
+        setPetowner(data.petowner);
       })
       .catch((mes) => {
         const response = mes.response;
@@ -102,21 +97,6 @@ export default function GenerateBilling() {
       });
   };
 
-  // const getPetowner = () => {
-  //   setLoading(true);
-  //   axiosClient
-  //     .get(`/petowners/${id}`)
-  //     .then(({ data }) => {
-  //       setLoading(false);
-  //       setPetowner(data);
-  //     })
-  //     .catch(() => {
-  //       setLoading(false);
-  //     });
-  // };
-
-
-
   const updateServicePrice = (id, price) => {
     setServiceAvailedPrices((prevPrices) => ({
       ...prevPrices,
@@ -137,6 +117,16 @@ export default function GenerateBilling() {
       return total + price * item.quantity;
     }, 0);
   };
+
+  const calculateBalance = () => {
+    const totalCost = calculateTotal();
+    const balance = totalCost - clientservice.deposit;
+    if (balance === undefined || isNaN(balance)) {
+      return 0;
+    }
+    return Math.max(balance, 0);
+  };
+
   // Update the onChange function for the price TextField
   const handleCash = (ev, id) => {
     const { value } = ev.target;
@@ -156,25 +146,25 @@ export default function GenerateBilling() {
       return 0;
     }
 
-    const change = cash - (calculateTotal() - clientservice.deposit);
+    const change = cash - calculateBalance();
     return Math.max(change, 0); // Ensure the result stays at a minimum of 0
   };
 
-  // Group services by pet
-  const groupServicesByPet = () => {
-    const groupedServices = {};
-    servicesavailed.forEach((item) => {
-      const petId = item.pet.id;
-      if (groupedServices.hasOwnProperty(petId)) {
-        groupedServices[petId].push(item);
-      } else {
-        groupedServices[petId] = [item];
-      }
-    });
-    return groupedServices;
-  };
+  // // Group services by pet
+  // const groupServicesByPet = () => {
+  //   const groupedServices = {};
+  //   servicesavailed.forEach((item) => {
+  //     const petId = item.pet.id;
+  //     if (groupedServices.hasOwnProperty(petId)) {
+  //       groupedServices[petId].push(item);
+  //     } else {
+  //       groupedServices[petId] = [item];
+  //     }
+  //   });
+  //   return groupedServices;
+  // };
 
-  const servicesGroupedByPet = groupServicesByPet();
+  // const servicesGroupedByPet = groupServicesByPet();
 
   const onSubmit = () => {
     const updatedServicesPromises = servicesavailed.map((item) => {
@@ -183,68 +173,46 @@ export default function GenerateBilling() {
         unit_price: serviceAvailedPrices[item.id] || null,
       });
     });
+    axiosClient.put(`/clientservice/${clientservice.id}`, {
+      ...clientservice,
+      balance: calculateBalance() || null,
+    });
 
     Promise.all(updatedServicesPromises)
       .then(() => {
         getServicesAvailed();
-        navigate(`/admin/${id}/chargeslip`)
-        servicesGroupedByPet(null);
+        navigate(`/admin/${id}/chargeslip`);
+        // servicesGroupedByPet(null);
       })
       .catch((err) => {
         const response = err.response;
         if (response && response.status === 422) {
           console.log(response.data.errors);
         }
+        console.log(response.data.message);
       });
     getServicesAvailedChargeSlip();
   };
 
-  //for modal
-  const [open, openChargeSlip] = useState(false);
-  const [errors, setErrors] = useState(null);
-
-  const addModal = (ev) => {
-    openChargeSlip(true);
-    setErrors(null);
-  };
-
-  const closepopup = () => {
-    openChargeSlip(false);
-  };
-
   const refresh = () => {
-    getServicesAvailed()
-    getClientService()
+    getServicesAvailed();
+    getClientService();
   };
 
-  useEffect(() => {
-    // getPetowner();
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <>
-      {/* <ChargeSlipModal
-     open={open}
-     onClose={closepopup}
-     loading={loading}
-     servicesavailed={servicesavailed}
-     getServicesAvailed={getServicesAvailed}
-     petowner={petowner}
-     message={message}
-    /> */}
       <Paper
         sx={{
-          width: "550px",
+          width: "500px",
           padding: "10px",
+          margin: "auto",
         }}
       >
         <Typography align="center" variant="h5">
           Charge Slip{" "}
-          <IconButton
-            onClick={refresh}
-            variant="contained"
-            color="success"
-          >
+          <IconButton onClick={refresh} variant="contained" color="success">
             <Refresh />
           </IconButton>
         </Typography>{" "}
@@ -290,7 +258,7 @@ export default function GenerateBilling() {
             )}
             {!loading && (
               <TableBody>
-                {Object.keys(servicesGroupedByPet).map((petId) => (
+                {/* {Object.keys(servicesGroupedByPet).map((petId) => (
                   <React.Fragment key={petId}>
                     <TableRow>
                       <TableCell colSpan={5}>
@@ -298,26 +266,26 @@ export default function GenerateBilling() {
                           {servicesGroupedByPet[petId][0].pet.name}
                         </Typography>
                       </TableCell>
-                    </TableRow>
-                    {servicesGroupedByPet[petId].map((item) => (
+                    </TableRow> */}
+                    {servicesavailed.map((item) => (
                       <TableRow hover role="checkbox" key={item.id}>
-                        <TableCell> </TableCell>
+                        <TableCell>{item.pet.name} </TableCell>
                         <TableCell>{item.service.service}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>{item.unit}</TableCell>
                         <TableCell sx={{ width: "30%" }}>
-                          <TextField
-                            size="small"
-                            type="number"
-                            value={serviceAvailedPrices[item.id] || ""}
-                            onChange={(ev) => handlePriceChange(ev, item.id)}
-                            required
-                          />
-                        </TableCell>
+                            <TextField
+                              size="small"
+                              type="number"
+                              value={serviceAvailedPrices[item.id]}
+                              onChange={(ev) => handlePriceChange(ev, item.id)}
+                              required
+                            />
+                          </TableCell>
                       </TableRow>
                     ))}
-                  </React.Fragment>
-                ))}
+                  {/* </React.Fragment> */}
+                {/* ))} */}
                 <TableRow>
                   <TableCell colSpan={4} align="right">
                     Total:
@@ -328,14 +296,16 @@ export default function GenerateBilling() {
                   <TableCell colSpan={4} align="right">
                     Deposit:
                   </TableCell>
-                  <TableCell>{clientservice.deposit}</TableCell>
+                  <TableCell>
+                    {calculateTotal() === 0 ? 0 : clientservice.deposit}
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell colSpan={4} align="right">
                     Balance:
                   </TableCell>
                   <TableCell sx={{ width: "30%" }}>
-                    {calculateTotal() - clientservice.deposit}
+                    {calculateBalance()}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -347,7 +317,7 @@ export default function GenerateBilling() {
                       size="small"
                       type="number"
                       onChange={(ev) => handleCash(ev)}
-                      value={cash}
+                      value={cash || ""}
                     />
                   </TableCell>
                 </TableRow>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../axios-client";
+import axiosClient from "../../axios-client";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
@@ -105,112 +105,100 @@ const ChargeSlipPrint = React.forwardRef((props, ref) => {
 
   return (
     <div ref={ref}>
-      <Paper
-        sx={{
-          width: "550px",
-          padding: "10px",
+      <div
+        style={{
+          width: "370px",
         }}
       >
-        <Typography align="center" variant="h5">
-          Charge Slip{" "}
-        </Typography>{" "}
-        <Box
-          p={2}
-          display="flex"
-          flexDirection="row"
-          justifyContent="space-between"
-        >
-          <Typography variant="subtitle">
+        <h2 align="center">Charge Slip </h2>{" "}
+        <Box display="flex" flexDirection="row" justifyContent="space-between">
+          <span>
             Client: {petowner.firstname} {petowner.lastname}
-          </Typography>
-          <Typography variant="subtitle">
-            Date: {date.toDateString()}{" "}
-          </Typography>
+          </span>
+          <span>Date: {date.toDateString()} </span>
         </Box>
-        <TableContainer >
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
+        <table style={{ borderCollapse: "collapse"}}>
+          <thead >
+            <tr>
+              {columns.map((column) => (
+                <td style={{ padding:"5px" }} key={column.id}>{column.name}</td>
+              ))}
+            </tr>
+          </thead>
+          {loading && (
+            <TableBody>
               <TableRow>
-                {columns.map((column) => (
-                  <TableCell key={column.id}>{column.name}</TableCell>
-                ))}
+                <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  Loading...
+                </TableCell>
               </TableRow>
-            </TableHead>
-            {loading && (
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
-                    Loading...
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            )}
-            {!loading && message && (
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
-                    {message}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            )}
-            {!loading && (
-              <TableBody>
-                {Object.keys(servicesGroupedByPet).map((petId) => (
+            </TableBody>
+          )}
+          {!loading && message && (
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  {message}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          )}
+          {!loading && (
+            <tbody>
+              {/* {Object.keys(servicesGroupedByPet).map((petId) => (
                   <React.Fragment key={petId}>
-                    <TableRow>
+                    <tr >
                       <TableCell colSpan={5}>
                         <Typography variant="subtitle1">
                           {servicesGroupedByPet[petId][0].pet.name}
                         </Typography>
                       </TableCell>
-                    </TableRow>
-                    {servicesGroupedByPet[petId].map((item) => (
-                      <TableRow hover role="checkbox" key={item.id}>
-                        <TableCell> </TableCell>
-                        <TableCell>{item.service.service}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{item.unit}</TableCell>
-                        <TableCell>{item.unit_price}</TableCell>
-                      </TableRow>
-                    ))}
-                  </React.Fragment>
-                ))}
-                <TableRow>
-                  <TableCell colSpan={4} align="right">
-                    Total:
-                  </TableCell>
-                  <TableCell>{calculateTotal()}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={4} align="right">
-                    Deposit:
-                  </TableCell>
-                  <TableCell>{clientservice.deposit}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={4} align="right">
-                    Balance:
-                  </TableCell>
-                  <TableCell sx={{ width: "30%" }}>
-                    {calculateTotal() - clientservice.deposit}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={4} align="right">
-                    Cash:
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={4} align="right">
-                    Change:
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            )}
-          </Table>
-        </TableContainer>
-      </Paper>
+                    </tr> */}
+              {servicesavailedpaid.map((item) => (
+                <tr key={item.id}>
+                  <td style={{ padding:"5px" }}>{item.pet.name} </td>
+                  <td style={{ padding:"5px" }}>{item.service.service}</td>
+                  <td style={{ padding:"5px" }}>{item.quantity}</td>
+                  <td style={{ padding:"5px" }}>{item.unit}</td>
+                  <td style={{ padding:"5px" }}>{item.unit_price}</td>
+                </tr>
+              ))}
+              {/* </React.Fragment> */}
+              {/* ))} */}
+              <tr>
+                <td colSpan={4} align="right">
+                  Total:
+                </td>
+                <td>{calculateTotal()}</td>
+              </tr>
+              <tr>
+                <td colSpan={4} align="right">
+                  Deposit:
+                </td>
+                <td>{clientservice.deposit}</td>
+              </tr>
+              <tr>
+                <td colSpan={4} align="right">
+                  Balance:
+                </td>
+                <td sx={{ width: "30%" }}>
+                  {clientservice.balance}
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={4} align="right">
+                  Cash:
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={4} align="right">
+                  Change:
+                </td>
+              </tr>
+            </tbody>
+          )}
+        </table>
+      </div>
     </div>
   );
 });

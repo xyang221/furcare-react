@@ -20,6 +20,7 @@ import {
 import { Add, Archive, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
+import { SearchPetOwner } from "../components/SearchPetOwner";
 
 export default function Appointments() {
   //for table
@@ -48,6 +49,24 @@ export default function Appointments() {
   const [loading, setLoading] = useState(false);
 
   const [appointments, setAppointments] = useState([]);
+  const [petowners, setPetowners] = useState([]);
+  const [services, setServices] = useState([]);
+  const [query, setQuery] = useState("");
+  const [opennotif, setOpennotif] = useState(false);
+
+  //for modal
+  const [errors, setErrors] = useState(null);
+  const [modalloading, setModalloading] = useState(false);
+  const [appointment, setAppointment] = useState({
+    id: null,
+    date: "",
+    purpose: "",
+    remarks: "",
+    petowner_id: null,
+    service_id: null,
+  });
+  const [open, openchange] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
 
   const getAppointments = () => {
     setLoading(true);
@@ -66,49 +85,48 @@ export default function Appointments() {
       });
   };
 
-  const [services, setServices] = useState([]);
-
   const getServices = () => {
-    setModalloading(true);
     axiosClient
       .get(`/services`)
       .then(({ data }) => {
-        setModalloading(false);
         setServices(data.data);
       })
       .catch(() => {
-        setModalloading(false);
       });
   };
 
-  const [petowners, setPetowners] = useState([]);
-
   const getPetowners = () => {
-    setModalloading(true);
     axiosClient
       .get(`/petowners`)
       .then(({ data }) => {
-        setModalloading(false);
         setPetowners(data.data);
       })
       .catch(() => {
-        setModalloading(false);
       });
   };
 
+  const search = (query) => {
+    if (query) {
+      setMessage(null);
+      setPetowners([]);
+      setLoading(true);
+      axiosClient
+        .get(`/petowners-search/${query}`)
+        .then(({ data }) => {
+          setLoading(false);
+          setPetowners(data.data);
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            setMessage(response.data.message);
+          }
+          setLoading(false);
+        });
+    }
+  };
+
   //for modal
-  const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [appointment, setAppointment] = useState({
-    id: null,
-    date: "",
-    purpose: "",
-    remarks: "",
-    petowner_id: null,
-    service_id: null,
-  });
-  const [open, openchange] = useState(false);
-  const [openAdd, setOpenAdd] = useState(false);
 
   const addModal = (ev) => {
     getPetowners();
@@ -117,6 +135,7 @@ export default function Appointments() {
     setErrors(null);
     setNotification("");
     openchange(true);
+    getServices();
   };
 
   const closepopup = () => {
@@ -124,6 +143,7 @@ export default function Appointments() {
     setOpenAdd(false);
   };
 
+  //buttons
   const onDone = (r) => {
     if (!window.confirm("Are you sure this appointment was completed?")) {
       return;
@@ -168,7 +188,7 @@ export default function Appointments() {
         .then(() => {
           setNotification("Appointment was successfully updated");
           openchange(false);
-          setOpennotif(true)
+          setOpennotif(true);
           getAppointments();
         })
         .catch((err) => {
@@ -183,7 +203,7 @@ export default function Appointments() {
         .then(() => {
           setNotification("Appointment was successfully created");
           openchange(false);
-          setOpennotif(true)
+          setOpennotif(true);
           getAppointments();
         })
         .catch((err) => {
@@ -195,11 +215,7 @@ export default function Appointments() {
     }
   };
 
-  const [opennotif, setOpennotif] = useState(false);
-
-
   useEffect(() => {
-    getServices();
     getAppointments();
   }, []);
 
@@ -213,25 +229,35 @@ export default function Appointments() {
         }}
       >
         <Box
-          p={2}
+          p={1}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Scheduled Appointments</Typography>{" "}
-          <DropDownButtons
-            optionLink1="/admin/appointments/pending"
-            optionLabel1="Pending"
-            optionLink2="/admin/appointments/confirmed"
-            optionLabel2="Confirmed"
-            optionLink3="/admin/appointments/completed"
-            optionLabel3="Completed"
-          />
-          <Button onClick={addModal} variant="contained" size="small">
-            <Add />
-          </Button>
+          {/* <Box display="flex" flexDirection="row"> */}
+            <Typography variant="h4">Appointments</Typography>{" "}  
+            
+            <DropDownButtons
+          optionLink1="/admin/appointments/pending"
+          optionLabel1="Pending"
+          optionLink2="/admin/appointments/confirmed"
+          optionLabel2="Confirmed"
+          optionLink3="/admin/appointments/completed"
+          optionLabel3="Completed"
+        />
+            {/* <Button onClick={addModal} variant="contained" size="small" color="success" sx={{marginLeft:"10px", height:"35px"}}>
+              <Add />
+            </Button> */}
+          {/* </Box> */}
+          {/* <SearchPetOwner
+            query={query}
+            setQuery={setQuery}
+            search={search}
+            getPetowners={getPetowners}
+          /> */}
         </Box>
 
+      
         <EditAppointment
           open={open}
           onClose={closepopup}
@@ -245,7 +271,6 @@ export default function Appointments() {
           errors={errors}
           isUpdate={appointment.id}
         />
-
         <TableContainer sx={{ height: 380 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>

@@ -13,12 +13,19 @@ export const SearchPetOwner = ({ query, setQuery, search, getPetowners }) => {
     getPetowners();
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      search(query);
+    }
+  };
+
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <TextField
          placeholder="Search here..."
          value={query}
          onChange={handleInputChange}
+         onKeyPress={handleKeyPress}
          fullWidth
          variant="outlined"
          size="small"

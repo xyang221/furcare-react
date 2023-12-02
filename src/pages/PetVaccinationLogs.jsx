@@ -68,12 +68,12 @@ export default function PetVaccinationLogs({ sid }) {
   // const handleCheckboxChange = (itemId) => {
   //   let updatedVaccinationAgainst = [...vaccinationlog.vaccination_againsts];
 
-  //   if (updatedVaccinationAgainst.includes(itemId)) {
-  //     updatedVaccinationAgainst = updatedVaccinationAgainst.filter(
+  //   if (checkedItems.includes(itemId)) {
+  //     updatedVaccinationAgainst = checkedItems.filter(
   //       (id) => id !== itemId
   //     );
   //   } else {
-  //     updatedVaccinationAgainst.push(itemId);
+  //     checkedItems.push(itemId);
   //   }
 
   //   setVaccinationlog((prevVaccinationlog) => ({
@@ -96,18 +96,20 @@ export default function PetVaccinationLogs({ sid }) {
   // };
 
   // Function to handle checkbox changes
-  const handleCheckboxChange = (itemid) => {
-    const { name, checked } = event.target;
-    setVaccinationlog({
-      ...vaccinationlog,
-      [itemid]: checked,
-    });
+  const handleCheckboxChange = (item) => {
+    setVaccinationlog((prevVaccinationlog) => ({
+      ...prevVaccinationlog,
+      vaccination_againsts: {
+        ...prevVaccinationlog.vaccination_againsts,
+        [item.id]: item,
+      },
+    }));
   };
 
   const getVaccination = () => {
     setLoading(true);
     axiosClient
-      .get(`/vaccinationlogs/pet/${id}`)
+      .get(`/vaccinationlogs/petowner/${id}/service/${sid}`)
       .then(({ data }) => {
         setLoading(false);
         setVaccinationlogs(data.data);
@@ -154,6 +156,7 @@ export default function PetVaccinationLogs({ sid }) {
     getAgainsts();
     setOpenAdd(true);
     setVaccinationlog({});
+    setCheckedItems({})
     setErrors(null);
   };
 
@@ -208,7 +211,7 @@ export default function PetVaccinationLogs({ sid }) {
         });
     } else {
       axiosClient
-        .post(`/vaccinationlogs/pet/${vaccinationlog.pet_id}`, vaccinationlog)
+        .post(`/vaccinationlogs/petowner/${id}/service/${sid}`, vaccinationlog)
         .then(() => {
           setNotification("vaccinationlog was successfully created");
           setOpenAdd(false);
@@ -223,7 +226,10 @@ export default function PetVaccinationLogs({ sid }) {
     }
   };
 
+  console.log(vaccinationlog)
+
   useEffect(() => {
+    getAgainsts()
     getVaccination();
   }, []);
 
@@ -269,7 +275,6 @@ export default function PetVaccinationLogs({ sid }) {
             selectedItems={selectedItems}
             setSelectedItems={setSelectedItems}
             handleCheckboxChange={handleCheckboxChange}
-            vaccination_againsts={vaccinationlog.vaccination_againsts}
           />
 
           {notification && <Alert severity="success">{notification}</Alert>}
@@ -320,19 +325,13 @@ export default function PetVaccinationLogs({ sid }) {
                         <TableRow hover role="checkbox" key={record.id}>
                           <TableCell>{record.date}</TableCell>
                           <TableCell>{`${record.weight} kg`}</TableCell>
-                          <TableCell>{record.vaccination_againsts}</TableCell>
+                          <TableCell>
+                            {record.vaccination_againsts.map((va_against) => (
+                              <span key={va_against.id}>{va_against.acronym} </span>
+                            ))}
+                          </TableCell>
                           <TableCell>{record.description}</TableCell>
                           <TableCell>{record.administered}</TableCell>
-                          {againsts
-                            .filter(
-                              (ag) => ag.id === record.vaccination_againsts.indexOf()
-                            )
-                            .map((filteredItem) => (
-                              <TableCell key={filteredItem.id}>
-                                {filteredItem.acronym}
-                              </TableCell>
-                            ))}
-
                           <TableCell>{record.return}</TableCell>
                           <TableCell>{record.servicesavailed.status}</TableCell>
                           <TableCell>

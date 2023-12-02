@@ -135,7 +135,7 @@ export default function PetDewormingLogs({ sid }) {
       axiosClient
         .put(`/deworminglogs/${deworminglog.id}`, deworminglog)
         .then(() => {
-          setNotification("deworminglog was successfully updated");
+          setNotification("Pet Deworming was successfully updated");
           setOpenAdd(false);
           getDeworming();
         })
@@ -149,7 +149,7 @@ export default function PetDewormingLogs({ sid }) {
       axiosClient
         .post(`/deworminglogs/petowner/${id}/service/${sid}`, deworminglog)
         .then(() => {
-          setNotification("deworminglog was successfully created");
+          setNotification("Pet Deworming was successfully created");
           setOpenAdd(false);
           getDeworming();
         })
@@ -232,7 +232,7 @@ export default function PetDewormingLogs({ sid }) {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={8} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -242,7 +242,7 @@ export default function PetDewormingLogs({ sid }) {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={8} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>

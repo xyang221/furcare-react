@@ -36,6 +36,7 @@ export default function ServiceAvail({ sid, title }) {
   const [serviceavails, setServiceavails] = useState([]);
 
   const getServiceAvailed = () => {
+    setMessage(null)
     setLoading(true);
     axiosClient
       .get(`/servicesavailed/petowner/${id}/service/${sid}`)

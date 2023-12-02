@@ -11,9 +11,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { ArrowBackIos, Edit } from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import PetOwnerEdit from "../components/modals/PetOwnerEdit";
-import PetOwnerPets from "./PetOwnerPets";
 import UserEdit from "../components/modals/UserEdit";
 import PetOwnerTabs from "../components/PetOwnerTabs";
 

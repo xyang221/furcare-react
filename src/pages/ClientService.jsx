@@ -172,7 +172,7 @@ export default function ClientService() {
         />
         <br></br>
         <br></br>
-        <Autocomplete
+        {/* <Autocomplete
           sx={{ width: "100%" }}
           getOptionLabel={(option) => `${option.firstname} ${option.lastname}`}
           options={petowners}
@@ -193,7 +193,7 @@ export default function ClientService() {
               petowner_id: newValue,
             });
           }}
-        />
+        /> */}
 
         <Select
           label="Services"

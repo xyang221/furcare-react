@@ -17,6 +17,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
+import axiosClient from "../../axios-client";
 
 export default function TestResultModal(props) {
   const {
@@ -43,46 +44,46 @@ export default function TestResultModal(props) {
     // Update the user object with the updated value
     setTestresult(updatedTestresult);
   };
-  // const [error, setError] = useState(null);
+  const [error, setError] = useState(null);
 
-  // const [image, setImage] = useState({
-  //   name: null,
-  // });
+  const [image, setImage] = useState({
+    name: null,
+  });
 
 
-  // const submitImage = (e) => {
-  //   e.preventDefault();
+  const submitImage = (e) => {
+    e.preventDefault();
 
-  //   if (!image.name) {
-  //     setError("Please select an image to upload.");
-  //     return;
-  //   }
+    if (!image.name) {
+      setError("Please select an image to upload.");
+      return;
+    }
 
-  //   const formData = new FormData();
-  //   formData.append("photo", image.name);
+    const formData = new FormData();
+    formData.append("photo", image.name);
 
-  //   axiosClient
-  //     .post(`/pet/upload-image`, formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     })
-  //     .then((res) => {
-  //       console.log(res);
-  //       // Clear the input after successful submission
-  //       setImage({ name: null });
-  //       setError(null);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // };
+    axiosClient
+      .post(`/pet/upload-image`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        // Clear the input after successful submission
+        setImage({ name: null });
+        setError(null);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
-  // const handleAddPhoto = (file) => {
-  //   if (file && file.length > 0) {
-  //     setImageData(file[0]);
-  //   }
-  // };
+  const handleAddPhoto = (file) => {
+    if (file && file.length > 0) {
+      setImageData(file[0]);
+    }
+  };
 
   return (
     <>
@@ -148,18 +149,19 @@ export default function TestResultModal(props) {
                   ))}
                 </Box>
               )}
+              <form onSubmit={onSubmit}>
               <Stack spacing={2} margin={2}>
-                {petid ? (
+                {isUpdate ? (
                   <FormControl>
                     <InputLabel>Pet</InputLabel>
                     <Select
                       label="Pet"
-                      // value={pet.petowner_id || petownerid|| ""}
-                      value={testresult.pet_id || null}
+                      value={testresult.pet_id}
                       onChange={(ev) =>
                         handleFieldChange("pet_id", ev.target.value)
                       }
                       disabled
+                      required
                     >
                       {pets.map((item) => (
                         <MenuItem key={item.id} value={item.id}>
@@ -173,10 +175,11 @@ export default function TestResultModal(props) {
                     <InputLabel>Pet</InputLabel>
                     <Select
                       label="Pet"
-                      value={testresult.pet_id || null}
+                      value={testresult.pet_id || ""}
                       onChange={(ev) =>
                         handleFieldChange("pet_id", ev.target.value)
                       }
+                      required
                     >
                       {pets.map((item) => (
                         <MenuItem key={item.id} value={item.id}>
@@ -186,32 +189,33 @@ export default function TestResultModal(props) {
                     </Select>
                   </FormControl>
                 )}
-                {/* {addImage && ( */}
-                  <FormControl>
+                {!isUpdate &&  <FormControl>
                     <TextField
                       variant="outlined"
                       id="photo"
                       label="Photo"
                       type="file"
                       onChange={handleImage}
+                      defaultValue={null}
+                      required
                     />
-                    {errors && <p style={{ color: "red" }}>{errors}</p>}
-                  </FormControl>
-                {/* )} */}
-             
+                    {error && <p style={{ color: "red" }}>{error}</p>}
+                  </FormControl>}
 
                 <TextField
                   variant="outlined"
                   id="Description"
                   label="Description"
-                  value={testresult.description || ``}
+                  value={testresult.description || ""}
                   onChange={(ev) => handleFieldChange("description", ev.target.value)}
+                  required
                 />
               
-                <Button color="primary" variant="contained" onClick={onSubmit}>
+                <Button color="primary"  type="submit" variant="contained" >
                   Save
                 </Button>
               </Stack>
+              </form>
             </DialogContent>
           </Dialog>
         )}

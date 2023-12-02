@@ -16,9 +16,11 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import { Add, Archive, Visibility } from "@mui/icons-material";
+import { SearchPetOwner } from "../components/SearchPetOwner";
 
 export default function PetOwners() {
   //for table
@@ -45,8 +47,10 @@ export default function PetOwners() {
   const [notification, setNotification] = useState("");
   const [message, setMessage] = useState(null);
   const [petowners, setPetowners] = useState([]);
+  const [query, setQuery] = useState("");
 
   const getPetowners = () => {
+    setMessage(null);
     setLoading(true);
     axiosClient
       .get("/petowners")
@@ -63,6 +67,27 @@ export default function PetOwners() {
       });
   };
 
+  const search = (query) => {
+    if(query){
+    setMessage(null);
+    setPetowners([])
+      setLoading(true);
+      axiosClient
+        .get(`/petowners-search/${query}`)
+        .then(({ data }) => {
+          setLoading(false);
+          setPetowners(data.data);
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            setMessage(response.data.message);
+          }
+          setLoading(false);
+        });
+      }
+  }
+
   const onArchive = (u) => {
     if (!window.confirm("Are you sure to archive this pet owner?")) {
       return;
@@ -75,7 +100,9 @@ export default function PetOwners() {
   };
 
   useEffect(() => {
+    if(!query){
     getPetowners();
+    }
   }, []);
 
   return (
@@ -94,22 +121,25 @@ export default function PetOwners() {
           justifyContent="space-between"
         >
           <Typography variant="h4">Pet Owners</Typography>{" "}
-          <Button
+           {/* <Button
+            component={Link}
+            to={"/admin/petowners/new"}
+            variant="contained"
+            color="success"
+            size="small"
+          >
+            <Add />
+          </Button> */}
+          <SearchPetOwner query={query} setQuery={setQuery} search={search} getPetowners={getPetowners}/>
+          {/* <Button
             component={Link}
             to={`/admin/petowners/archives`}
             variant="contained"
             size="small"
           >
             <Typography>Archives</Typography>
-          </Button>
-          <Button
-            component={Link}
-            to={"/admin/petowners/new"}
-            variant="contained"
-            size="small"
-          >
-            <Add />
-          </Button>
+          </Button> */}
+         
         </Box>
 
         {notification && <Alert severity="success">{notification}</Alert>}
@@ -172,7 +202,6 @@ export default function PetOwners() {
                               size="small"
                             >
                               <Visibility fontSize="small" />
-                              {/* <Typography>view</Typography> */}
                             </Button>
 
                             <Button

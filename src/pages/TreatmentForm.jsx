@@ -2,7 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
-import { Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 export default function TreatmentForm() {
   const { id } = useParams();
@@ -15,15 +26,15 @@ export default function TreatmentForm() {
     id: null,
     diagnosis: "",
     body_weight: "",
-    heart_rate:"",
-    mucous_membrane:"",
-    pr_prealbumin:"",
-    temp:"",
-    respiration_rate:"",
-    caspillar_refill_time:"",
-    body_condition_Score:"",
-    fluid_rate:"",
-    comments:""
+    heart_rate: "",
+    mucous_membrane: "",
+    pr_prealbumin: "",
+    temp: "",
+    respiration_rate: "",
+    caspillar_refill_time: "",
+    body_condition_Score: "",
+    fluid_rate: "",
+    comments: "",
   });
 
   const [petowner, setPetowner] = useState([]);
@@ -55,7 +66,6 @@ export default function TreatmentForm() {
       });
   };
 
-
   const getPetowners = () => {
     setLoading(true);
     axiosClient
@@ -80,8 +90,8 @@ export default function TreatmentForm() {
   };
 
   useEffect(() => {
-    getPetowner()
-    getPetownerPets()
+    getPetowner();
+    getPetownerPets();
     // getPetowners();
   }, []);
 
@@ -125,87 +135,134 @@ export default function TreatmentForm() {
     setTreatment(updatedDiagnosis);
   };
 
-
   return (
-    <div>
-      {!treatment.id && (
-        <h1 className="title">Client Service (Consent For Treatment)</h1>
+    <Paper
+      sx={{
+        padding: "10px",
+      }}
+    >
+      <h1 className="title">Treatment Sheet</h1>
+      {loading && <div className="text-center">Loading...</div>}
+      {errors && (
+        <div className="alert">
+          {Object.keys(errors).map((key) => (
+            <p key={key}>{errors[key][0]}</p>
+          ))}
+        </div>
       )}
-
-      <div className="card animate fadeInDown">
-        {loading && <div className="text-center">Loading...</div>}
-        {errors && (
-          <div className="alert">
-            {Object.keys(errors).map((key) => (
-              <p key={key}>{errors[key][0]}</p>
-            ))}
-          </div>
-        )}
-        {!loading && (
-          <form onSubmit={onSubmit}>
-            <Typography variant="h6">
-                Date: {date.toDateString()}{" "}
-              </Typography>
-
-              <Typography variant="h6">
-                Client: {petowner.firstname}  {petowner.lastname}
-              </Typography>
-
-              <FormControl>
-                  <InputLabel>Pet</InputLabel>
-                  <Select
-                    label="Pet"
-                    value={treatment.pet_id || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("pet_id", ev.target.value)
-                    }
-                  >
-                    {pets.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+      {!loading && (
+        <form onSubmit={onSubmit}>
+          <Typography variant="h6">Date: {date.toDateString()} </Typography>
+          <Typography variant="h6">Day: ? </Typography>
+          <TextField
+            value={treatment.diagnosis}
+            onChange={(ev) => handleFieldChange("diagnosis", ev.target.value)}
+            label="Diagnosis/Findings"
+            variant="outlined"
+            required
+          />
           <br></br>
-            <TextField
-              type="number"
-              value={treatment.deposit}
-              onChange={(ev) =>
-                handleFieldChange("deposit", ev.target.value)
-              }
-              placeholder="Deposit"
-            />
-
-            <TextField
-              type="text"
-              value={treatment.balance}
-              onChange={(ev) =>
-                handleFieldChange("balance", ev.target.value)
-              }
-              placeholder="Balance"
-            />
-
-<TextField
-              type="text"
-              value={treatment.rendered_by}
-              onChange={(ev) =>
-                handleFieldChange("rendered_by", ev.target.value)
-              }
-            />
-
-            <br></br>
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={onSubmit}
+          <FormControl>
+            <InputLabel>Pet</InputLabel>
+            <Select
+              label="Pet"
+              value={treatment.pet_id || ""}
+              onChange={(ev) => handleFieldChange("pet_id", ev.target.value)}
+              fullWidth
+              variant="standard"
             >
-              Avail
-            </Button>
-           
-          </form>
-        )}
-      </div>
-    </div>
+              {pets.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            value={treatment.deposit}
+            label="Breed"
+            variant="standard"
+            disabled
+          />
+          <br></br>
+          <Stack flexDirection={"row"}>
+            <Stack display={"flex"} flexDirection={"column"} padding={"10px"}>
+              <TextField
+                value={treatment.bw}
+                onChange={(ev) => handleFieldChange("bw", ev.target.value)}
+                label="BW"
+                variant="standard"
+                size="small"
+                required
+              />
+              <TextField
+                value={treatment.hr}
+                onChange={(ev) => handleFieldChange("hr", ev.target.value)}
+                label="HR"
+                variant="standard"
+                size="small"
+                required
+              />
+              <TextField
+                value={treatment.mm}
+                onChange={(ev) => handleFieldChange("mm", ev.target.value)}
+                label="MM"
+                variant="standard"
+                size="small"
+                required
+              />
+              <TextField
+                value={treatment.pr}
+                onChange={(ev) => handleFieldChange("pr", ev.target.value)}
+                label="PR"
+                variant="standard"
+                size="small"
+                required
+              />
+            </Stack>
+            <Stack display={"flex"} flexDirection={"column"} padding={"10px"}>
+              <TextField
+                value={treatment.temp}
+                onChange={(ev) => handleFieldChange("temp", ev.target.value)}
+                label="Temp"
+                variant="standard"
+                size="small"
+                required
+              />
+              <TextField
+                value={treatment.rr}
+                onChange={(ev) => handleFieldChange("rr", ev.target.value)}
+                label="RR"
+                variant="standard"
+                size="small"
+                required
+              />
+
+              <TextField
+                value={treatment.crt}
+                onChange={(ev) => handleFieldChange("crt", ev.target.value)}
+                label="CRT"
+                variant="standard"
+                size="small"
+                required
+              />
+              <TextField
+                value={treatment.bcs}
+                onChange={(ev) => handleFieldChange("bcs", ev.target.value)}
+                label="BCS"
+                variant="standard"
+                size="small"
+                required
+              />
+            </Stack>
+          </Stack>
+
+          <br></br>
+          <Button color="primary" variant="contained" onClick={onSubmit}>
+            Save
+          </Button>
+        </form>
+      )}
+    </Paper>
   );
 }

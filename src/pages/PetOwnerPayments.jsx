@@ -30,6 +30,17 @@ import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
 export default function PetOwnerPayments() {
+  //for table
+  const columns = [
+    { id: "Date", name: "Date" },
+    { id: "Billing", name: "Billing" },
+    { id: "Deposit", name: "Deposit" },
+    { id: "Balance", name: "Balance" },
+    { id: "Status", name: "Status" },
+  ];
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
+
   const { id } = useParams();
   const [chargeslip, setChargeSlip] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -40,7 +51,7 @@ export default function PetOwnerPayments() {
   const getPayments = () => {
     setLoading(true);
     axiosClient
-      .get(`/servicesavailed/${id}/list`)
+      .get(`/clientservices/petowner/${id}/all`)
       .then(({ data }) => {
         setLoading(false);
         setChargeSlip(data.data);
@@ -54,16 +65,6 @@ export default function PetOwnerPayments() {
       });
   };
 
-  //for table
-  const columns = [
-    // { id: "photo", name: "photo" },
-    { id: "id", name: "ID" },
-    { id: "Date", name: "Date" },
-    { id: "billing", name: "billing" },
-    { id: "payable", name: "payable" },
-    { id: "remaining", name: "remaining" },
-  ];
-
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
@@ -71,9 +72,6 @@ export default function PetOwnerPayments() {
     rowperpagechange(+event.target.value);
     pagechange(0);
   };
-
-  const [page, pagechange] = useState(0);
-  const [rowperpage, rowperpagechange] = useState(10);
 
   useEffect(() => {
     getPayments();
@@ -93,7 +91,7 @@ export default function PetOwnerPayments() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Button
+          {/* <Button
             component={Link}
             to={`/admin/${id}/chargeslip`}
             variant="contained"
@@ -103,7 +101,7 @@ export default function PetOwnerPayments() {
             <Add />
 
             <Typography>New</Typography>
-          </Button>
+          </Button> */}
         </Box>
 
         {notification && <Alert severity="success">{notification}</Alert>}
@@ -151,24 +149,12 @@ export default function PetOwnerPayments() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        {/* <TableCell>{r.id}</TableCell>
-                            <TableCell>{r.name}</TableCell>
-                            <TableCell>{r.gender}</TableCell>
-                            <TableCell>{r.breed.breed}</TableCell>
-                            <TableCell>
-                              <Stack direction="row" spacing={2}>
-                              <Button
-                                  variant="contained"
-                                  color="info"
-                                  size="small"
-                                  component={Link}
-                                  to={`/admin/chargeslip/` + r.id +`/view`}
-                                >
-                                  <Visibility fontSize="small" />
-                                </Button>
-                            
-                              </Stack>
-                            </TableCell> */}
+                        <TableCell>{r.date}</TableCell>
+                        {/* <TableCell>{r.billing}</TableCell> */}
+                        <TableCell></TableCell>
+                        <TableCell>{r.deposit}</TableCell>
+                        <TableCell>{r.balance}</TableCell>
+                        <TableCell>{r.status}</TableCell>
                       </TableRow>
                     ))}
               </TableBody>

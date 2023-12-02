@@ -20,14 +20,10 @@ import {
 import {
   Add,
   Archive,
-  Delete,
-  Edit,
-  Search,
   Visibility,
 } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { useStateContext } from "../contexts/ContextProvider";
 import PetsModal from "../components/modals/PetsModal";
 
 export default function PetOwnerPets() {
@@ -36,6 +32,9 @@ export default function PetOwnerPets() {
   const [errors, setErrors] = useState(null);
   const [imageData, setImageData] = useState("");
   const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState(null);
+  const [pets, setPets] = useState([]);
 
   const [pet, setPet] = useState({
     id: null,
@@ -43,34 +42,39 @@ export default function PetOwnerPets() {
     birthdate: "",
     gender: "",
     color: "",
-    qr_code: "",
     photo: null,
     breed_id: null,
   });
 
   const [breeds, setBreeds] = useState([]);
-  const [uniqueCategories, setUniqueCategories] = useState([]);
+  const [species, setSpecies] = useState([]);
+  const [selectedSpecie, setSelectedSpecie] = useState(null);
+
+  const getSpecies = () => {
+    axiosClient
+      .get(`/species`)
+      .then(({ data }) => {
+        setSpecies(data.data);
+      })
+      .catch(() => {});
+  };
+
+  const handleSpecieChange = (event) => {
+    const selectedSpeciesId = event.target.value;
+    setSelectedSpecie(selectedSpeciesId);
+  };
 
   const getBreeds = () => {
     axiosClient
       .get(`/breeds`)
       .then(({ data }) => {
         setBreeds(data.data);
-
-        const uniqueCategoriesSet = new Set(
-          data.data.map((service) => service.category.category)
-        );
-        const uniqueCategoriesArray = Array.from(uniqueCategoriesSet);
-
-        setUniqueCategories(uniqueCategoriesArray);
       })
       .catch(() => {});
   };
 
-  const [pets, setPets] = useState([]);
-  const [message, setMessage] = useState("");
-
   const getPets = () => {
+    setMessage("")
     setLoading(true);
     axiosClient
       .get(`/petowners/${id}/pets`)
@@ -87,29 +91,9 @@ export default function PetOwnerPets() {
       });
   };
 
-  const [petowners, setPetowners] = useState([]);
-
-  const getPetowners = () => {
-    setLoading(true);
-    axiosClient
-      .get(`/petowners`)
-      .then(({ data }) => {
-        setLoading(false);
-        setPetowners(data.data);
-      })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
-        setLoading(false);
-      });
-  };
-
   //for table
   const columns = [
     { id: "Photo", name: "Photo" },
-    { id: "id", name: "ID" },
     { id: "name", name: "Pet Name" },
     { id: "email", name: "Gender" },
     { id: "breed", name: "Breed" },
@@ -128,12 +112,9 @@ export default function PetOwnerPets() {
   const [rowperpage, rowperpagechange] = useState(10);
 
   //for modal
-
   const [open, openchange] = useState(false);
 
   const functionopenpopup = (ev) => {
-    // openchange(true);
-    getPetowners();
     getBreeds();
     openchange(true);
     setPet({});
@@ -201,7 +182,6 @@ export default function PetOwnerPets() {
     }
   };
 
-  const [error, setError] = useState(null);
 
   const handleImage = (e) => {
     const selectedFile = e.currentTarget.files?.[0] || null;
@@ -230,18 +210,11 @@ export default function PetOwnerPets() {
 
   useEffect(() => {
     getPets();
-    // getBreeds();
   }, []);
 
   return (
     <>
-      <Paper
-        sx={{
-          minWidth: "90%",
-          padding: "10px",
-          margin: "10px",
-        }}
-      >
+     
         <Box
           sx={{
             minWidth: "90%",
@@ -273,7 +246,6 @@ export default function PetOwnerPets() {
             onSubmit={onSubmit}
             // loading={loading}
             breeds={breeds}
-            petowners={petowners}
             pet={pet}
             setPet={setPet}
             errors={errors}
@@ -301,7 +273,7 @@ export default function PetOwnerPets() {
               {loading && (
                 <TableBody>
                   <TableRow>
-                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       Loading...
                     </TableCell>
                   </TableRow>
@@ -329,10 +301,9 @@ export default function PetOwnerPets() {
                             {" "}
                             <img
                               src={`http://localhost:8000/` + r.photo}
-                              height="100"
+                              height="50"
                             />{" "}
                           </TableCell>
-                          <TableCell>{r.id}</TableCell>
                           <TableCell>{r.name}</TableCell>
                           <TableCell>{r.gender}</TableCell>
                           <TableCell>{r.breed.breed}</TableCell>
@@ -373,7 +344,6 @@ export default function PetOwnerPets() {
             onRowsPerPageChange={handleRowsPerPage}
           ></TablePagination>
         </Box>
-      </Paper>
     </>
   );
 }

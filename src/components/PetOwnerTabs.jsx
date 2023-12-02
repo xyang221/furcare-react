@@ -25,14 +25,16 @@ export default function PetOWnerTabs() {
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Pets" value="1" />
             <Tab label="Appointments" value="2" />
-            <Tab label="Avail Service" value="3" />
-            <Tab label="Billing" value="4" />
+            <Tab label="Payments" value="3" />
+            <Tab label="Services" value="4" />
+            <Tab label="Billing" value="5" />
           </TabList>
         </Box>
         <TabPanel value="1"><PetOwnerPets/></TabPanel>
         <TabPanel value="2"><PetOwnerAppointments/></TabPanel>
-        <TabPanel value="3"><ServiceCatBtns/> </TabPanel>
-        <TabPanel value="4"><GenerateBilling/></TabPanel>
+        <TabPanel value="3"><PetOwnerPayments/></TabPanel>
+        <TabPanel value="4"><ServiceCatBtns/> </TabPanel>
+        <TabPanel value="5"><GenerateBilling/></TabPanel>
       </TabContext>
     </Box>
   );

@@ -5,7 +5,6 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   Divider,
   IconButton,
   Snackbar,
@@ -38,21 +37,19 @@ export default function ViewPet() {
 
   const [petowner, setPetowner] = useState([]);
   const [petowners, setPetowners] = useState([]);
+  const [breeds, setBreeds] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState(null);
+  const [image, setImage] = useState(false);
 
   const getPetowners = () => {
-    setLoading(true);
     axiosClient
       .get(`/petowners`)
       .then(({ data }) => {
-        setLoading(false);
         setPetowners(data.data);
       })
-      .catch(() => {
-        setLoading(false);
-      });
+      .catch(() => {});
   };
-
-  const [open, setOpen] = useState(false);
 
   const closepopup = () => {
     setOpen(false);
@@ -74,19 +71,13 @@ export default function ViewPet() {
       });
   };
 
-  const [breeds, setBreeds] = useState([]);
-
   const getBreeds = () => {
-    setLoading(true);
     axiosClient
       .get("/breeds")
       .then(({ data }) => {
-        setLoading(false);
         setBreeds(data.data);
       })
-      .catch(() => {
-        setLoading(false);
-      });
+      .catch(() => {});
   };
 
   const onEdit = () => {
@@ -94,7 +85,7 @@ export default function ViewPet() {
     setErrors(null);
     getBreeds();
     setOpen(true);
-    getPetowners()
+    getPetowners();
   };
 
   const addDeworming = () => {
@@ -112,7 +103,7 @@ export default function ViewPet() {
         .put(`/pets/${pet.id}`, pet)
         .then(() => {
           setNotification("Pet was successfully updated");
-          setOpen(false)
+          setOpen(false);
           getPet();
         })
         .catch((err) => {
@@ -122,12 +113,11 @@ export default function ViewPet() {
           }
         });
     } else {
-
       if (!pet.photo) {
         setError("Please select an image to upload.");
         return;
       }
-  
+
       const formData = new FormData();
       formData.append("photo", pet.photo);
 
@@ -136,10 +126,10 @@ export default function ViewPet() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        } )
+        })
         .then(() => {
           setNotification("Pet was successfully added");
-          setOpen(false)
+          setOpen(false);
           getPet();
         })
         .catch((err) => {
@@ -151,20 +141,17 @@ export default function ViewPet() {
     }
   };
 
-  const [value, setValue] = useState("1");
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  const [error, setError] = useState(null);
-
   const handleImage = (e) => {
     const selectedFile = e.currentTarget.files?.[0] || null;
 
     if (selectedFile) {
       // Validate the file type
-      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml"];
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/svg+xml",
+      ];
       if (allowedTypes.includes(selectedFile.type)) {
         setPet((prevImage) => ({
           ...prevImage,
@@ -172,12 +159,12 @@ export default function ViewPet() {
         }));
         setError(null);
       } else {
-        setError("The selected file must be of type: jpg, png, jpeg, gif, svg.");
+        setError(
+          "The selected file must be of type: jpg, png, jpeg, gif, svg."
+        );
       }
     }
   };
-
-  const [image, setImage] = useState(false);
 
   const uploadImage = () => {
     setError(null);
@@ -197,31 +184,36 @@ export default function ViewPet() {
       <br></br>
       <div className="card animate fadeInDown">
         {notification && <Alert severity="success">{notification}</Alert>}
-        {/* <Typography
-          component={Link}
-          to={`/admin/petowners/` + petowner.id + `/view`}
-        >
-          {petowner.firstname} / Pets
-        </Typography>
-        <Divider /> */}
- <img src={`http://localhost:8000/` + pet.photo} height="100"/> 
- <IconButton variant="contained" color="info" onClick={uploadImage}>
-         <Edit fontSize="small" />
+        <Box display="flex" flexDirection="column">
+          <Typography
+            component={Link}
+            to={`/admin/petowners/` + petowner.id + `/view`}
+          >
+            {petowner.firstname}
+          </Typography>
+          <Typography> / {pet.name}</Typography>
+        </Box>
+        <Divider />
+        <img src={`http://localhost:8000/` + pet.photo} height="100" />
+        <IconButton variant="contained" color="info" onClick={uploadImage}>
+          <Edit fontSize="small" />
         </IconButton>
 
         <UploadImage
-        onClick={closeuploadImage}
-        onClose={closeuploadImage}
-        open={image}
+          onClick={closeuploadImage}
+          onClose={closeuploadImage}
+          open={image}
         />
+        <h2>
+          Pet Details
+          <IconButton variant="contained" color="info" onClick={() => onEdit()}>
+            <Edit fontSize="small" />
+          </IconButton>
+        </h2>
         <p>
-          Pet Owner: {petowner.firstname} {petowner.lastname} <br></br> 
+          Pet Owner: {petowner.firstname} {petowner.lastname} <br></br>
           Pet Name: {pet.name}
         </p>
-
-        <Button variant="contained" color="info" onClick={() => onEdit()}>
-          <Typography>Update Pet</Typography> <Edit fontSize="small" />
-        </Button>
 
         <PetsModal
           open={open}
@@ -241,18 +233,13 @@ export default function ViewPet() {
           handleImage={handleImage}
         />
 
-{/* <PetsModal
+        {/* <PetsModal
           open={image}
           onClick={closepopup}
           onClose={closepopup}
           handleImage={handleImage}
               error={error}
         /> */}
-
-        <Button variant="contained" color="error" onClick={() => navigate(-1)}>
-          <ArrowBackIos fontSize="small" />
-          <Typography>Back</Typography>
-        </Button>
 
         <Stack spacing={2} sx={{ width: "100%" }}>
           <Snackbar

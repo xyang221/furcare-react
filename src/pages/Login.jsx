@@ -146,6 +146,7 @@ export default function Login() {
               type="text"
               name="username"
               autoFocus
+              required
             />
             <TextField
               inputRef={passwordRef}
@@ -155,6 +156,7 @@ export default function Login() {
               label="Password"
               type="password"
               id="password"
+              required
             />
             {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}

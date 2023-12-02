@@ -15,9 +15,8 @@ export default function ClientServiceForm() {
     id: null,
     deposit: "",
     balance: "",
-    rendered_by: "none",
+    rendered_by: "",
     // petowner_id: null,
-    services_id: 1,
   });
 
   const [petowner, setPetowner] = useState([]);
@@ -49,24 +48,9 @@ export default function ClientServiceForm() {
       });
   };
 
-
-  const getPetowners = () => {
-    setLoading(true);
-    axiosClient
-      .get("/clientservices")
-      .then(({ data }) => {
-        setLoading(false);
-        setClientService(data.data);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
   useEffect(() => {
     getPetowner()
     getPetownerPets()
-    getPetowners();
   }, []);
 
   const onSubmit = (ev) => {
@@ -88,7 +72,7 @@ export default function ClientServiceForm() {
       axiosClient
         .post(`/clientservices/petowner/${id}`, clientservice)
         .then(() => {
-          setNotification("clientservice successfully created");
+          setNotification("The Consent For Treatment form was successfully saved.");
           navigate(`/admin/services/petowner/${id}/avail/admission/treatment`);
         })
         .catch((err) => {
@@ -136,22 +120,6 @@ export default function ClientServiceForm() {
                 Client: {petowner.firstname}  {petowner.lastname}
               </Typography>
 
-              <FormControl>
-                  <InputLabel>Pet</InputLabel>
-                  <Select
-                    label="Pet"
-                    value={clientservice.pet_id || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("pet_id", ev.target.value)
-                    }
-                  >
-                    {pets.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
           <br></br>
             <TextField
               type="number"
@@ -159,7 +127,7 @@ export default function ClientServiceForm() {
               onChange={(ev) =>
                 handleFieldChange("deposit", ev.target.value)
               }
-              placeholder="Deposit"
+              label="Deposit"
             />
 
             {/* <TextField
@@ -171,12 +139,13 @@ export default function ClientServiceForm() {
               placeholder="Balance"
             /> */}
 
-<TextField
+            <TextField
               type="text"
               value={clientservice.rendered_by || ""}
               onChange={(ev) =>
                 handleFieldChange("rendered_by", ev.target.value)
               }
+              label="Rendered by"
             />
 
             <br></br>
@@ -185,7 +154,7 @@ export default function ClientServiceForm() {
               variant="contained"
               onClick={onSubmit}
             >
-              Avail
+              Save
             </Button>
            
           </form>

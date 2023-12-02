@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../../axios-client";
+import axiosClient from "../axios-client";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Alert,
@@ -19,14 +19,11 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Close, Refresh, Remove } from "@mui/icons-material";
-import ChargeSlipModal from "../../components/modals/ChargeSlipModal";
 import ReactToPrint from "react-to-print";
 import { useRef } from "react";
-import PrintComponent from "../ChargeSlipPrint";
 
-export default function GenerateBilling() {
+const ChargeSlipPrint = React.forwardRef((props, ref) => {
   const { id } = useParams();
-  const navigate = useNavigate();
   //for table
   const columns = [
     { id: "Pet", name: "Pet" },
@@ -40,49 +37,9 @@ export default function GenerateBilling() {
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState(new Date());
 
-  const [servicesavailed, setServicesavailed] = useState([]);
-  const [clientservice, setClientservice] = useState([]);
   const [servicesavailedpaid, setServicesavailedpaid] = useState([]);
   const [petowner, setPetowner] = useState([]);
-  let componentRef = useRef();
-
-  const [serviceAvailedPrices, setServiceAvailedPrices] = useState({});
-  const [cash, setCash] = useState(null);
-
-  const getServicesAvailed = () => {
-    setMessage(null);
-    setLoading(true);
-    axiosClient
-      .get(`/servicesavailed/petowner/${id}`)
-      .then(({ data }) => {
-        setLoading(false);
-        setServicesavailed(data.data);
-        
-      })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
-        setLoading(false);
-      });
-  };
-
-  const getClientService = () => {
-    setMessage(null);
-    axiosClient
-      .get(`/clientservices/petowner/${id}`)
-      .then(({ data }) => {
-        setClientservice(data);
-        setPetowner(data.petowner)
-      })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
-      });
-  };
+  const [clientservice, setClientservice] = useState([]);
 
   const getServicesAvailedChargeSlip = () => {
     setMessage(null);
@@ -102,68 +59,26 @@ export default function GenerateBilling() {
       });
   };
 
-  // const getPetowner = () => {
-  //   setLoading(true);
-  //   axiosClient
-  //     .get(`/petowners/${id}`)
-  //     .then(({ data }) => {
-  //       setLoading(false);
-  //       setPetowner(data);
-  //     })
-  //     .catch(() => {
-  //       setLoading(false);
-  //     });
-  // };
-
-
-
-  const updateServicePrice = (id, price) => {
-    setServiceAvailedPrices((prevPrices) => ({
-      ...prevPrices,
-      [id]: price,
-    }));
-  };
-
-  // Update the onChange function for the price TextField
-  const handlePriceChange = (ev, id) => {
-    const { value } = ev.target;
-    updateServicePrice(id, value);
-  };
-
-  // Calculate the total for all selected items
-  const calculateTotal = () => {
-    return servicesavailed.reduce((total, item) => {
-      const price = serviceAvailedPrices[item.id] || 0; // Fetch price from state
-      return total + price * item.quantity;
-    }, 0);
-  };
-  // Update the onChange function for the price TextField
-  const handleCash = (ev, id) => {
-    const { value } = ev.target;
-    setCash(parseFloat(value));
-  };
-
-  const calculateChange = () => {
-    if (
-      cash === undefined ||
-      isNaN(cash) ||
-      calculateTotal() === undefined ||
-      isNaN(calculateTotal()) ||
-      clientservice === undefined ||
-      clientservice.deposit === undefined ||
-      isNaN(clientservice.deposit)
-    ) {
-      return 0;
-    }
-
-    const change = cash - (calculateTotal() - clientservice.deposit);
-    return Math.max(change, 0); // Ensure the result stays at a minimum of 0
+  const getClientService = () => {
+    setMessage(null);
+    axiosClient
+      .get(`/clientservices/petowner/${id}`)
+      .then(({ data }) => {
+        setClientservice(data);
+        setPetowner(data.petowner);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+      });
   };
 
   // Group services by pet
   const groupServicesByPet = () => {
     const groupedServices = {};
-    servicesavailed.forEach((item) => {
+    servicesavailedpaid.forEach((item) => {
       const petId = item.pet.id;
       if (groupedServices.hasOwnProperty(petId)) {
         groupedServices[petId].push(item);
@@ -176,62 +91,20 @@ export default function GenerateBilling() {
 
   const servicesGroupedByPet = groupServicesByPet();
 
-  const onSubmit = () => {
-    const updatedServicesPromises = servicesavailed.map((item) => {
-      return axiosClient.put(`/servicesavailed/${item.id}`, {
-        ...item,
-        unit_price: serviceAvailedPrices[item.id] || null,
-      });
-    });
-
-    Promise.all(updatedServicesPromises)
-      .then(() => {
-        getServicesAvailed();
-        navigate(`/admin/${id}/chargeslip`)
-        servicesGroupedByPet(null);
-      })
-      .catch((err) => {
-        const response = err.response;
-        if (response && response.status === 422) {
-          console.log(response.data.errors);
-        }
-      });
-    getServicesAvailedChargeSlip();
-  };
-
-  //for modal
-  const [open, openChargeSlip] = useState(false);
-  const [errors, setErrors] = useState(null);
-
-  const addModal = (ev) => {
-    openChargeSlip(true);
-    setErrors(null);
-  };
-
-  const closepopup = () => {
-    openChargeSlip(false);
-  };
-
-  const refresh = () => {
-    getServicesAvailed()
-    getClientService()
+  // Calculate the total for all selected items
+  const calculateTotal = () => {
+    return servicesavailedpaid.reduce((total, item) => {
+      return total + parseFloat(item.unit_price);
+    }, 0);
   };
 
   useEffect(() => {
-    // getPetowner();
+    getClientService();
+    getServicesAvailedChargeSlip();
   }, []);
 
   return (
-    <>
-      {/* <ChargeSlipModal
-     open={open}
-     onClose={closepopup}
-     loading={loading}
-     servicesavailed={servicesavailed}
-     getServicesAvailed={getServicesAvailed}
-     petowner={petowner}
-     message={message}
-    /> */}
+    <div ref={ref}>
       <Paper
         sx={{
           width: "550px",
@@ -240,13 +113,6 @@ export default function GenerateBilling() {
       >
         <Typography align="center" variant="h5">
           Charge Slip{" "}
-          <IconButton
-            onClick={refresh}
-            variant="contained"
-            color="success"
-          >
-            <Refresh />
-          </IconButton>
         </Typography>{" "}
         <Box
           p={2}
@@ -261,7 +127,7 @@ export default function GenerateBilling() {
             Date: {date.toDateString()}{" "}
           </Typography>
         </Box>
-        <TableContainer sx={{ height: 380 }}>
+        <TableContainer >
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -305,15 +171,7 @@ export default function GenerateBilling() {
                         <TableCell>{item.service.service}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>{item.unit}</TableCell>
-                        <TableCell sx={{ width: "30%" }}>
-                          <TextField
-                            size="small"
-                            type="number"
-                            value={serviceAvailedPrices[item.id] || ""}
-                            onChange={(ev) => handlePriceChange(ev, item.id)}
-                            required
-                          />
-                        </TableCell>
+                        <TableCell>{item.unit_price}</TableCell>
                       </TableRow>
                     ))}
                   </React.Fragment>
@@ -342,29 +200,40 @@ export default function GenerateBilling() {
                   <TableCell colSpan={4} align="right">
                     Cash:
                   </TableCell>
-                  <TableCell sx={{ width: "30%" }}>
-                    <TextField
-                      size="small"
-                      type="number"
-                      onChange={(ev) => handleCash(ev)}
-                      value={cash}
-                    />
-                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell colSpan={4} align="right">
                     Change:
                   </TableCell>
-                  <TableCell>{calculateChange()}</TableCell>
                 </TableRow>
               </TableBody>
             )}
-            <Button variant="contained" size="small" onClick={onSubmit}>
-              <Typography>Generate</Typography>
-            </Button>
           </Table>
         </TableContainer>
       </Paper>
+    </div>
+  );
+});
+
+const PrintComponent = () => {
+  const componentRef = useRef();
+  const pageStyle = `{ size: 2in 4in }`;
+
+  return (
+    <>
+      <div>
+        {/* button to trigger printing of target component */}
+        <ReactToPrint
+          pageStyle={pageStyle}
+          trigger={() => <Button variant="contained">print</Button>}
+          content={() => componentRef.current} // Use componentRef.current here
+        />
+
+        {/* component to be printed */}
+        <ChargeSlipPrint ref={componentRef} />
+      </div>
     </>
   );
-}
+};
+
+export default PrintComponent;

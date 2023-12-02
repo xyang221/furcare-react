@@ -32,10 +32,12 @@ export default function PetsModal(props) {
     onClick,
     onSubmit,
     loading,
+    species,
+    selectedSpecie,
+    handleSpecieChange,
     breeds,
     pet,
     setPet,
-    petowners,
     errors,
     setImageData,
     isUpdate,
@@ -156,6 +158,7 @@ export default function PetsModal(props) {
                   ))}
                 </Box>
               )}
+              <form onSubmit={onSubmit} >
               <Stack spacing={2} margin={2}>
                 {addImage && (
                   <FormControl>
@@ -166,54 +169,19 @@ export default function PetsModal(props) {
                       type="file"
                       onChange={handleImage}
                       defaultValue={null}
+                      required
                     />
                     {error && <p style={{ color: "red" }}>{error}</p>}
                   </FormControl>
                 )}
-                {petownerid ? (
-                  <FormControl>
-                    <InputLabel>Pet Owner</InputLabel>
-                    <Select
-                      label="Pet Owner"
-                      // value={pet.petowner_id || petownerid|| ""}
-                      value={petownerid || ""}
-                      onChange={(ev) =>
-                        handleFieldChange("petowner_id", ev.target.value)
-                      }
-                      disabled
-                    >
-                      {petowners.map((item) => (
-                        <MenuItem key={item.id} value={item.id}>
-                          {`${item.firstname} ${item.lastname}`}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                ) : (
-                  <FormControl>
-                    <InputLabel>Pet Owner</InputLabel>
-                    <Select
-                      label="Pet Owner"
-                      value={pet.petowner_id || ""}
-                      onChange={(ev) =>
-                        handleFieldChange("petowner_id", ev.target.value)
-                      }
-                    >
-                      {petowners.map((item) => (
-                        <MenuItem key={item.id} value={item.id}>
-                          {`${item.firstname} ${item.lastname}`}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                )}
-
+              
                 <TextField
                   variant="outlined"
                   id="Name"
                   label="Name"
                   value={pet.name || ``}
                   onChange={(ev) => handleFieldChange("name", ev.target.value)}
+                  required
                 />
 
                 <TextField
@@ -222,10 +190,10 @@ export default function PetsModal(props) {
                   id="Birthdate"
                   type="date"
                   value={pet.birthdate || ``}
-                  defaultValue={null}
                   onChange={(ev) =>
                     handleFieldChange("birthdate", ev.target.value)
                   }
+                  required
                 />
 
                 <FormControl>
@@ -240,6 +208,7 @@ export default function PetsModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("gender", ev.target.value)
                     }
+                    required
                   >
                     <FormControlLabel
                       value="Female"
@@ -260,7 +229,25 @@ export default function PetsModal(props) {
                   label="Color"
                   value={pet.color || ``}
                   onChange={(ev) => handleFieldChange("color", ev.target.value)}
+                  required
                 />
+
+                  {/* <FormControl>
+                  <InputLabel>Specie</InputLabel>
+                  <Select
+                    label="Specie"
+                    value={selectedSpecie}
+          onChange={handleSpecieChange}
+                    required
+                  >
+                    {species.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.specie}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl> */}
+
                 <FormControl>
                   <InputLabel>Breed</InputLabel>
                   <Select
@@ -269,6 +256,7 @@ export default function PetsModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("breed_id", ev.target.value)
                     }
+                    required
                   >
                     {breeds.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
@@ -277,10 +265,11 @@ export default function PetsModal(props) {
                     ))}
                   </Select>
                 </FormControl>
-                <Button color="primary" variant="contained" onClick={onSubmit}>
+                <Button color="primary" variant="contained" type="submit">
                   Save
                 </Button>
               </Stack>
+              </form>
             </DialogContent>
           </Dialog>
         )}

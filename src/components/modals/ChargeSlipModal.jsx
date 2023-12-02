@@ -15,24 +15,24 @@ import {
   Stack,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
-  TableHead,
   TablePagination,
   TableRow,
   TextField,
   Typography,
 } from "@mui/material";
 import { Add, Close, Refresh, Remove } from "@mui/icons-material";
+import { useRef } from "react";
+import ReactToPrint from "react-to-print";
 
-export default function ChargeSlipModal(props) {
-
+class ChargeSlipModal extends React.Component {
+  render(props) {
   const {
     open,
     onClose,
     loading,
     servicesavailed,
-    // getServicesAvailed,
+    getServicesAvailed,
     petowner,
     message,
   } = props;
@@ -44,8 +44,9 @@ export default function ChargeSlipModal(props) {
     { id: "Quantity", name: "Quantity" },
     { id: "Unit", name: "Unit" },
     { id: "Unit Price", name: "Unit Price" },
-    { id: "Total", name: "Total" },
   ];
+
+  const [date, setDate] = useState(new Date());
 
   // Calculate the total for all selected items
   const calculateTotal = () => {
@@ -71,36 +72,12 @@ export default function ChargeSlipModal(props) {
 
   const servicesGroupedByPet = groupServicesByPet();
 
-  const [date, setDate] = useState(new Date());
 
   useEffect(() => {
   }, []);
 
   return (
     <>
-      <Backdrop open={loading} style={{ zIndex: 999 }}>
-      <CircularProgress color="inherit" />
-      </Backdrop>
-      <Paper
-        sx={{
-          width:"550px",
-          padding: "10px",
-        }}
-      >
-        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle>
-          Charge Slip <IconButton
-          // onClick={()=>getServicesAvailed()}
-          variant="contained"
-          color="success"
-        >
-            <Refresh/>
-        </IconButton>
-          <IconButton onClick={onClose} style={{ float: "right" }}>
-            <Close color="primary"></Close>
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
         <Box
           p={2}
           display="flex"
@@ -109,7 +86,7 @@ export default function ChargeSlipModal(props) {
           
         >
           <Typography variant="h6">
-            Client: {petowner.firstname} {petowner.lastname}
+            Client:dsd {petowner.firstname} {petowner.lastname}
           </Typography>
           <Typography variant="h6">Date: {date.toDateString()} </Typography>
         </Box>
@@ -118,65 +95,63 @@ export default function ChargeSlipModal(props) {
        
         </Box>
        
-        <TableContainer sx={{ height: 380 }}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
+        <div>
+        <table stickyHeader aria-label="sticky table">
+          <th>
+            <tr>
               {columns.map((column) => (
-                <TableCell key={column.id}>{column.name}</TableCell>
+                <td key={column.id}>{column.name}</td>
               ))}
-            </TableRow>
-          </TableHead>
+            </tr>
+          </th>
           {loading && (
-            <TableBody>
-              <TableRow>
-                <TableCell colSpan={6} style={{ textAlign: "center" }}>
+            <tb>
+              <tr>
+                <td colSpan={5} style={{ textAlign: "center" }}>
                   Loading...
-                </TableCell>
-              </TableRow>
-            </TableBody>
+                </td>
+              </tr>
+            </tb>
           )}
             {!loading && message && (
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+              <tb>
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center" }}>
                     {message}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
+                  </td>
+                </tr>
+              </tb>
             )}
 
           {!loading && (
-            <TableBody>
+            <tb>
               {Object.keys(servicesGroupedByPet).map((petId) => (
                 <React.Fragment key={petId}>
-                  <TableRow>
-                    <TableCell colSpan={6}>
+                  <tr>
+                    <td colSpan={5}>
                       <Typography variant="subtitle1">
-                        {servicesGroupedByPet[petId][0].pet.name}
+                          {servicesGroupedByPet[petId][0].pet.name}
                       </Typography>
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                   {servicesGroupedByPet[petId].map((item) => (
-                    <TableRow hover role="checkbox" key={item.id}>
-                        <TableCell> </TableCell>
-                      <TableCell>{item.service.service}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell>{item.unit}</TableCell>
-                      <TableCell>{item.unit_price}</TableCell>
-                      <TableCell>{item.unit_price}</TableCell>
-                    </TableRow>
+                    <tr hover role="checkbox" key={item.id}>
+                      <td>{item.service.service}</td>
+                      <td>{item.quantity}</td>
+                      <td>{item.unit}</td>
+                      <td>{item.unit_price}</td>
+                    </tr>
                   ))}
                 </React.Fragment>
               ))}
-              <TableRow>
-                <TableCell colSpan={5} align="right">
+              <tr>
+                <td colSpan={4} align="right">
                   Total:
-                </TableCell>
-                <TableCell>{calculateTotal()}</TableCell>
-              </TableRow>
+                </td>
+                <td>{calculateTotal()}</td>
+              </tr>
                
-            </TableBody>
+            </tb>
           )}
           <Button
             variant="contained"
@@ -185,12 +160,50 @@ export default function ChargeSlipModal(props) {
           >
             <Typography>Pay</Typography>
           </Button>
-        </Table>
+        </table>
       
-      </TableContainer>
-      </DialogContent>
-      </Dialog>
-      </Paper>
+      </div>
+   
+    </>
+  );
+}
+}
+
+export default function PrintComponent(props) {
+  let componentRef = useRef();
+
+  const {
+    open,
+    onClose,
+    loading,
+    servicesavailed,
+    getServicesAvailed,
+    petowner,
+    message,
+  } = props;
+
+  return (
+    <>
+      <div>
+        {/* button to trigger printing of target component */}
+        <ReactToPrint
+         bodyClass="print-agreement"
+          trigger={() => <button>Print this out!</button>}
+          content={() => componentRef}
+        />
+  <Paper
+        sx={{
+          width:"550px",
+          padding: "10px",
+        }}
+      >
+     
+        {/* component to be printed */}
+        <ChargeSlipModal ref={(el) => (componentRef = el)}
+        />
+       
+        </Paper>
+      </div>
     </>
   );
 }

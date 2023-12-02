@@ -9,6 +9,11 @@ import PetOwnerSidebar from "./PetOwnerSidebar";
 import Dashboard from "../pages/Dashboard";
 import Modaltry from "./Modal";
 
+import { useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
+
+import PrintComponent from "../pages/Example";
+
 export default function MainLayout() {
   const { user, token } = useStateContext();
 
@@ -46,6 +51,7 @@ export default function MainLayout() {
           <Box flex={5}>
             {/* <Box position="fixed"> */}
             {/* main layout sagol ang dashboard */}
+     {/* <PrintComponent/> */}
             <Outlet />
             {/* </Box> */}
           </Box>

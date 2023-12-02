@@ -42,6 +42,7 @@ import PetownerAvailService from "./pages/PetOwnerAvailService";
 import ClientServiceForm from "./pages/ClientServiceForm";
 import TreatmentForm from "./pages/TreatmentForm";
 import ServiceCatBtns from "./components/ServiceCatTabs";
+import PrintComponent from "./pages/ChargeSlipPrint";
 
 const roles = {
   ADMIN: "1",
@@ -103,7 +104,7 @@ function App() {
           <Route path="admin/appointments/pending" element={<AppointmentsPending />} />
           <Route path="admin/appointments/completed" element={<AppointmentsDone />} />
 
-          <Route path="admin/:id/chargeslip" element={<Receipt />} />
+          <Route path="admin/:id/chargeslip" element={<PrintComponent />} />
 
           <Route path="admin/services/petowners" element={<PetOwnerAvail />} />
           <Route path="admin/services/petowners/:id/avail" element={<ServiceCatBtns />} />

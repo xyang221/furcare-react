@@ -17,17 +17,13 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import {
-  Add,
-  Archive,
-  Visibility,
-} from "@mui/icons-material";
+import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../../axios-client";
 import { useStateContext } from "../../contexts/ContextProvider";
 import TestResultModal from "../../components/modals/TestResultModal";
 
-export default function TestResults({sid}) {
+export default function TestResults({ sid }) {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
@@ -45,7 +41,10 @@ export default function TestResults({sid}) {
     description: "",
   });
 
+  const [error, setError] = useState(null);
+
   const getTestresults = () => {
+    setMessage(null)
     setLoading(true);
     axiosClient
       .get(`/testresults/petowner/${id}/service/${sid}`)
@@ -81,8 +80,8 @@ export default function TestResults({sid}) {
 
   //for table
   const columns = [
-    { id: "Pet", name: "Pet" },
     { id: "Attachment", name: "Attachment" },
+    { id: "Pet", name: "Pet" },
     { id: "Description", name: "Description" },
     { id: "Actions", name: "Actions" },
   ];
@@ -102,7 +101,7 @@ export default function TestResults({sid}) {
   const [open, openchange] = useState(false);
 
   const functionopenpopup = (ev) => {
-    getPets()
+    getPets();
     openchange(true);
     setErrors(null);
   };
@@ -111,6 +110,7 @@ export default function TestResults({sid}) {
     openchange(false);
   };
 
+  // onClicks
   const onArchive = (u) => {
     if (!window.confirm("Are you sure to archive this pet?")) {
       return;
@@ -122,13 +122,27 @@ export default function TestResults({sid}) {
     });
   };
 
-  const onSubmit = () => {
-    // ev.preventDefault();
+  const onEdit = (r) => {
+    axiosClient
+      .get(`/testresults/${r.id}`)
+      .then(({ data }) => {
+        setTestresult(data);
+      })
+      .catch(() => {
+      });
+
+    openchange(true);
+    console.log(testresult)
+  };
+
+  const onSubmit = (ev) => {
+    ev.preventDefault();
+
     if (testresult.id) {
       axiosClient
         .put(`/testresults/${testresult.id}`, testresult)
         .then(() => {
-          setNotification("Pet was successfully updated");
+          setNotification("Test result was successfully updated.");
           openchange(false);
           getTestresults();
         })
@@ -156,6 +170,7 @@ export default function TestResults({sid}) {
         .then(() => {
           setNotification("Test result was successfully saved.");
           openchange(false);
+          setTestresult({})
           getTestresults();
         })
         .catch((err) => {
@@ -166,8 +181,6 @@ export default function TestResults({sid}) {
         });
     }
   };
-
-  const [error, setError] = useState(null);
 
   const handleImage = (e) => {
     const selectedFile = e.currentTarget.files?.[0] || null;
@@ -183,7 +196,7 @@ export default function TestResults({sid}) {
       if (allowedTypes.includes(selectedFile.type)) {
         setTestresult((prevImage) => ({
           ...prevImage,
-          attachement: selectedFile,
+          attachment: selectedFile,
         }));
         setError(null);
       } else {
@@ -233,6 +246,7 @@ export default function TestResults({sid}) {
             open={open}
             onClick={closepopup}
             onClose={closepopup}
+            setImageData={setImageData}
             onSubmit={onSubmit}
             pets={pets}
             errors={errors}
@@ -241,6 +255,7 @@ export default function TestResults({sid}) {
             isUpdate={testresult.id}
             petid={null}
             handleImage={handleImage}
+            error={error}
           />
           <Divider />
           <TableContainer sx={{ height: 350 }}>
@@ -260,7 +275,7 @@ export default function TestResults({sid}) {
               {loading && (
                 <TableBody>
                   <TableRow>
-                    <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
                       Loading...
                     </TableCell>
                   </TableRow>
@@ -284,13 +299,13 @@ export default function TestResults({sid}) {
                       .slice(page * rowperpage, page * rowperpage + rowperpage)
                       .map((r) => (
                         <TableRow hover role="checkbox" key={r.id}>
-                          <TableCell>{r.pet.name}</TableCell>
                           <TableCell>
                             <img
-                              src={`http://localhost:8000/` + r.attachement}
-                              height="100"
+                              src={`http://localhost:8000/` + r.attachment}
+                              height="50"
                             />{" "}
                           </TableCell>
+                          <TableCell>{r.pet.name}</TableCell>
                           <TableCell>{r.description}</TableCell>
                           <TableCell>
                             <Stack direction="row" spacing={2}>
@@ -298,10 +313,9 @@ export default function TestResults({sid}) {
                                 variant="contained"
                                 color="info"
                                 size="small"
-                                component={Link}
-                                to={`/admin/pets/` + r.id + `/view`}
+                                onClick={() => onEdit(r)}
                               >
-                                <Visibility fontSize="small" />
+                                <Edit fontSize="small" />
                               </Button>
                               <Button
                                 variant="contained"

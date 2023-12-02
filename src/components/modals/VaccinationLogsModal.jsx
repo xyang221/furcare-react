@@ -32,16 +32,18 @@ export default function VaccinationLogsModal(props) {
     onSubmit,
     loading,
     pets,
-    petid,
     vaccination,
     setVaccination,
     vaccinationdesc,
+    vaccination_againsts,
     againsts,
     checkedItems,
     setCheckedItems,
     handleCheckboxChange,
     errors,
     isUpdate,
+    selectedItems,
+    setSelectedItems
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -50,8 +52,6 @@ export default function VaccinationLogsModal(props) {
     // Update the vaccination object with the updated value
     setVaccination(updatedLogs);
   };
-
-  
 
   return (
     <>
@@ -78,75 +78,73 @@ export default function VaccinationLogsModal(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
-            {isUpdate && !petid ?  <FormControl>
-                <InputLabel>Pet</InputLabel>
-              <Select
-                label="Pet"
-                value={vaccination.pet_id || ""}
-                onChange={(ev) => handleFieldChange("pet_id", ev.target.value)}
-                disabled
-              >
-                {pets.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              </FormControl> 
-              :
+              {isUpdate ? (
                 <FormControl>
-                <InputLabel>Pet</InputLabel>
-              <Select
-                label="Pet"
-                value={vaccination.pet_id || petid || ""}
-                onChange={(ev) => handleFieldChange("pet_id", ev.target.value)}
-              >
-                {pets.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              </FormControl>}
+                  <InputLabel>Pet</InputLabel>
+                  <Select
+                    label="Pet"
+                    value={vaccination.pet_id || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("pet_id", ev.target.value)
+                    }
+                    disabled
+                  >
+                    {pets.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : (
+                <FormControl>
+                  <InputLabel>Pet</InputLabel>
+                  <Select
+                    label="Pet"
+                    value={vaccination.pet_id || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("pet_id", ev.target.value)
+                    }
+                  >
+                    {pets.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
 
               <TextField
                 variant="outlined"
                 id="Weight"
                 label="Weight"
                 type="number"
-                sx={{width:"30%"}}
+                sx={{ width: "30%" }}
                 InputProps={{
                   endAdornment: (
-                    <InputAdornment position="end">
-                      kg
-                    </InputAdornment>
+                    <InputAdornment position="end">kg</InputAdornment>
                   ),
                 }}
                 value={vaccination.weight}
                 onChange={(ev) => handleFieldChange("weight", ev.target.value)}
               />
 
-<Box border={1} p={2} >
-              <TableBody >
-              <InputLabel>Against</InputLabel>
+              <Box border={1} p={2}>
+                <TableBody>
+                  <InputLabel>Against</InputLabel>
 
-                {againsts.map((item) => (
-                  <TableRow hover role="checkbox" key={item.id}>
-                    <Checkbox
-                      checked={checkedItems[item.id]}
-                      onChange={() => {
-                        setCheckedItems((prevCheckedItems) => ({
-                          ...prevCheckedItems,
-                          [item.id]: !prevCheckedItems[item.id],
-                        }));
-                      }}
-                      // onChange={() => handleCheckboxChange(item.id)}
-                    />
-                    <TableCell> {item.acronym} </TableCell>
-                    <TableCell> {item.description}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
+                  {againsts.map((item) => (
+                    <TableRow hover role="checkbox" key={item.id}>
+                      <Checkbox
+                        checked={vaccination.vaccination_againsts.includes(item.id)}
+                        onChange={() => handleCheckboxChange(item.id)}
+                      />
+                      <TableCell> {item.acronym} </TableCell>
+                      <TableCell> {item.description}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
               </Box>
 
               <TextField
@@ -160,8 +158,6 @@ export default function VaccinationLogsModal(props) {
                   handleFieldChange("description", ev.target.value)
                 }
               />
-
-            
 
               <FormControl>
                 <InputLabel>Doctor</InputLabel>

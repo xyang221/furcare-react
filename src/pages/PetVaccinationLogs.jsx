@@ -19,12 +19,14 @@ import {
 import { Add, Archive, Edit } from "@mui/icons-material";
 import VaccinationLogsModal from "../components/modals/VaccinationLogsModal";
 
-export default function PetVaccinationLogs({sid}) {
+export default function PetVaccinationLogs({ sid }) {
   const columns = [
     { id: "date", name: "Date" },
     { id: "weight", name: "Weight" },
+    { id: "Against", name: "Against" },
     { id: "Description", name: "Description" },
     { id: "Administered", name: "Administered" },
+    { id: "Return", name: "Return" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
@@ -45,14 +47,11 @@ export default function PetVaccinationLogs({sid}) {
     weight: "",
     description: "",
     administered: "",
-    status: "",
+    return: null,
     pet_id: null,
+    vaccination_againsts: [],
   });
 
-  const [vaccinationagainst, setVaccinationagainst] = useState({
-    id: null,
-    against: "",
-  });
   const [openAdd, setOpenAdd] = useState(false);
 
   const { id } = useParams();
@@ -64,6 +63,45 @@ export default function PetVaccinationLogs({sid}) {
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+
+  // const handleCheckboxChange = (itemId) => {
+  //   let updatedVaccinationAgainst = [...vaccinationlog.vaccination_againsts];
+
+  //   if (updatedVaccinationAgainst.includes(itemId)) {
+  //     updatedVaccinationAgainst = updatedVaccinationAgainst.filter(
+  //       (id) => id !== itemId
+  //     );
+  //   } else {
+  //     updatedVaccinationAgainst.push(itemId);
+  //   }
+
+  //   setVaccinationlog((prevVaccinationlog) => ({
+  //     ...prevVaccinationlog,
+  //     vaccination_againsts: updatedVaccinationAgainst,
+  //   }));
+  // };
+
+  // const handleCheckboxChange = (itemId) => {
+  //   setVaccinationlog((prevVaccinationlog) => {
+  //     const updatedVaccinationAgainst = prevVaccinationlog.vaccination_againsts.includes(itemId)
+  //       ? prevVaccinationlog.vaccination_againsts.filter((id) => id !== itemId)
+  //       : [...prevVaccinationlog.vaccination_againsts, itemId];
+
+  //     return {
+  //       ...prevVaccinationlog,
+  //       vaccination_againsts: updatedVaccinationAgainst,
+  //     };
+  //   });
+  // };
+
+  // Function to handle checkbox changes
+  const handleCheckboxChange = (itemid) => {
+    const { name, checked } = event.target;
+    setVaccinationlog({
+      ...vaccinationlog,
+      [itemid]: checked,
+    });
   };
 
   const getVaccination = () => {
@@ -84,15 +122,17 @@ export default function PetVaccinationLogs({sid}) {
   };
 
   const getPets = () => {
-    setLoading(true);
+    setMessage("");
     axiosClient
-      .get(`/pets`)
+      .get(`/petowners/${id}/pets`)
       .then(({ data }) => {
-        setLoading(false);
         setPets(data.data);
       })
-      .catch(() => {
-        setLoading(false);
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
       });
   };
 
@@ -189,131 +229,149 @@ export default function PetVaccinationLogs({sid}) {
 
   return (
     <>
-     <Paper
+      <Paper
         sx={{
           minWidth: "90%",
           padding: "10px",
         }}
       >
-      <Box sx={{ minWidth: "90%" }}>
-        <Box
-          p={2}
-          display="flex"
-          flexDirection="row"
-          justifyContent="space-between"
-        >
-          <Button
-            onClick={handleOpenAddModal}
-            variant="contained"
-            color="success"
-            size="small"
+        <Box sx={{ minWidth: "90%" }}>
+          <Box
+            p={2}
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
           >
-            <Add />
-          </Button>
+            <Button
+              onClick={handleOpenAddModal}
+              variant="contained"
+              color="success"
+              size="small"
+            >
+              <Add />
+            </Button>
+          </Box>
+
+          <VaccinationLogsModal
+            open={openAdd}
+            onClose={handleCloseModal}
+            onClick={handleCloseModal}
+            onSubmit={handleSubmit}
+            loading={loading}
+            pets={pets}
+            againsts={againsts}
+            checkedItems={checkedItems}
+            setCheckedItems={setCheckedItems}
+            vaccination={vaccinationlog}
+            setVaccination={setVaccinationlog}
+            errors={errors}
+            isUpdate={vaccinationlog.id}
+            selectedItems={selectedItems}
+            setSelectedItems={setSelectedItems}
+            handleCheckboxChange={handleCheckboxChange}
+            vaccination_againsts={vaccinationlog.vaccination_againsts}
+          />
+
+          {notification && <Alert severity="success">{notification}</Alert>}
+
+          <TableContainer sx={{ height: 380 }}>
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell
+                      style={{ backgroundColor: "black", color: "white" }}
+                      key={column.id}
+                    >
+                      {column.name}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              {loading && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && message && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                      {message}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && (
+                <TableBody>
+                  {vaccinationlogs &&
+                    vaccinationlogs
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                      .map((record) => (
+                        <TableRow hover role="checkbox" key={record.id}>
+                          <TableCell>{record.date}</TableCell>
+                          <TableCell>{`${record.weight} kg`}</TableCell>
+                          <TableCell>{record.vaccination_againsts}</TableCell>
+                          <TableCell>{record.description}</TableCell>
+                          <TableCell>{record.administered}</TableCell>
+                          {againsts
+                            .filter(
+                              (ag) => ag.id === record.vaccination_againsts.indexOf()
+                            )
+                            .map((filteredItem) => (
+                              <TableCell key={filteredItem.id}>
+                                {filteredItem.acronym}
+                              </TableCell>
+                            ))}
+
+                          <TableCell>{record.return}</TableCell>
+                          <TableCell>{record.servicesavailed.status}</TableCell>
+                          <TableCell>
+                            <Stack direction="row" spacing={2}>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="info"
+                                onClick={() => handleEdit(record)}
+                              >
+                                <Edit fontSize="small" />
+                              </Button>
+
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="error"
+                                onClick={() => handleArchive(record)}
+                              >
+                                <Archive fontSize="small" />
+                              </Button>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 15, 25]}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            count={vaccinationlogs.length}
+            component="div"
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
+          ></TablePagination>
         </Box>
-
-        <VaccinationLogsModal
-          open={openAdd}
-          onClose={handleCloseModal}
-          onClick={handleCloseModal}
-          onSubmit={handleSubmit}
-          loading={loading}
-          pets={pets}
-          petid={id}
-          againsts={againsts}
-          checkedItems={checkedItems}
-          setCheckedItems={setCheckedItems}
-          vaccination={vaccinationlog}
-          setVaccination={setVaccinationlog}
-          errors={errors}
-          isUpdate={vaccinationlog.id}
-        />
-
-        {notification && <Alert severity="success">{notification}</Alert>}
-
-        <TableContainer sx={{ height: 380 }}>
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableCell
-                    style={{ backgroundColor: "black", color: "white" }}
-                    key={column.id}
-                  >
-                    {column.name}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            {loading && (
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
-                    Loading...
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            )}
-
-            {!loading && message && (
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
-                    {message}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            )}
-
-            {!loading && (
-              <TableBody>
-                {vaccinationlogs &&
-                  vaccinationlogs
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((record) => (
-                      <TableRow hover role="checkbox" key={record.id}>
-                        <TableCell>{record.date}</TableCell>
-                        <TableCell>{`${record.weight} kg`}</TableCell>
-                        <TableCell>{record.description}</TableCell>
-                        <TableCell>{record.administered}</TableCell>
-                        <TableCell>{record.status}</TableCell>
-                        <TableCell>
-                          <Stack direction="row" spacing={2}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="info"
-                              onClick={() => handleEdit(record)}
-                            >
-                              <Edit fontSize="small" />
-                            </Button>
-
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="error"
-                              onClick={() => handleArchive(record)}
-                            >
-                              <Archive fontSize="small" />
-                            </Button>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-              </TableBody>
-            )}
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 15, 25]}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          count={vaccinationlogs.length}
-          component="div"
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        ></TablePagination>
-      </Box>
       </Paper>
     </>
   );

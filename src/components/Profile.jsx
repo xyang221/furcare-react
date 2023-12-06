@@ -7,27 +7,16 @@ import Popper from "@mui/material/Popper";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
-import {
-  Avatar,
-  Typography,
-} from "@mui/material";
+import { Avatar, Typography } from "@mui/material";
 import { useStateContext } from "../contexts/ContextProvider";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axiosClient from "../axios-client";
 import UserEdit from "./modals/UserEdit";
+import LogoutModal from "./modals/LogoutModal";
 
 export default function Profile() {
-  const { user, setToken } = useStateContext();
+  const { user, setToken, updateUser } = useStateContext();
   const navigate = useNavigate();
-
-  const onLogout = (ev) => {
-    ev.preventDefault();
-
-    axiosClient.post("/logout").then(() => {
-      setToken(null);
-      navigate("/login");
-    });
-  };
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -42,10 +31,29 @@ export default function Profile() {
     password_confirmation: "",
     role_id: null,
   });
-  
+
   const [openchange, setopenchange] = useState(false);
 
   const [roles, setRoles] = useState([]);
+
+    //for menuitem
+    const [open, setOpen] = useState(false);
+    const [openlogout, setOpenlogout] = useState(false);
+    const anchorRef = useRef(null);
+
+  const logoutmodal = () => {
+    setOpenlogout(true);
+  };
+
+  const onLogout = (ev) => {
+    ev.preventDefault();
+
+    axiosClient.post("/logout").then(() => {
+      setToken(null);
+      updateUser({})
+      navigate("/login");
+    });
+  };
 
   const getRoles = () => {
     axiosClient
@@ -60,37 +68,39 @@ export default function Profile() {
 
   const closepopup = () => {
     setopenchange(false);
+    setOpenlogout(false);
   };
 
   const getUser = () => {
-setloading(true)
+    setloading(true);
     axiosClient
       .get(`/users/${user.id}`)
       .then(({ data }) => {
         setUserprofile(data);
-        setloading(false)
+        setloading(false);
       })
       .catch(() => {
         setNotification("There is something wrong in the users api");
-        setloading(false)
+        setloading(false);
       });
-  }
+  };
 
   const onEdit = () => {
     getRoles();
-    setErrors(null)
+    setErrors(null);
     setopenchange(true);
     getUser();
   };
-  
-  const onSubmit = () => {
+
+  const onSubmit = (e) => {
+    e.preventDefault();
     if (userprofile.id) {
       axiosClient
         .put(`/users/${userprofile.id}`, userprofile)
-        .then(() => {
-          // setNotification("User was successfully updated");
+        .then((response) => {
+          setNotification("User was successfully updated");
           setopenchange(false);
-          // getUsers();
+          updateUser(response.data)
         })
         .catch((err) => {
           const response = err.response;
@@ -115,9 +125,7 @@ setloading(true)
     }
   };
 
-  //for menuitem
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
+
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -161,9 +169,9 @@ setloading(true)
           aria-haspopup="true"
           onClick={handleToggle}
         >
-          <Avatar sx={{ width: 30, height: 30 }} />
+          <Avatar sx={{ width: 30, height: 30, margin:"5px" }} />
           <Typography variant="span" color="white">
-           {user.username}
+            {user.username}
           </Typography>
         </Button>
         <Popper
@@ -189,16 +197,12 @@ setloading(true)
                     aria-labelledby="composition-button"
                     onKeyDown={handleListKeyDown}
                   >
-                    <MenuItem onClick={() => onEdit()}>
-                      Edit Profile
-                    </MenuItem>
-                    <MenuItem 
-                    onClick={() => navigate('/admin/settings')}
-                    >
+                    <MenuItem onClick={() => onEdit()}>Edit Profile</MenuItem>
+                    <MenuItem onClick={() => navigate("/admin/settings")}>
                       Settings
                     </MenuItem>
-                    
-                    <MenuItem onClick={onLogout}>Logout</MenuItem>
+
+                    <MenuItem onClick={logoutmodal}>Logout</MenuItem>
                   </MenuList>
                 </ClickAwayListener>
               </Paper>
@@ -207,19 +211,25 @@ setloading(true)
         </Popper>
       </div>
       <UserEdit
-          open={openchange}
-          onClick={closepopup}
-          onClose={closepopup}
-          // id={userdata.id}
-          onSubmit={onSubmit}
-          loading={loading}
-          roles={roles}
-          user={userprofile}
-          setUser={setUserprofile}
-          errors={errors}
-          isUpdate={userprofile.id}
-        />
-
+        open={openchange}
+        onClick={closepopup}
+        onClose={closepopup}
+        onSubmit={onSubmit}
+        loading={loading}
+        roles={roles}
+        user={userprofile}
+        setUser={setUserprofile}
+        errors={errors}
+        isUpdate={userprofile.id}
+      />
+      <LogoutModal
+        open={openlogout}
+        onClick={closepopup}
+        onClose={closepopup}
+        onSubmit={onLogout}
+        loading={loading}
+        errors={errors}
+      />
     </Stack>
   );
 }

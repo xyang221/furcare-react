@@ -41,6 +41,7 @@ export default function VaccinationLogsModal(props) {
     setCheckedItems,
     handleCheckboxChange,
     errors,
+    pet,
     isUpdate,
     selectedItems,
     setSelectedItems,
@@ -77,8 +78,18 @@ export default function VaccinationLogsModal(props) {
                 ))}
               </Box>
             )}
+            <form onSubmit={(e) => onSubmit(e)} >
             <Stack spacing={2} margin={2}>
-              {isUpdate ? (
+
+              {isUpdate && pet ? (
+                <TextField
+                  variant="outlined"
+                  id="Pet"
+                  label="Pet"
+                  value={pet.name}
+                  disabled
+                />
+              ): (
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
                   <Select
@@ -87,24 +98,7 @@ export default function VaccinationLogsModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
-                    disabled
-                  >
-                    {pets.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : (
-                <FormControl>
-                  <InputLabel>Pet</InputLabel>
-                  <Select
-                    label="Pet"
-                    value={vaccination.pet_id || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("pet_id", ev.target.value)
-                    }
+                    required
                   >
                     {pets.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
@@ -128,6 +122,7 @@ export default function VaccinationLogsModal(props) {
                 }}
                 value={vaccination.weight}
                 onChange={(ev) => handleFieldChange("weight", ev.target.value)}
+                required
               />
 
               <Box border={1} p={2}>
@@ -137,13 +132,8 @@ export default function VaccinationLogsModal(props) {
                   {againsts.map((item) => (
                     <TableRow hover role="checkbox" key={item.id}>
                       <Checkbox
-                      
                         checked={checkedItems[item.id]}
                         onChange={() => {
-                          // setCheckedItems((prevCheckedItems) => ({
-                          //   ...prevCheckedItems,
-                          //   [item.id]: !prevCheckedItems[item.id],
-                          // }));
                           handleCheckboxChange(item);
                         }}
                       />
@@ -164,16 +154,18 @@ export default function VaccinationLogsModal(props) {
                 onChange={(ev) =>
                   handleFieldChange("description", ev.target.value)
                 }
+                required
               />
 
               <FormControl>
-                <InputLabel>Doctor</InputLabel>
+                <InputLabel>Administered</InputLabel>
                 <Select
                   label="Administered"
                   value={vaccination.administered || ""}
                   onChange={(ev) =>
                     handleFieldChange("administered", ev.target.value)
                   }
+                  required
                 >
                   <MenuItem></MenuItem>
                   <MenuItem value="Doctor Reina">Doctor Reina</MenuItem>
@@ -189,20 +181,14 @@ export default function VaccinationLogsModal(props) {
                 value={vaccination.return || ``}
                 defaultValue={null}
                 onChange={(ev) => handleFieldChange("return", ev.target.value)}
+                required
               />
 
-              {/* <TextField
-                variant="outlined"
-                id="Administered"
-                label="Administered"
-                value={vaccination.administered}
-                onChange={(ev) => handleFieldChange("administered", ev.target.value)}
-              /> */}
-
-              <Button color="primary" variant="contained" onClick={onSubmit}>
+              <Button color="primary" variant="contained" type="submit">
                 Save
               </Button>
             </Stack>
+            </form>
           </DialogContent>
         </Dialog>
       )}

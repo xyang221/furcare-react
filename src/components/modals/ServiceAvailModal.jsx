@@ -30,7 +30,6 @@ export default function ServiceAvailModal(props) {
     setServiceavail,
     errors,
     pets,
-    addpet
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -67,6 +66,8 @@ export default function ServiceAvailModal(props) {
               ))}
             </Box>
           )}
+            <form onSubmit={(e) => onSubmit(e)} >
+
           <Stack spacing={2} margin={2}>
 
             <Box
@@ -82,7 +83,6 @@ export default function ServiceAvailModal(props) {
               </Typography>
             </Box>
 
-            {addpet &&
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
                   <Select
@@ -91,6 +91,7 @@ export default function ServiceAvailModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
+                    required
                   >
                     {pets.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
@@ -99,16 +100,16 @@ export default function ServiceAvailModal(props) {
                     ))}
                   </Select>
                 </FormControl>
-              }
       
             <Button
               color="primary"
               variant="contained"
-              onClick={onSubmit}
+              type="submit"
             >
               Avail
             </Button>
           </Stack>
+          </form>
         </DialogContent>
       </Dialog>
       )}

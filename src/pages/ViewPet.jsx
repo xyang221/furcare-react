@@ -35,21 +35,14 @@ export default function ViewPet() {
     breed_id: null,
   });
 
+  const [specie, setSpecie] = useState([]);
+  const [breed, setBreed] = useState([]);
   const [petowner, setPetowner] = useState([]);
-  const [petowners, setPetowners] = useState([]);
+
   const [breeds, setBreeds] = useState([]);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(null);
   const [image, setImage] = useState(false);
-
-  const getPetowners = () => {
-    axiosClient
-      .get(`/petowners`)
-      .then(({ data }) => {
-        setPetowners(data.data);
-      })
-      .catch(() => {});
-  };
 
   const closepopup = () => {
     setOpen(false);
@@ -65,6 +58,8 @@ export default function ViewPet() {
         setLoading(false);
         setPet(data);
         setPetowner(data.petowner);
+        setSpecie(data.breed.specie)
+        setBreed(data.breed)
       })
       .catch(() => {
         setLoading(false);
@@ -81,14 +76,6 @@ export default function ViewPet() {
   };
 
   const onEdit = () => {
-    getPet();
-    setErrors(null);
-    getBreeds();
-    setOpen(true);
-    getPetowners();
-  };
-
-  const addDeworming = () => {
     getPet();
     setErrors(null);
     getBreeds();
@@ -184,37 +171,56 @@ export default function ViewPet() {
       <br></br>
       <div className="card animate fadeInDown">
         {notification && <Alert severity="success">{notification}</Alert>}
-        <Box display="flex" flexDirection="column">
-          <Typography
+        <Box display="flex" flexDirection="row">
+          <Button
             component={Link}
             to={`/admin/petowners/` + petowner.id + `/view`}
+            size="small"
           >
-            {petowner.firstname}
-          </Typography>
+            <Typography variant="inherit"> {petowner.firstname}</Typography>
+          </Button>
           <Typography> / {pet.name}</Typography>
         </Box>
         <Divider />
-        <img src={`http://localhost:8000/` + pet.photo} height="100" />
-        <IconButton variant="contained" color="info" onClick={uploadImage}>
-          <Edit fontSize="small" />
-        </IconButton>
-
-        <UploadImage
-          onClick={closeuploadImage}
-          onClose={closeuploadImage}
-          open={image}
-        />
-        <h2>
-          Pet Details
-          <IconButton variant="contained" color="info" onClick={() => onEdit()}>
-            <Edit fontSize="small" />
+        <Stack flexDirection="row" padding={1}>
+          <IconButton variant="contained" color="info" onClick={uploadImage}>
+            <img src={`http://localhost:8000/` + pet.photo} height="100" />
+            {/* <Edit fontSize="small" /> */}
           </IconButton>
-        </h2>
-        <p>
-          Pet Owner: {petowner.firstname} {petowner.lastname} <br></br>
-          Pet Name: {pet.name}
-        </p>
 
+          <UploadImage
+            onClick={closeuploadImage}
+            onClose={closeuploadImage}
+            open={image}
+          />
+          <Stack flexDirection="column" padding={1}>
+            <Typography variant="h6">
+              Pet Details
+              <IconButton
+                variant="contained"
+                color="info"
+                onClick={() => onEdit()}
+              >
+                <Edit fontSize="small" />
+              </IconButton>
+            </Typography>
+            <Typography>
+              Pet Owner: {petowner.firstname} {petowner.lastname}
+            </Typography>
+            <Stack flexDirection="row" >
+            <Stack sx={{marginRight:"10px"}}>
+              <Typography>Pet Name: {pet.name}</Typography>
+              <Typography>Birthdate: {pet.birthdate}</Typography>
+              <Typography>Gender: {pet.gender}</Typography>
+            </Stack>
+            <Stack>
+              <Typography>Specie: {specie.specie}</Typography>
+              <Typography>Breed: {breed.breed}</Typography>
+              <Typography>Color: {pet.color}</Typography>
+            </Stack>
+            </Stack>
+          </Stack>
+        </Stack>
         <PetsModal
           open={open}
           onClick={closepopup}
@@ -225,11 +231,10 @@ export default function ViewPet() {
           breeds={breeds}
           pet={pet}
           setPet={setPet}
-          petowners={petowners}
           petownerid={pet.petowner_id}
           errors={errors}
           isUpdate={pet.id}
-          addImage={true}
+          addImage={pet.id === null}
           handleImage={handleImage}
         />
 

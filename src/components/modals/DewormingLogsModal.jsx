@@ -67,17 +67,18 @@ export default function DewormingLogsModal(props) {
                 ))}
               </Box>
             )}
-            <Stack spacing={2} margin={2}>
-              {isUpdate ? (
+            <form onSubmit={(e) => onSubmit(e)} on>
+              <Stack spacing={2} margin={2}>
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
                   <Select
                     label="Pet"
-                    value={deworminglog.pet_id}
+                    value={deworminglog.pet_id || ""}
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
-                    disabled
+                    disabled={isUpdate}
+                    required
                   >
                     {pets.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
@@ -86,77 +87,67 @@ export default function DewormingLogsModal(props) {
                     ))}
                   </Select>
                 </FormControl>
-              ) : (
-                <FormControl>
-                  <InputLabel>Pet</InputLabel>
-                  <Select
-                    label="Pet"
-                    value={deworminglog.pet_id || ``}
-                    onChange={(ev) =>
-                      handleFieldChange("pet_id", ev.target.value)
-                    }
-                  >
-                    {pets.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
 
-              <TextField
-                variant="outlined"
-                id="Weight"
-                label="Weight"
-                type="number"
-                sx={{ width: "30%" }}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">kg</InputAdornment>
-                  ),
-                }}
-                value={deworminglog.weight}
-                onChange={(ev) => handleFieldChange("weight", ev.target.value)}
-              />
-              <TextField
-                variant="outlined"
-                id="Description"
-                label="Description"
-                value={deworminglog.description}
-                onChange={(ev) =>
-                  handleFieldChange("description", ev.target.value)
-                }
-              />
-
-              <FormControl>
-                <InputLabel>Administered</InputLabel>
-                <Select
-                  label="Administered"
-                  value={deworminglog.administered || ""}
+                <TextField
+                  variant="outlined"
+                  id="Weight"
+                  label="Weight"
+                  type="number"
+                  sx={{ width: "30%" }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">kg</InputAdornment>
+                    ),
+                  }}
+                  value={deworminglog.weight}
                   onChange={(ev) =>
-                    handleFieldChange("administered", ev.target.value)
+                    handleFieldChange("weight", ev.target.value)
                   }
-                >
-                  <MenuItem value="Doctor Reina">Doctor Reina</MenuItem>
-                  <MenuItem value="Doctor Philip">Doctor Philip</MenuItem>
-                </Select>
-              </FormControl>
+                  required
+                />
+                <TextField
+                  variant="outlined"
+                  id="Description"
+                  label="Description"
+                  value={deworminglog.description}
+                  onChange={(ev) =>
+                    handleFieldChange("description", ev.target.value)
+                  }
+                  required
+                />
 
-              <TextField
-                label="Return"
-                variant="outlined"
-                id="Return"
-                type="date"
-                value={deworminglog.return || ``}
-                defaultValue={null}
-                onChange={(ev) => handleFieldChange("return", ev.target.value)}
-              />
+                <FormControl>
+                  <InputLabel>Administered</InputLabel>
+                  <Select
+                    label="Administered"
+                    value={deworminglog.administered || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("administered", ev.target.value)
+                    }
+                    required
+                  >
+                    <MenuItem value="Doctor Reina">Doctor Reina</MenuItem>
+                    <MenuItem value="Doctor Philip">Doctor Philip</MenuItem>
+                  </Select>
+                </FormControl>
 
-              <Button color="primary" variant="contained" onClick={onSubmit}>
-                Save
-              </Button>
-            </Stack>
+                <TextField
+                  label="Return"
+                  variant="outlined"
+                  id="Return"
+                  type="date"
+                  value={deworminglog.return || ``}
+                  onChange={(ev) =>
+                    handleFieldChange("return", ev.target.value)
+                  }
+                  required
+                />
+
+                <Button color="primary" variant="contained" type="submit">
+                  Save
+                </Button>
+              </Stack>
+            </form>
           </DialogContent>
         </Dialog>
       )}

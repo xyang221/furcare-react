@@ -30,7 +30,8 @@ export default function DiagnosisModal(props) {
     setDiagnosis,
     errors,
     pets,
-    addpet
+    addpet,
+    isUpdate
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -42,54 +43,50 @@ export default function DiagnosisModal(props) {
 
   const [date, setDate] = useState(new Date());
 
-
   return (
     <>
       <Backdrop open={loading} style={{ zIndex: 999 }}>
-      <CircularProgress color="inherit" />
+        <CircularProgress color="inherit" />
       </Backdrop>
       {!loading && (
-        
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle>
-          Consultation
-          <IconButton onClick={onClose} style={{ float: "right" }}>
-            <Close color="primary"></Close>
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          {errors && (
-            <Box>
-              {Object.keys(errors).map((key) => (
-                <Alert severity="error" key={key}>
-                  {errors[key][0]}
-                </Alert>
-              ))}
-            </Box>
-          )}
-          
-          <Stack spacing={2} margin={2}>
-        
-        
-            <Box
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
-            >
-              <Typography variant="h6">Diagnosis </Typography>
+          <DialogTitle>
+            Consultation
+            <IconButton onClick={onClose} style={{ float: "right" }}>
+              <Close color="primary"></Close>
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {errors && (
+              <Box>
+                {Object.keys(errors).map((key) => (
+                  <Alert severity="error" key={key}>
+                    {errors[key][0]}
+                  </Alert>
+                ))}
+              </Box>
+            )}
 
-              <Typography variant="h6">
-                Date: {date.toDateString()}{" "}
-              </Typography>
-            </Box>
-            <TextField
-              label="Price"
-              variant="standard"
-              type="number"
-              // value={diagnosis.remarks || ""}
-              // onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
-            />
-            {addpet &&
+            <form onSubmit={(e) => onSubmit(e)} on>
+              <Stack spacing={2} margin={2}>
+                <Box
+                  display="flex"
+                  flexDirection="row"
+                  justifyContent="space-between"
+                >
+                  <Typography variant="h6">Diagnosis </Typography>
+
+                  <Typography variant="h6">
+                    Date: {date.toDateString()}{" "}
+                  </Typography>
+                </Box>
+                <TextField
+                  label="Price"
+                  variant="standard"
+                  type="number"
+                  value={diagnosis.unit_price || ""}
+                  onChange={(ev) => handleFieldChange("unit_price", ev.target.value)}
+                />
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
                   <Select
@@ -98,6 +95,8 @@ export default function DiagnosisModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
+                    disabled={isUpdate}
+                    required
                   >
                     {pets.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
@@ -106,33 +105,30 @@ export default function DiagnosisModal(props) {
                     ))}
                   </Select>
                 </FormControl>
-              }
-      
-            <TextField
-              id="outlined-multiline-static"
-              label="Remarks"
-              multiline
-              rows={5}
-              fullWidth
-              placeholder="write your remarks here..."
-              value={diagnosis.remarks || ""}
-                  onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
-            />
 
-            
+                <TextField
+                  id="outlined-multiline-static"
+                  label="Remarks"
+                  multiline
+                  rows={5}
+                  fullWidth
+                  placeholder="write your remarks here..."
+                  value={diagnosis.remarks || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("remarks", ev.target.value)
+                  }
+                  required
+                />
 
-            <br></br>
+                <br></br>
 
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={onSubmit}
-            >
-              Avail
-            </Button>
-          </Stack>
-        </DialogContent>
-      </Dialog>
+                <Button color="primary" variant="contained" type="submit">
+                  Save
+                </Button>
+              </Stack>
+            </form>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

@@ -5,16 +5,16 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { Button, Tab, Typography } from "@mui/material";
 import axiosClient from "../axios-client";
-import PetVaccinationLogs from "../pages/PetVaccinationLogs";
 import Consultation from "../pages/Services/Consultation";
 import ServiceAvail from "../pages/Services/ServiceAvail";
 import PetDewormingLogs from "../pages/Services/PetDewormingLogs";
 import TestResults from "../pages/Services/TestResults";
-import { Link, useParams } from "react-router-dom";
 import {
   Apartment,
+  Block,
   ContentCut,
   ControlPointDuplicate,
+  Error,
   FolderCopy,
   Healing,
   Home,
@@ -26,6 +26,7 @@ import {
   Vaccines,
 } from "@mui/icons-material";
 import TreatmentForm from "../pages/TreatmentForm";
+import Vaccination from "../pages/Vaccination";
 
 export default function ServiceCatBtns() {
   const [servicesCat, setServicesCat] = useState([]);
@@ -69,7 +70,7 @@ export default function ServiceCatBtns() {
 
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
-    setValue("0")
+    setValue("0");
   };
 
   return (
@@ -102,6 +103,11 @@ export default function ServiceCatBtns() {
                     label={service.service}
                     value={idx.toString()}
                     onClick={() => setValue(idx.toString())}
+                    icon={
+                      service.isAvailable === 0 ? (
+                        <Block color="error" fontSize="inherit" />
+                      ) : null
+                    }
                   />
                 ))}
             </TabList>
@@ -124,11 +130,11 @@ export default function ServiceCatBtns() {
                   {service.id == 5 && (
                     <ServiceAvail title="Surgery" sid={service.id} />
                   )}
-                  {service.id == 6 && <PetVaccinationLogs sid={service.id} />}
-                  {service.id == 7 && <PetVaccinationLogs sid={service.id} />}
-                  {service.id == 8 && <PetVaccinationLogs sid={service.id} />}
-                  {service.id == 9 && <PetVaccinationLogs sid={service.id} />}
-                  {service.id == 10 && <PetVaccinationLogs sid={service.id} />}
+                  {service.id == 6 && <Vaccination sid={service.id} />}
+                  {service.id == 7 && <Vaccination sid={service.id} />}
+                  {service.id == 8 && <Vaccination sid={service.id} />}
+                  {service.id == 9 && <Vaccination sid={service.id} />}
+                  {service.id == 10 && <Vaccination sid={service.id} />}
                   {service.id == 11 && <PetDewormingLogs sid={service.id} />}
                   {service.id == 12 && <TestResults sid={service.id} />}
                   {service.id == 13 && <TestResults sid={service.id} />}

@@ -19,6 +19,7 @@ import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 import UserEdit from "../components/modals/UserEdit";
 import { Link } from "react-router-dom";
 import BreedsModal from "../components/modals/BreedsModal";
+import DropDownButtons from "../components/DropDownButtons";
 
 export default function Breeds() {
   //for table
@@ -86,9 +87,9 @@ export default function Breeds() {
   const [open, openchange] = useState(false);
 
   const addModal = (ev) => {
-    setBreed({})
+    setBreed({});
     setErrors(null);
-    openchange(true)
+    openchange(true);
   };
 
   const closepopup = () => {
@@ -96,7 +97,7 @@ export default function Breeds() {
   };
 
   const onEdit = (r) => {
-    setErrors(null)
+    setErrors(null);
     setModalloading(true);
     axiosClient
       .get(`/breeds/${r.id}`)
@@ -109,7 +110,7 @@ export default function Breeds() {
       });
     openchange(true);
   };
-  
+
   const onArchive = (u) => {
     if (!window.confirm("Are you sure to archive this breed?")) {
       return;
@@ -121,7 +122,9 @@ export default function Breeds() {
     });
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (breed.id) {
       axiosClient
         .put(`/breeds/${breed.id}`, breed)
@@ -163,7 +166,6 @@ export default function Breeds() {
       <Paper
         sx={{
           padding: "10px",
-          margin: "10px",
         }}
       >
         <Box
@@ -172,20 +174,13 @@ export default function Breeds() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Breeds</Typography>{" "}
-          
-          {/* <Button
-            component={Link}
-            to={`/admin/breeds/archives`}
-            variant="contained"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button> */}
+          <DropDownButtons
+            title="Breeds"
+            optionLink1="/admin/breeds/archives"
+            optionLabel1="Archives"
+          />
 
-          <Button 
-          onClick={addModal}
-           variant="contained" size="small">
+          <Button onClick={addModal} variant="contained" size="small">
             <Add />
           </Button>
         </Box>
@@ -193,20 +188,19 @@ export default function Breeds() {
         {notification && <Alert severity="success">{notification}</Alert>}
 
         <BreedsModal
-        open={open}
-        onClose={closepopup}
-        onClick={closepopup}
-        onSubmit={onSubmit}
-        loading={modalloading}
-        species={species}
-        breed={breed}
-        setBreed={setBreed}
-        errors={errors}
-        isUpdate={breed.id}
+          open={open}
+          onClose={closepopup}
+          onClick={closepopup}
+          onSubmit={onSubmit}
+          loading={modalloading}
+          species={species}
+          breed={breed}
+          setBreed={setBreed}
+          errors={errors}
+          isUpdate={breed.id}
         />
 
-        <TableContainer sx={{ height: 380 }} 
-            maxwidth="sm">
+        <TableContainer sx={{ height: 340 }} maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

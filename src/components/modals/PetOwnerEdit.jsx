@@ -57,9 +57,7 @@ export default function PetOwnerEdit(props) {
 
   return (
     <>
-      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
-        <CircularProgress color="inherit" />
-      </Backdrop> */}
+     
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
@@ -78,6 +76,7 @@ export default function PetOwnerEdit(props) {
                 ))}
               </Box>
             )}
+            <form onSubmit={(e) => onSubmit(e)} on >
             <Stack spacing={2} margin={2}>
               <TextField
                 variant="outlined"
@@ -87,6 +86,7 @@ export default function PetOwnerEdit(props) {
                 onChange={(ev) =>
                   handleFieldChange("firstname", ev.target.value)
                 }
+                required
               />
               <TextField
                 variant="outlined"
@@ -96,6 +96,7 @@ export default function PetOwnerEdit(props) {
                 onChange={(ev) =>
                   handleFieldChange("lastname", ev.target.value)
                 }
+                required
               />
               <TextField
                 variant="outlined"
@@ -112,6 +113,7 @@ export default function PetOwnerEdit(props) {
                   const input = ev.target.value.replace(/\D/g, "").slice(0, 10);
                   handleFieldChange("contact_num", input);
                 }}
+                required
               />
 
               <TextField
@@ -122,6 +124,7 @@ export default function PetOwnerEdit(props) {
                 onChange={(ev) =>
                   handleFieldChangeAddress("zone", ev.target.value)
                 }
+                required
               />
               <TextField
                 variant="outlined"
@@ -131,6 +134,7 @@ export default function PetOwnerEdit(props) {
                 onChange={(ev) =>
                   handleFieldChangeAddress("barangay", ev.target.value)
                 }
+                required
               />
               {/* <Autocomplete
                 sx={{ width: "100%" }}
@@ -188,12 +192,14 @@ export default function PetOwnerEdit(props) {
                 });
               }}
               value={value}
+              required
             />
 
-              <Button color="primary" variant="contained" onClick={onSubmit}>
+              <Button color="primary" variant="contained" type="submit">
                 Save
               </Button>
             </Stack>
+            </form>
           </DialogContent>
         </Dialog>
       )}

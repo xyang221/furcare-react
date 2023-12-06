@@ -24,9 +24,9 @@ import {
 import { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import { Add, Close, Delete, Edit, Search } from "@mui/icons-material";
+import DropDownButtons from "../components/DropDownButtons";
 
 export default function Roles() {
-
   //for table
   const columns = [
     { id: "id", name: "ID" },
@@ -50,7 +50,6 @@ export default function Roles() {
   const [loading, setLoading] = useState(false);
 
   const getRoles = () => {
-
     setLoading(true);
     axiosClient
       .get("/roles")
@@ -78,11 +77,11 @@ export default function Roles() {
   const [open, openchange] = useState(false);
 
   const functionopenpopup = (ev) => {
-    setRole({})
-    setErrors(null)
+    setRole({});
+    setErrors(null);
     openchange(true);
   };
-  
+
   const closepopup = () => {
     openchange(false);
   };
@@ -149,15 +148,9 @@ export default function Roles() {
 
   return (
     <>
-      {/* <Navbar/> */}
-      {/* <Stack direction="row" justifyContent="space-between"> */}
-      {/* <Sidebar /> */}
-      {/* <Box flex={5} > */}
       <Paper
         sx={{
-          minWidth: "10%",
           padding: "10px",
-          margin: "10px",
         }}
       >
         <Box
@@ -167,16 +160,12 @@ export default function Roles() {
           justifyContent="space-between"
         >
           <Typography variant="h4">Roles</Typography>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={functionopenpopup}
-          >
+          <Button variant="contained" size="small" onClick={functionopenpopup}>
             <Add />
           </Button>
         </Box>
 
-        {notification && (<Alert severity="success">{notification} </Alert> )}
+        {notification && <Alert severity="success">{notification} </Alert>}
 
         <Backdrop open={modalloading} style={{ zIndex: 999 }}>
           <CircularProgress color="inherit" />
@@ -212,11 +201,12 @@ export default function Roles() {
               {errors && (
                 <Box>
                   {Object.keys(errors).map((key) => (
-                    <Alert severity="error" key={key}>{errors[key][0]}</Alert>
+                    <Alert severity="error" key={key}>
+                      {errors[key][0]}
+                    </Alert>
                   ))}
                 </Box>
               )}
-              {/* <DialogContentText>Do you want remove this user?</DialogContentText> */}
               <Stack spacing={2} margin={2}>
                 <TextField
                   variant="outlined"
@@ -243,12 +233,11 @@ export default function Roles() {
                 </Button>
               </Stack>
             </DialogContent>
-            <DialogActions>
-            </DialogActions>
+            <DialogActions></DialogActions>
           </Dialog>
         )}
 
-        <TableContainer sx={{ height: 380,  }}>
+        <TableContainer sx={{ height: 340 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -292,14 +281,14 @@ export default function Roles() {
                             >
                               <Edit fontSize="small" />
                             </Button>
-                            <Button
+                            {/* <Button
                               variant="contained"
                               color="error"
                               size="small"
                               onClick={() => onDelete(r)}
                             >
                               <Delete fontSize="small" />
-                            </Button>
+                            </Button> */}
                           </Stack>
                         </TableCell>
                       </TableRow>
@@ -318,8 +307,6 @@ export default function Roles() {
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
       </Paper>
-      {/* </Box> */}
-      {/* </Stack> */}
     </>
   );
-};
+}

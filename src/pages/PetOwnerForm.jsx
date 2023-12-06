@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 import {
-  Stack,
   Autocomplete,
   TextField,
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Button,
   Stepper,
   Step,
@@ -18,13 +13,11 @@ import {
   Typography,
   Alert,
   InputAdornment,
+  Paper,
 } from "@mui/material";
-import Password from "../components/Password";
 
 export default function PetOwnerForm() {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const { setNotification } = useStateContext();
 
@@ -39,64 +32,24 @@ export default function PetOwnerForm() {
     zipcode_id: null,
     barangay: "",
     zone: "",
-    role_id: 3,
     username: "",
     email: "",
     password: "",
     password_confirmation: "",
   });
 
-  // useEffect(() => {
-  //   if (id) {
-  //     setLoading(true);
-  //     axiosClient
-  //       .get(`/petowners/${id}`)
-  //       .then(({ data }) => {
-  //         setLoading(false);
-  //         setPetowner(data);
-  //       })
-  //       .catch(() => {
-  //         setLoading(false);
-  //       });
-  //   }
-  // }, [id]);
-
   const onSubmit = (ev) => {
     ev.preventDefault();
-    if (petowner.id) {
-      axiosClient
-        .put(`/petowners/${petowner.id}`, petowner)
-        .then(() => {
-          setNotification("Petowner successfully updated");
-          navigate(`/admin/petowners/` + petowner.id + `/view`);
-        })
-        .catch((err) => {
-          handleErrors(err);
-        });
-    } else {
-      axiosClient
-        .post(`/petowners`, petowner)
-        .then(() => {
-          setNotification("Pet Owner successfully created");
-          navigate(`/admin/petowners/` + petowner.id + `/view`);
-        })
-        .catch((err) => {
-          handleErrors(err);
-        });
-    }
-  };
 
-  const [roles, setRoles] = useState([]);
-
-  const getRoles = () => {
     axiosClient
-      .get("/roles")
-      .then(({ data }) => {
-        setLoading(false);
-        setRoles(data.data);
+      .post(`/petowners`, petowner)
+      .then((response) => {
+        setNotification("Pet Owner successfully created");
+        const createdPetownerId = response.data.id;
+        navigate(`/admin/petowners/${createdPetownerId}/view`);
       })
-      .catch(() => {
-        setLoading(false);
+      .catch((err) => {
+        handleErrors(err);
       });
   };
 
@@ -106,13 +59,10 @@ export default function PetOwnerForm() {
       .then(({ data }) => {
         setAddress(data.data);
       })
-      .catch(() => {
-        setLoading(false);
-      });
+      .catch(() => {});
   };
 
   useEffect(() => {
-    getRoles();
     getZipcodes();
   }, []);
 
@@ -138,10 +88,6 @@ export default function PetOwnerForm() {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  const handleChange = (field, value) => {
-    setPetowner({ ...petowner, [field]: value });
-  };
-
   const steps = ["Register Pet Owner", "Create a User Account"];
 
   const getStepContent = (step) => {
@@ -150,32 +96,35 @@ export default function PetOwnerForm() {
         return (
           <Box
             sx={{
-              width: "50%",
+              width: "70%",
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
               "& > :not(style)": { m: 1 },
               margin: "auto",
             }}
           >
-            <Typography variant="h4">Pet Owner Registration</Typography>
+            <Typography variant="h5" padding={1}>
+              Pet Owner Registration
+            </Typography>
 
             <TextField
               variant="outlined"
+              size="small"
               id="firstname"
               label="Firstname"
-              // helperText="Please enter your firstname"
               value={petowner.firstname}
               onChange={(ev) =>
                 setPetowner({ ...petowner, firstname: ev.target.value })
               }
+              fullWidth
               required
             />
             <TextField
               variant="outlined"
+              size="small"
               id="Lastname"
               label="Lastname"
-              // helperText="Please enter your firstname"
+              fullWidth
               value={petowner.lastname}
               onChange={(ev) =>
                 setPetowner({ ...petowner, lastname: ev.target.value })
@@ -184,13 +133,14 @@ export default function PetOwnerForm() {
             />
             <TextField
               variant="outlined"
+              size="small"
               id="Contact Number"
               label="Contact Number"
               type="number"
+              fullWidth
               inputProps={{
                 minLength: 10,
               }}
-              required
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">+63</InputAdornment>
@@ -199,14 +149,16 @@ export default function PetOwnerForm() {
               value={petowner.contact_num}
               onChange={(ev) => {
                 const input = ev.target.value.slice(0, 10);
-                // const input = ev.target.value.replace(/\D/g, '').slice(0, 10);
                 setPetowner({ ...petowner, contact_num: input });
               }}
+              required
             />
 
             <TextField
               id="Zone"
+              size="small"
               label="Zone/Block/Street"
+              fullWidth
               value={petowner.zone}
               onChange={(ev) =>
                 setPetowner({ ...petowner, zone: ev.target.value })
@@ -216,6 +168,8 @@ export default function PetOwnerForm() {
             <TextField
               id="Barangay"
               label="Barangay"
+              size="small"
+              fullWidth
               value={petowner.barangay}
               onChange={(ev) =>
                 setPetowner({ ...petowner, barangay: ev.target.value })
@@ -225,6 +179,8 @@ export default function PetOwnerForm() {
 
             <Autocomplete
               sx={{ width: "100%" }}
+              size="small"
+              fullWidth
               getOptionLabel={(address) =>
                 `${address.area}, ${address.province}, ${address.zipcode}`
               }
@@ -255,48 +211,36 @@ export default function PetOwnerForm() {
         );
       case 1:
         return (
-          // <h2>Create An Acount</h2>
           <Box
             sx={{
+              width: "70%",
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
-              "& > :not(style)": { m: 2 },
+              "& > :not(style)": { m: 1 },
+              margin: "auto",
             }}
           >
-            <Typography variant="h4">Create an Account</Typography>
-            <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <InputLabel id="demo-select-small-label">Role</InputLabel>
-              <Select
-                labelId="demo-select-small-label"
-                id="demo-select-small"
-                label="Role"
-                value={petowner.role_id || 3}
-                onChange={(ev) =>
-                  setPetowner({ ...petowner, role_id: ev.target.value })
-                }
-                disabled
-              >
-                {roles.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.role}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Typography variant="h5" padding={1}>
+              Create an Account
+            </Typography>
+         
             <TextField
               id="Username"
               label="Username"
+              size="small"
               value={petowner.username}
               onChange={(ev) =>
                 setPetowner({ ...petowner, username: ev.target.value })
               }
+              fullWidth
               required
             />
             <TextField
               id="Email"
               label="Email"
+              size="small"
               type="email"
+              fullWidth
               value={petowner.email}
               onChange={(ev) =>
                 setPetowner({ ...petowner, email: ev.target.value })
@@ -306,8 +250,11 @@ export default function PetOwnerForm() {
             <TextField
               variant="outlined"
               id="Password"
+              size="small"
               label="Password"
               type="password"
+              required
+              fullWidth
               value={petowner.password}
               onChange={(ev) =>
                 setPetowner({ ...petowner, password: ev.target.value })
@@ -317,6 +264,9 @@ export default function PetOwnerForm() {
               variant="outlined"
               id="Password Confirmation"
               label="Password Confirmation"
+              size="small"
+              fullWidth
+              required
               type="password"
               value={petowner.password_confirmation}
               onChange={(ev) =>
@@ -332,10 +282,24 @@ export default function PetOwnerForm() {
         return "Unknown step";
     }
   };
-  //   console.log(petowner);
 
   return (
-    <div>
+    <Paper
+      sx={{
+        width: "50%",
+        margin: "auto",
+        marginTop: "50px",
+        padding: "20px",
+        border: "1px solid black",
+      }}
+    >
+      <Stepper activeStep={activeStep}>
+        {steps.map((label, index) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
       {errors && (
         <Box p={2}>
           {Object.keys(errors).map((key) => (
@@ -345,24 +309,18 @@ export default function PetOwnerForm() {
           ))}
         </Box>
       )}
-
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      <div>
+      <div margin="auto">
         {activeStep === steps.length ? (
           <div>
             <p>All steps completed</p>
           </div>
         ) : (
-          <div>
-            <form onSubmit={(e) => handleNext(e)}>
+          <div >
+            <form
+              onSubmit={(e) => handleNext(e)}
+            >
               {getStepContent(activeStep)}
-              <div>
+              <Box sx={{ padding: "10px", alignSelf: "center" }}>
                 <Button disabled={activeStep === 0} onClick={handlePrev}>
                   Back
                 </Button>
@@ -376,15 +334,15 @@ export default function PetOwnerForm() {
                 {activeStep === 1 && (
                   <>
                     <Button variant="contained" color="primary" type="submit">
-                      Finish
+                      Save
                     </Button>
                   </>
                 )}
-              </div>
+              </Box>
             </form>
           </div>
         )}
       </div>
-    </div>
+    </Paper>
   );
 }

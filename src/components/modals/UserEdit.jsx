@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Alert,
-  Backdrop,
   Box,
   Button,
   CircularProgress,
@@ -23,12 +22,11 @@ export default function UserEdit(props) {
     open,
     onClose,
     onClick,
-    id,
     onSubmit,
     loading,
     roles,
     user,
-    setUser, 
+    setUser,
     errors,
     isUpdate,
   } = props;
@@ -42,10 +40,6 @@ export default function UserEdit(props) {
 
   return (
     <>
-      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
-        <CircularProgress color="inherit" />
-      </Backdrop> */}
-      
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
@@ -64,14 +58,15 @@ export default function UserEdit(props) {
                 ))}
               </Box>
             )}
+            <form onSubmit={(e) => onSubmit(e)} >
             <Stack spacing={2} margin={2}>
-          
-               {isUpdate ? (
-              
-               <Select
+              {!isUpdate && (
+                <Select
                   label="Role"
-                  value={user.role_id ||""}
-                  onChange={(ev) => handleFieldChange("role_id", ev.target.value)}
+                  value={user.role_id || 1}
+                  onChange={(ev) =>
+                    handleFieldChange("role_id", ev.target.value)
+                  }
                   disabled
                 >
                   {roles.map((item) => (
@@ -80,26 +75,17 @@ export default function UserEdit(props) {
                     </MenuItem>
                   ))}
                 </Select>
-                ) :
-                (<Select
-                  label="Role"
-                  value={user.role_id || ""}
-                  onChange={(ev) => handleFieldChange("role_id", ev.target.value)}
-                >
-                  {roles.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.role}
-                    </MenuItem>
-                  ))}
-                </Select>)
-                }
+              )}
 
               <TextField
                 variant="outlined"
                 id="Username"
                 label="Username"
                 value={user.username}
-                onChange={(ev) => handleFieldChange("username", ev.target.value)}
+                onChange={(ev) =>
+                  handleFieldChange("username", ev.target.value)
+                }
+                required
               />
               <TextField
                 variant="outlined"
@@ -108,29 +94,35 @@ export default function UserEdit(props) {
                 type="email"
                 value={user.email}
                 onChange={(ev) => handleFieldChange("email", ev.target.value)}
+                required
               />
               <TextField
                 variant="outlined"
                 id="Password"
                 label="Password"
                 type="password"
-                value={user.password || ''}
-                onChange={(ev) => handleFieldChange("password", ev.target.value)}
+                value={user.password || ""}
+                onChange={(ev) =>
+                  handleFieldChange("password", ev.target.value)
+                }
+                required
               />
               <TextField
                 variant="outlined"
                 id="Password Confirmation"
                 label="Password Confirmation"
                 type="password"
-                value={user.password_confirmation || ''}
+                value={user.password_confirmation || ""}
                 onChange={(ev) =>
                   handleFieldChange("password_confirmation", ev.target.value)
                 }
+                required
               />
-              <Button color="primary" variant="contained" onClick={onSubmit}>
+              <Button color="primary" variant="contained" type="submit">
                 Save
               </Button>
             </Stack>
+            </form>
           </DialogContent>
         </Dialog>
       )}

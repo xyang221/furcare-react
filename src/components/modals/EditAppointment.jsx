@@ -16,15 +16,8 @@ import {
   Select,
   Stack,
   TextField,
-  TextareaAutosize,
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
-import {
-  DatePicker,
-  DateTimePicker,
-  LocalizationProvider,
-} from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 export default function EditAppointment(props) {
   const {
@@ -33,6 +26,7 @@ export default function EditAppointment(props) {
     onClick,
     onSubmit,
     loading,
+    petowner,
     petowners,
     petownerid,
     services,
@@ -72,41 +66,36 @@ export default function EditAppointment(props) {
                 ))}
               </Box>
             )}
+            <form onSubmit={(e) => onSubmit(e)} on >
             <Stack spacing={2} margin={2}>
-              {petownerid ? (  <FormControl>
-                <InputLabel>Pet Owner</InputLabel>
-                <Select
+
+              {petownerid ? (
+                <FormControl>
+                  <InputLabel>Pet Owner</InputLabel>
+                  <Select
+                    label="Pet Owner"
+                    value={petownerid}
+                    onChange={(ev) =>
+                      handleFieldChange("petowner_id", ev.target.value)
+                    }
+                    disabled
+                  >
+                    {petowners.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {`${item.firstname} ${item.lastname}`}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              ) : (
+                <TextField
+                  variant="outlined"
+                  id="Pet Owner"
                   label="Pet Owner"
-                  value={appointment.petowner_id || petownerid}
-                  onChange={(ev) =>
-                    handleFieldChange("petowner_id", ev.target.value)
-                  }
+                  value={`${petowner.firstname} ${petowner.lastname}`}
                   disabled
-                >
-                  {petowners.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {`${item.firstname} ${item.lastname}`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>)
-              :(  <FormControl>
-                <InputLabel>Pet Owner</InputLabel>
-                <Select
-                  label="Pet Owner"
-                  value={appointment.petowner_id || ""}
-                  onChange={(ev) =>
-                    handleFieldChange("petowner_id", ev.target.value)
-                  }
-                >
-                  {petowners.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {`${item.firstname} ${item.lastname}`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>)}
-            
+                />
+              )}
 
               {isUpdate && (
                 <TextField
@@ -130,19 +119,19 @@ export default function EditAppointment(props) {
                   // value={appointment.date}
                   value={new Date(appointment.date).toISOString().split("T")[0]}
                   onChange={(ev) => handleFieldChange("date", ev.target.value)}
+                  required
                 />
               ) : (
                 <TextField
-                label="Date"
-                variant="outlined"
-                id="Date"
-                type="date"
-                value={appointment.date || ``}
-                defaultValue={null}
-                onChange={(ev) =>
-                  handleFieldChange("date", ev.target.value)
-                }
-              />
+                  label="Date"
+                  variant="outlined"
+                  id="Date"
+                  type="date"
+                  value={appointment.date || ``}
+                  // defaultValue={null}
+                  onChange={(ev) => handleFieldChange("date", ev.target.value)}
+                  required
+                />
               )}
 
               <FormControl>
@@ -153,9 +142,14 @@ export default function EditAppointment(props) {
                   onChange={(ev) =>
                     handleFieldChange("service_id", ev.target.value)
                   }
+                  required
                 >
                   {services.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
+                    <MenuItem
+                      key={item.id}
+                      value={item.id}
+                      disabled={item.isAvailable === 0}
+                    >
                       {`${item.service} (${item.category.category})`}
                     </MenuItem>
                   ))}
@@ -166,8 +160,9 @@ export default function EditAppointment(props) {
                 variant="outlined"
                 id="Purpose"
                 label="Purpose"
-                value={appointment.purpose}
+                value={appointment.purpose || ""}
                 onChange={(ev) => handleFieldChange("purpose", ev.target.value)}
+                required
               />
 
               <TextField
@@ -175,15 +170,17 @@ export default function EditAppointment(props) {
                 id="Remarks"
                 label="Remarks"
                 multiline
-                rows={3}
-                value={appointment.remarks}
+                rows={2}
+                value={appointment.remarks || ""}
                 onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
+                required
               />
 
-              <Button color="primary" variant="contained" onClick={onSubmit}>
+              <Button color="primary" variant="contained" type="submit">
                 Save
               </Button>
             </Stack>
+            </form>
           </DialogContent>
         </Dialog>
       )}

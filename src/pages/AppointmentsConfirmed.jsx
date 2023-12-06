@@ -17,7 +17,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Edit } from "@mui/icons-material";
+import { Add, Archive, DoneAll, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
 
@@ -74,8 +74,7 @@ export default function AppointmentsConfirmed() {
       .then(({ data }) => {
         setServices(data.data);
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   const [petowners, setPetowners] = useState([]);
@@ -86,8 +85,7 @@ export default function AppointmentsConfirmed() {
       .then(({ data }) => {
         setPetowners(data.data);
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   //for modal
@@ -120,7 +118,7 @@ export default function AppointmentsConfirmed() {
 
   const onEdit = (r) => {
     setErrors(null);
-    getPetowners()
+    getPetowners();
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
@@ -134,14 +132,16 @@ export default function AppointmentsConfirmed() {
     openchange(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (appointment.id) {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
           setNotification("Appointment was successfully updated");
           openchange(false);
-          setOpennotif(true)
+          setOpennotif(true);
           getAppointments();
         })
         .catch((err) => {
@@ -156,7 +156,7 @@ export default function AppointmentsConfirmed() {
         .then(() => {
           setNotification("Appointment was successfully created");
           openchange(false);
-          setOpennotif(true)
+          setOpennotif(true);
           getAppointments();
         })
         .catch((err) => {
@@ -167,7 +167,6 @@ export default function AppointmentsConfirmed() {
         });
     }
   };
-
 
   useEffect(() => {
     getServices();
@@ -183,15 +182,14 @@ export default function AppointmentsConfirmed() {
           margin: "10px",
         }}
       >
-
         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Confirmed Appointments</Typography>{" "}
           <DropDownButtons
+            title="Confirmed Appointments"
             optionLink1="/admin/appointments"
             optionLabel1="Scheduled"
             optionLink2="/admin/appointments/pending"
@@ -221,7 +219,7 @@ export default function AppointmentsConfirmed() {
               <TableRow>
                 {columns.map((column) => (
                   <TableCell
-                  style={{ backgroundColor: "black", color: "white" }}
+                    style={{ backgroundColor: "black", color: "white" }}
                     key={column.id}
                   >
                     {column.name}
@@ -272,9 +270,7 @@ export default function AppointmentsConfirmed() {
                               color="info"
                               onClick={() => onEdit(r)}
                             >
-                              <Edit
-                              size="small"
-                              />
+                              <Edit fontSize="small" />
                             </Button>
 
                             <Button
@@ -283,7 +279,7 @@ export default function AppointmentsConfirmed() {
                               color="success"
                               onClick={() => onDone(r)}
                             >
-                              <Typography variant="body">completed</Typography>
+                              <DoneAll fontSize="small" />
                             </Button>
                           </Stack>
                         </TableCell>
@@ -302,7 +298,7 @@ export default function AppointmentsConfirmed() {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
- <Stack spacing={2} sx={{ width: "100%" }}>
+        <Stack spacing={2} sx={{ width: "100%" }}>
           <Snackbar
             open={opennotif}
             autoHideDuration={6000}
@@ -313,7 +309,6 @@ export default function AppointmentsConfirmed() {
             </Alert>
           </Snackbar>
         </Stack>
-
       </Paper>
     </>
   );

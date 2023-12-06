@@ -20,12 +20,11 @@ import { Link } from "react-router-dom";
 import { DeleteForever, RestoreFromTrash } from "@mui/icons-material";
 import DropDownButtons from "../components/DropDownButtons";
 
-export default function StaffsArchives() {
+export default function UserArchives() {
   const columns = [
     { id: "id", name: "ID" },
-    { id: "name", name: "Name" },
-    { id: "contact_num", name: "Contact Number" },
-    { id: "address", name: "Address" },
+    { id: "name", name: "Username" },
+    { id: "email", name: "Email" },
     { id: "deleteddate", name: "Deleted Date" },
     { id: "Actions", name: "Actions" },
   ];
@@ -41,47 +40,47 @@ export default function StaffsArchives() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [staffs, setStaffs] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
 
-  const getStaffsArchives = () => {
+  const getArchivedUsers = () => {
     setLoading(true);
     axiosClient
-      .get("/archives/staffs")
+      .get(`/archives/users`)
       .then(({ data }) => {
         setLoading(false);
-        setStaffs(data.data);
+        setUsers(data.data);
       })
       .catch(() => {
         setLoading(false);
       });
   };
 
-  const onRestore = (po) => {
-    if (!window.confirm("Are you sure to restore this staff?")) {
+  const onRestore = (u) => {
+    if (!window.confirm("Are you sure to restore this uer?")) {
       return;
     }
 
-    axiosClient.put(`/staffs/${po.id}/restore`).then(() => {
-      setNotification("Staff was successfully restored");
-      getStaffsArchives();
+    axiosClient.put(`/users/${u.id}/restore`).then(() => {
+      setNotification("User was successfully restored");
+      getArchivedUsers();
     });
   };
 
-  const onDelete = (po) => {
-    if (!window.confirm("Are you sure permanently delete this client?")) {
+  const onDelete = (r) => {
+    if (!window.confirm("Are you sure permanently delete this user?")) {
       return;
     }
 
-    axiosClient.delete(`/archives/${po.id}/forcedelete`).then(() => {
-      setNotification("Staff was permanently deleted");
-      getStaffsArchives();
+    axiosClient.delete(`/archives/${r.id}/forcedelete`).then(() => {
+      setNotification("User was permanently deleted");
+      getArchivedUsers();
     });
   };
 
   useEffect(() => {
-    getStaffsArchives();
+    getArchivedUsers();
   }, []);
 
   return (
@@ -105,13 +104,12 @@ export default function StaffsArchives() {
               justifyContent="space-between"
             >
               <DropDownButtons
-                title="Archived Staffs"
+                title="Archived Users"
                 optionLink1="/admin/settings"
                 optionLabel1="Current"
               />
             </Box>
             {notification && <Alert severity="success">{notification}</Alert>}
-
             <TableContainer sx={{ height: 380 }}>
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
@@ -138,29 +136,25 @@ export default function StaffsArchives() {
 
                 {!loading && (
                   <TableBody>
-                    {staffs &&
-                      staffs
+                    {users &&
+                      users
                         .slice(
                           page * rowperpage,
                           page * rowperpage + rowperpage
                         )
-                        .map((po) => (
-                          <TableRow hover role="checkbox" key={po.id}>
-                            <TableCell>{po.id}</TableCell>
-                            <TableCell>{`${po.firstname} ${po.lastname}`}</TableCell>
-                            <TableCell>{po.contact_num}</TableCell>
-                            <TableCell>
-                              {po.address.zone}, {po.address.barangay},{" "}
-                              {po.address.zipcode.area}
-                            </TableCell>
-                            <TableCell>{po.deleted_at}</TableCell>
+                        .map((r) => (
+                          <TableRow hover role="checkbox" key={r.id}>
+                            <TableCell>{r.id}</TableCell>
+                            <TableCell>{r.username}</TableCell>
+                            <TableCell>{r.email}</TableCell>
+                            <TableCell>{r.deleted_at}</TableCell>
                             <TableCell>
                               <Stack direction="row" spacing={2}>
                                 <Button
                                   variant="contained"
                                   color="success"
                                   size="small"
-                                  onClick={() => onRestore(po)}
+                                  onClick={() => onRestore(r)}
                                 >
                                   <RestoreFromTrash fontSize="small" />
                                 </Button>
@@ -168,7 +162,7 @@ export default function StaffsArchives() {
                                   variant="contained"
                                   size="small"
                                   color="error"
-                                  onClick={() => onDelete(po)}
+                                  onClick={() => onDelete(r)}
                                 >
                                   <DeleteForever fontSize="small" />
                                 </Button>
@@ -184,7 +178,7 @@ export default function StaffsArchives() {
               rowsPerPageOptions={[10, 15, 25]}
               rowsPerPage={rowperpage}
               page={page}
-              count={staffs.length}
+              count={users.length}
               component="div"
               onPageChange={handlechangepage}
               onRowsPerPageChange={handleRowsPerPage}

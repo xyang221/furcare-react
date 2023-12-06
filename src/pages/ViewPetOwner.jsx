@@ -18,7 +18,6 @@ import PetOwnerTabs from "../components/PetOwnerTabs";
 
 export default function ViewPetOwner() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [notification, setNotification] = useState(null);
@@ -111,8 +110,6 @@ export default function ViewPetOwner() {
       });
   };
 
-  // const [value, setValue] = useState(zipcode.id);
-  const [inputValue, setInputValue] = useState("");
   const [value, setValue] = useState(null);
 
   const onEdit = () => {
@@ -129,7 +126,9 @@ export default function ViewPetOwner() {
     openuserchange(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     setErrors(null);
     setLoading(true);
     axiosClient
@@ -156,7 +155,9 @@ export default function ViewPetOwner() {
       });
   };
 
-  const onSubmitUser = () => {
+  const onSubmitUser = (e) => {
+    e.preventDefault();
+
     setErrors(null);
     axiosClient
       .put(`/users/${petownerdata.user_id}`, userdata)
@@ -186,16 +187,6 @@ export default function ViewPetOwner() {
       }}
     >
       <div className="card animate fadeInDown">
-        {/* {loading && <div className="text-center">Loading...</div>} */}
-        {notification && <Alert severity="success">{notification}</Alert>}
-        {/* {errors && (
-          <div className="alert">
-            {Object.keys(errors).map((key) => (
-              <p key={key}>{errors[key][0]}</p>
-            ))}
-          </div>
-        )} */}
-
         <Stack flexDirection="row">
           <Stack p={2}>
             <Typography variant="h5">
@@ -209,20 +200,19 @@ export default function ViewPetOwner() {
               </IconButton>
             </Typography>
             <Typography>
-              {" "}
               Name: {petownerdata.firstname} {petownerdata.lastname}
             </Typography>
             <Typography>
-              {" "}
               Address: {addressdata.zone}, {addressdata.barangay},{" "}
               {zipcode.area}, {zipcode.province}, {zipcode.zipcode}
             </Typography>
-            <Typography> Contact Number: +63 {petownerdata.contact_num}</Typography>
+            <Typography>
+              Contact Number: +63{petownerdata.contact_num}
+            </Typography>
           </Stack>
 
           <Stack p={2}>
             <Typography variant="h5">
-              {" "}
               Mobile Account{" "}
               <IconButton
                 variant="contained"
@@ -236,12 +226,19 @@ export default function ViewPetOwner() {
             <Typography>Email: {userdata.email} </Typography>
           </Stack>
         </Stack>
+        {notification && <Alert severity="success">{notification}</Alert>}
+        {errors && (
+          <div className="alert">
+            {Object.keys(errors).map((key) => (
+              <p key={key}>{errors[key][0]}</p>
+            ))}
+          </div>
+        )}
 
         <PetOwnerEdit
           open={openPetowner}
           onClose={closepopup}
           onClick={closepopup}
-          // id={id}
           onSubmit={onSubmit}
           loading={loading}
           petowner={petownerdata}
@@ -254,13 +251,11 @@ export default function ViewPetOwner() {
           zipcodeid={zipcode.id}
           value={value}
           setValue={setValue}
-          // options={zipcodes}
         />
         <UserEdit
           open={openuser}
           onClick={closepopup}
           onClose={closepopup}
-          // id={userdata.id}
           onSubmit={onSubmitUser}
           loading={loading}
           roles={roles}

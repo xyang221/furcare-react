@@ -124,8 +124,15 @@ export default function GenerateBilling() {
     if (balance === undefined || isNaN(balance)) {
       return 0;
     }
+    // const newBalance = calculateBalance();
+    // setClientservice(prevState => ({
+    //   ...prevState,
+    //   balance: newBalance
+    // }));
     return Math.max(balance, 0);
   };
+
+  // const balance = calculateBalance()
 
   // Update the onChange function for the price TextField
   const handleCash = (ev, id) => {
@@ -166,32 +173,33 @@ export default function GenerateBilling() {
 
   // const servicesGroupedByPet = groupServicesByPet();
 
-  const onSubmit = () => {
-    const updatedServicesPromises = servicesavailed.map((item) => {
-      return axiosClient.put(`/servicesavailed/${item.id}`, {
-        ...item,
-        unit_price: serviceAvailedPrices[item.id] || null,
+  const onSubmit = async () => {
+    try {
+      const updatedServicesPromises = servicesavailed.map((item) => {
+        return axiosClient.put(`/servicesavailed/${item.id}`, {
+          ...item,
+          unit_price: serviceAvailedPrices[item.id] || null,
+        });
       });
-    });
-    axiosClient.put(`/clientservice/${clientservice.id}`, {
-      ...clientservice,
-      balance: calculateBalance() || null,
-    });
 
-    Promise.all(updatedServicesPromises)
-      .then(() => {
-        getServicesAvailed();
-        navigate(`/admin/${id}/chargeslip`);
-        // servicesGroupedByPet(null);
-      })
-      .catch((err) => {
-        const response = err.response;
-        if (response && response.status === 422) {
-          console.log(response.data.errors);
-        }
-        console.log(response.data.message);
+      const updateServicesResults = await Promise.all(updatedServicesPromises);
+
+      await axiosClient.put(`/clientservices/${clientservice.id}`, {
+        ...clientservice,
+        balance: calculateBalance() || null,
       });
-    getServicesAvailedChargeSlip();
+
+      getServicesAvailed(); // Assuming this is a function defined elsewhere
+      navigate(`/admin/${id}/chargeslip`);
+      // servicesGroupedByPet(null);
+      getServicesAvailedChargeSlip(); // Assuming this is a function defined elsewhere
+    } catch (err) {
+      if (err.response && err.response.status === 422) {
+        console.log(err.response.data.errors);
+      } else {
+        console.log(err.response.data.message);
+      }
+    }
   };
 
   const refresh = () => {
@@ -205,7 +213,7 @@ export default function GenerateBilling() {
     <>
       <Paper
         sx={{
-          width: "500px",
+          width: "550px",
           padding: "10px",
           margin: "auto",
         }}
@@ -267,24 +275,29 @@ export default function GenerateBilling() {
                         </Typography>
                       </TableCell>
                     </TableRow> */}
-                    {servicesavailed.map((item) => (
-                      <TableRow hover role="checkbox" key={item.id}>
-                        <TableCell>{item.pet.name} </TableCell>
-                        <TableCell>{item.service.service}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{item.unit}</TableCell>
-                        <TableCell sx={{ width: "30%" }}>
-                            <TextField
-                              size="small"
-                              type="number"
-                              value={serviceAvailedPrices[item.id]}
-                              onChange={(ev) => handlePriceChange(ev, item.id)}
-                              required
-                            />
-                          </TableCell>
-                      </TableRow>
-                    ))}
-                  {/* </React.Fragment> */}
+                {servicesavailed.map((item) => (
+                  <TableRow hover role="checkbox" key={item.id}>
+                    <TableCell>{item.pet.name} </TableCell>
+                    <TableCell>{item.service.service}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>{item.unit}</TableCell>
+                    <TableCell sx={{ width: "50%" }}>
+                      <TextField
+                        size="small"
+                        type="number"
+                        value={
+                          item.unit_price === null
+                            ? serviceAvailedPrices[item.id]
+                            : item.unit_price
+                        }
+                        // value={serviceAvailedPrices[item.id]}
+                        onChange={(ev) => handlePriceChange(ev, item.id)}
+                        required
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {/* </React.Fragment> */}
                 {/* ))} */}
                 <TableRow>
                   <TableCell colSpan={4} align="right">

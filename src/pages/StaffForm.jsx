@@ -3,25 +3,20 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 import {
-  Stack,
   Autocomplete,
   TextField,
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Button,
   Stepper,
   Step,
   StepLabel,
   Typography,
+  InputAdornment,
+  Paper,
 } from "@mui/material";
-import Password from "../components/Password";
 
 export default function StaffForm() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const { setNotification } = useStateContext();
 
@@ -36,7 +31,6 @@ export default function StaffForm() {
     zipcode_id: null,
     barangay: "",
     zone: "",
-    role_id: 2,
     username: "",
     email: "",
     password: "",
@@ -45,29 +39,16 @@ export default function StaffForm() {
 
   const onSubmit = (ev) => {
     ev.preventDefault();
-  
-      axiosClient
-        .post(`/staffs`, staff)
-        .then(() => {
-          setNotification("Pet Owner successfully created");
-          navigate("/admin/staffs");
-        })
-        .catch((err) => {
-          handleErrors(err);
-        });
-  };
 
-  const [roles, setRoles] = useState([]);
-
-  const getRoles = () => {
     axiosClient
-      .get("/roles")
-      .then(({ data }) => {
-        setLoading(false);
-        setRoles(data.data);
+      .post(`/staffs`, staff)
+      .then((response) => {
+        setNotification("Staff successfully created");
+        const createdStaffId = response.data.id;
+        navigate(`/admin/staffs/${createdStaffId}/view`);
       })
-      .catch(() => {
-        setLoading(false);
+      .catch((err) => {
+        handleErrors(err);
       });
   };
 
@@ -78,12 +59,10 @@ export default function StaffForm() {
         setAddress(data.data);
       })
       .catch(() => {
-        setLoading(false);
       });
   };
 
   useEffect(() => {
-    getRoles();
     getZipcodes();
   }, []);
 
@@ -96,16 +75,17 @@ export default function StaffForm() {
 
   const [activeStep, setActiveStep] = useState(0);
 
-  const handleNext = () => {
+  const handleNext = (e) => {
+    e.preventDefault();
+    if (activeStep === 1) {
+      onSubmit(e);
+      return true;
+    }
     setActiveStep((prevStep) => prevStep + 1);
   };
 
   const handlePrev = () => {
     setActiveStep((prevStep) => prevStep - 1);
-  };
-
-  const handleChange = (field, value) => {
-    setStaff({ ...staff, [field]: value });
   };
 
   const steps = ["Register Staff", "Create an Account"];
@@ -116,7 +96,7 @@ export default function StaffForm() {
         return (
           <Box
             sx={{
-              width: "50%",
+              width: "70%",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -124,29 +104,33 @@ export default function StaffForm() {
               margin: "auto",
             }}
           >
-            <Typography variant="h4" >Staff Registration</Typography>
+            <Typography variant="h5" padding={1}>
+              Staff Registration
+            </Typography>
 
             <TextField
               variant="outlined"
               id="firstname"
               label="Firstname"
               size="small"
-              // helperText="Please enter your firstname"
               value={staff.firstname}
               onChange={(ev) =>
                 setStaff({ ...staff, firstname: ev.target.value })
               }
+              fullWidth
+              required
             />
             <TextField
               variant="outlined"
               id="Lastname"
               label="Lastname"
               size="small"
-              // helperText="Please enter your firstname"
               value={staff.lastname}
               onChange={(ev) =>
                 setStaff({ ...staff, lastname: ev.target.value })
               }
+              fullWidth
+              required
             />
             <TextField
               variant="outlined"
@@ -154,31 +138,41 @@ export default function StaffForm() {
               label="Contact Number"
               size="small"
               type="number"
-              // helperText="Please enter your firstname"
+              inputProps={{
+                minLength: 10,
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">+63</InputAdornment>
+                ),
+              }}
               value={staff.contact_num}
-              onChange={(ev) =>
-                setStaff({ ...staff, contact_num: ev.target.value })
-              }
+              onChange={(ev) => {
+                const input = ev.target.value.slice(0, 10);
+                setStaff({ ...staff, contact_num: input });
+              }}
+              fullWidth
+              required
             />
             <TextField
               id="Zone"
-              label="Zone"
+              label="Zone/Block/Street"
               size="small"
-              // helperText="Please enter your firstname"
               value={staff.zone}
-              onChange={(ev) =>
-                setStaff({ ...staff, zone: ev.target.value })
-              }
+              onChange={(ev) => setStaff({ ...staff, zone: ev.target.value })}
+              fullWidth
+              required
             />
             <TextField
               id="Barangay"
               label="Barangay"
               size="small"
-              // helperText="Please enter your firstname"
               value={staff.barangay}
               onChange={(ev) =>
                 setStaff({ ...staff, barangay: ev.target.value })
               }
+              fullWidth
+              required
             />
 
             <Autocomplete
@@ -191,7 +185,7 @@ export default function StaffForm() {
               isOptionEqualToValue={(option, value) =>
                 option.area === value.area
               }
-              noOptionsText="Not Available"
+              noOptionsText="Not Found"
               renderOption={(props, address) => (
                 <Box component="li" {...props} key={address.id}>
                   {address.area}, {address.province}, {address.zipcode}
@@ -208,70 +202,70 @@ export default function StaffForm() {
                 });
               }}
               value={value}
+              fullWidth
+              required
             />
           </Box>
         );
       case 1:
         return (
-          // <h2>Create An Acount</h2>
           <Box
             sx={{
+              width: "70%",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              "& > :not(style)": { m: 2 },
+              "& > :not(style)": { m: 1 },
+              margin: "auto",
             }}
           >
-            <Typography variant="h4">Create an Account</Typography>
-            <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-              <InputLabel id="demo-select-small-label">Role</InputLabel>
-              <Select
-                labelId="demo-select-small-label"
-                id="demo-select-small"
-                label="Role"
-                value={staff.role_id || ""}
-                onChange={(ev) =>
-                  setStaff({ ...staff, role_id: ev.target.value })
-                }
-                disabled
-              >
-                {roles.map((item) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.role}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Typography variant="h5" padding={1}>
+              Create an Account
+            </Typography>
+
             <TextField
               id="Username"
               label="Username"
               size="small"
-              // helperText="Please enter your firstname"
               value={staff.username}
               onChange={(ev) =>
                 setStaff({ ...staff, username: ev.target.value })
               }
+              fullWidth
+              required
             />
             <TextField
               id="Email"
               label="Email"
               size="small"
               type="email"
-              // helperText="Please enter your firstname"
               value={staff.email}
-              onChange={(ev) =>
-                setStaff({ ...staff, email: ev.target.value })
-              }
+              onChange={(ev) => setStaff({ ...staff, email: ev.target.value })}
+              fullWidth
+              required
             />
-            <Password
+            <TextField
+              variant="outlined"
+              id="Password"
+              size="small"
               label="Password"
+              type="password"
+              required
+              fullWidth
               value={staff.password}
               onChange={(ev) =>
                 setStaff({ ...staff, password: ev.target.value })
               }
             />
-            <Password
+            <TextField
+              variant="outlined"
+              id="Password Confirmation"
               label="Password Confirmation"
+              size="small"
+              fullWidth
+              required
+              type="password"
+              value={staff.password_confirmation}
               onChange={(ev) =>
                 setStaff({
                   ...staff,
@@ -285,18 +279,17 @@ export default function StaffForm() {
         return "Unknown step";
     }
   };
-  //   console.log(staff);
 
   return (
-    <div>
-      {errors && (
-        <div className="alert">
-          {Object.keys(errors).map((key) => (
-            <p key={key}>{errors[key][0]}</p>
-          ))}
-        </div>
-      )}
-
+    <Paper
+      sx={{
+        width: "50%",
+        margin: "auto",
+        marginTop: "3%",
+        padding: "20px",
+        border: "1px solid black",
+      }}
+    >
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => (
           <Step key={label}>
@@ -304,6 +297,13 @@ export default function StaffForm() {
           </Step>
         ))}
       </Stepper>
+      {errors && (
+        <div className="alert">
+          {Object.keys(errors).map((key) => (
+            <p key={key}>{errors[key][0]}</p>
+          ))}
+        </div>
+      )}
       <div>
         {activeStep === steps.length ? (
           <div>
@@ -311,37 +311,34 @@ export default function StaffForm() {
           </div>
         ) : (
           <div>
-            {getStepContent(activeStep)}
-            <div>
-              <Button disabled={activeStep === 0} onClick={handlePrev}>
-                Back
-              </Button>
-              {activeStep === 0 && (
-                <>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNext}
-                  >
-                    Next
-                  </Button>
-                </>
-              )}
-              {activeStep === 1 && (
-                <>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={onSubmit}
-                  >
-                    Finish
-                  </Button>
-                </>
-              )}
-            </div>
+            <form
+              onSubmit={(e) => handleNext(e)}
+              style={{ alignItems: "center" }}
+            >
+              {getStepContent(activeStep)}
+              <Box sx={{ padding: "10px", alignSelf: "center" }}>
+                <Button disabled={activeStep === 0} onClick={handlePrev}>
+                  Back
+                </Button>
+                {activeStep === 0 && (
+                  <>
+                    <Button variant="contained" color="primary" type="submit">
+                      Next
+                    </Button>
+                  </>
+                )}
+                {activeStep === 1 && (
+                  <>
+                    <Button variant="contained" color="primary" type="submit">
+                      Save
+                    </Button>
+                  </>
+                )}
+              </Box>
+            </form>
           </div>
         )}
       </div>
-    </div>
+    </Paper>
   );
 }

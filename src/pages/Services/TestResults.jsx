@@ -20,7 +20,6 @@ import {
 import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../../axios-client";
-import { useStateContext } from "../../contexts/ContextProvider";
 import TestResultModal from "../../components/modals/TestResultModal";
 
 export default function TestResults({ sid }) {
@@ -44,7 +43,8 @@ export default function TestResults({ sid }) {
   const [error, setError] = useState(null);
 
   const getTestresults = () => {
-    setMessage(null)
+    setTestresults([])
+    setMessage(null);
     setLoading(true);
     axiosClient
       .get(`/testresults/petowner/${id}/service/${sid}`)
@@ -111,32 +111,30 @@ export default function TestResults({ sid }) {
   };
 
   // onClicks
-  const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this pet?")) {
-      return;
-    }
-
-    axiosClient.delete(`/pets/${u.id}/archive`).then(() => {
-      setNotification("Pet was archived");
-      getTestresults();
-    });
-  };
-
   const onEdit = (r) => {
     axiosClient
       .get(`/testresults/${r.id}`)
       .then(({ data }) => {
         setTestresult(data);
       })
-      .catch(() => {
-      });
+      .catch(() => {});
 
     openchange(true);
-    console.log(testresult)
   };
 
-  const onSubmit = (ev) => {
-    ev.preventDefault();
+  const onArchive = (r) => {
+    if (!window.confirm("Are you sure to archive this test result?")) {
+      return;
+    }
+
+    axiosClient.delete(`/testresults/${r.id}/archive`).then(() => {
+      setNotification("Test result was archived.");
+      getTestresults();
+    });
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
 
     if (testresult.id) {
       axiosClient
@@ -170,7 +168,7 @@ export default function TestResults({ sid }) {
         .then(() => {
           setNotification("Test result was successfully saved.");
           openchange(false);
-          setTestresult({})
+          setTestresult({});
           getTestresults();
         })
         .catch((err) => {

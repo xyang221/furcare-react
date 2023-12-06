@@ -50,7 +50,6 @@ export default function TestResultModal(props) {
     name: null,
   });
 
-
   const submitImage = (e) => {
     e.preventDefault();
 
@@ -149,72 +148,76 @@ export default function TestResultModal(props) {
                   ))}
                 </Box>
               )}
-              <form onSubmit={onSubmit}>
-              <Stack spacing={2} margin={2}>
-                {isUpdate ? (
-                  <FormControl>
-                    <InputLabel>Pet</InputLabel>
-                    <Select
-                      label="Pet"
-                      value={testresult.pet_id}
-                      onChange={(ev) =>
-                        handleFieldChange("pet_id", ev.target.value)
-                      }
-                      disabled
-                      required
-                    >
-                      {pets.map((item) => (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                ) : (
-                  <FormControl>
-                    <InputLabel>Pet</InputLabel>
-                    <Select
-                      label="Pet"
-                      value={testresult.pet_id || ""}
-                      onChange={(ev) =>
-                        handleFieldChange("pet_id", ev.target.value)
-                      }
-                      required
-                    >
-                      {pets.map((item) => (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                )}
-                {!isUpdate &&  <FormControl>
-                    <TextField
-                      variant="outlined"
-                      id="photo"
-                      label="Photo"
-                      type="file"
-                      onChange={handleImage}
-                      defaultValue={null}
-                      required
-                    />
-                    {error && <p style={{ color: "red" }}>{error}</p>}
-                  </FormControl>}
+              <form onSubmit={(e) => onSubmit(e)}>
+                <Stack spacing={2} margin={2}>
+                  {isUpdate ? (
+                    <FormControl>
+                      <InputLabel>Pet</InputLabel>
+                      <Select
+                        label="Pet"
+                        value={testresult.pet_id}
+                        onChange={(ev) =>
+                          handleFieldChange("pet_id", ev.target.value)
+                        }
+                        disabled
+                        required
+                      >
+                        {pets.map((item) => (
+                          <MenuItem key={item.id} value={item.id}>
+                            {item.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ) : (
+                    <FormControl>
+                      <InputLabel>Pet</InputLabel>
+                      <Select
+                        label="Pet"
+                        value={testresult.pet_id || ""}
+                        onChange={(ev) =>
+                          handleFieldChange("pet_id", ev.target.value)
+                        }
+                        required
+                      >
+                        {pets.map((item) => (
+                          <MenuItem key={item.id} value={item.id}>
+                            {item.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                  {!isUpdate && (
+                    <FormControl>
+                      <TextField
+                        variant="outlined"
+                        id="photo"
+                        label="Photo"
+                        type="file"
+                        onChange={handleImage}
+                        defaultValue={null}
+                        required
+                      />
+                      {error && <p style={{ color: "red" }}>{error}</p>}
+                    </FormControl>
+                  )}
 
-                <TextField
-                  variant="outlined"
-                  id="Description"
-                  label="Description"
-                  value={testresult.description || ""}
-                  onChange={(ev) => handleFieldChange("description", ev.target.value)}
-                  required
-                />
-              
-                <Button color="primary"  type="submit" variant="contained" >
-                  Save
-                </Button>
-              </Stack>
+                  <TextField
+                    variant="outlined"
+                    id="Description"
+                    label="Description"
+                    value={testresult.description || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("description", ev.target.value)
+                    }
+                    required
+                  />
+
+                  <Button color="primary" type="submit" variant="contained">
+                    Save
+                  </Button>
+                </Stack>
               </form>
             </DialogContent>
           </Dialog>

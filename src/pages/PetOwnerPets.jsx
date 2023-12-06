@@ -17,16 +17,25 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import {
-  Add,
-  Archive,
-  Visibility,
-} from "@mui/icons-material";
+import { Add, Archive, Visibility } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
 import PetsModal from "../components/modals/PetsModal";
 
 export default function PetOwnerPets() {
+  //for table
+  const columns = [
+    { id: "Photo", name: "Photo" },
+    { id: "name", name: "Pet Name" },
+    { id: "Birthdate", name: "Birthdate" },
+    { id: "Gender", name: "Gender" },
+    { id: "breed", name: "Breed" },
+    { id: "Color", name: "Color" },
+    { id: "Actions", name: "Actions" },
+  ];
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
+
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
@@ -74,7 +83,7 @@ export default function PetOwnerPets() {
   };
 
   const getPets = () => {
-    setMessage("")
+    setMessage("");
     setLoading(true);
     axiosClient
       .get(`/petowners/${id}/pets`)
@@ -91,15 +100,6 @@ export default function PetOwnerPets() {
       });
   };
 
-  //for table
-  const columns = [
-    { id: "Photo", name: "Photo" },
-    { id: "name", name: "Pet Name" },
-    { id: "email", name: "Gender" },
-    { id: "breed", name: "Breed" },
-    { id: "Actions", name: "Actions" },
-  ];
-
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
@@ -107,9 +107,6 @@ export default function PetOwnerPets() {
     rowperpagechange(+event.target.value);
     pagechange(0);
   };
-
-  const [page, pagechange] = useState(0);
-  const [rowperpage, rowperpagechange] = useState(10);
 
   //for modal
   const [open, openchange] = useState(false);
@@ -136,8 +133,8 @@ export default function PetOwnerPets() {
     });
   };
 
-  const onSubmit = (ev) => {
-    ev.preventDefault();
+  const onSubmit = (e) => {
+    e.preventDefault();
 
     if (pet.id) {
       axiosClient
@@ -182,7 +179,6 @@ export default function PetOwnerPets() {
     }
   };
 
-
   const handleImage = (e) => {
     const selectedFile = e.currentTarget.files?.[0] || null;
 
@@ -214,136 +210,136 @@ export default function PetOwnerPets() {
 
   return (
     <>
-     
+      <Box
+        sx={{
+          minWidth: "90%",
+        }}
+      >
         <Box
-          sx={{
-            minWidth: "90%",
-          }}
+          p={2}
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
         >
-          <Box
-            p={2}
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
+          <Button
+            onClick={functionopenpopup}
+            variant="contained"
+            color="success"
+            size="small"
           >
-            <Button
-              onClick={functionopenpopup}
-              variant="contained"
-              color="success"
-              size="small"
-            >
-              <Add />
-            </Button>
-          </Box>
-          {notification && <Alert severity="success">{notification}</Alert>}
-
-          <PetsModal
-            open={open}
-            onClick={closepopup}
-            onClose={closepopup}
-            // id={petdata.id}
-            setImageData={setImageData}
-            onSubmit={onSubmit}
-            // loading={loading}
-            breeds={breeds}
-            pet={pet}
-            setPet={setPet}
-            errors={errors}
-            isUpdate={pet.id}
-            petownerid={id}
-            addImage={true}
-            handleImage={handleImage}
-            error={error}
-          />
-          <Divider />
-          <TableContainer sx={{ height: 350 }}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  {columns.map((column) => (
-                    <TableCell
-                      style={{ backgroundColor: "black", color: "white" }}
-                      key={column.id}
-                    >
-                      {column.name}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              {loading && (
-                <TableBody>
-                  <TableRow>
-                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
-                      Loading...
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              )}
-
-              {!loading && message && (
-                <TableBody>
-                  <TableRow>
-                    <TableCell colSpan={6} style={{ textAlign: "center" }}>
-                      {message}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              )}
-
-              {!loading && (
-                <TableBody>
-                  {pets &&
-                    pets
-                      .slice(page * rowperpage, page * rowperpage + rowperpage)
-                      .map((r) => (
-                        <TableRow hover role="checkbox" key={r.id}>
-                          <TableCell>
-                            {" "}
-                            <img
-                              src={`http://localhost:8000/` + r.photo}
-                              height="50"
-                            />{" "}
-                          </TableCell>
-                          <TableCell>{r.name}</TableCell>
-                          <TableCell>{r.gender}</TableCell>
-                          <TableCell>{r.breed.breed}</TableCell>
-                          <TableCell>
-                            <Stack direction="row" spacing={2}>
-                              <Button
-                                variant="contained"
-                                color="info"
-                                size="small"
-                                component={Link}
-                                to={`/admin/pets/` + r.id + `/view`}
-                              >
-                                <Visibility fontSize="small" />
-                              </Button>
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="error"
-                                onClick={() => onArchive(r)}
-                              >
-                                <Archive fontSize="small" />
-                              </Button>
-                            </Stack>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                </TableBody>
-              )}
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 15, 25]}
-            rowsPerPage={rowperpage}
-            page={page}
-            count={pets.length}
-            component="div"
-            onPageChange={handlechangepage}
-            onRowsPerPageChange={handleRowsPerPage}
-          ></TablePagination>
+            <Add />
+          </Button>
         </Box>
+        {notification && <Alert severity="success">{notification}</Alert>}
+
+        <PetsModal
+          open={open}
+          onClick={closepopup}
+          onClose={closepopup}
+          // id={petdata.id}
+          setImageData={setImageData}
+          onSubmit={onSubmit}
+          // loading={loading}
+          breeds={breeds}
+          pet={pet}
+          setPet={setPet}
+          errors={errors}
+          isUpdate={pet.id}
+          petownerid={id}
+          addImage={true}
+          handleImage={handleImage}
+          error={error}
+        />
+        <Divider />
+        <TableContainer sx={{ height: 350 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableCell
+                    style={{ backgroundColor: "black", color: "white" }}
+                    key={column.id}
+                  >
+                    {column.name}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            {loading && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+
+            {!loading && message && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                    {message}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+
+            {!loading && (
+              <TableBody>
+                {pets &&
+                  pets
+                    .slice(page * rowperpage, page * rowperpage + rowperpage)
+                    .map((r) => (
+                      <TableRow hover role="checkbox" key={r.id}>
+                        <TableCell>
+                          <img
+                            src={`http://localhost:8000/` + r.photo}
+                            height="50"
+                          />{" "}
+                        </TableCell>
+                        <TableCell>{r.name}</TableCell>
+                        <TableCell>{r.birthdate}</TableCell>
+                        <TableCell>{r.gender}</TableCell>
+                        <TableCell>{r.breed.breed}</TableCell>
+                        <TableCell>{r.color}</TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={2}>
+                            <Button
+                              variant="contained"
+                              color="info"
+                              size="small"
+                              component={Link}
+                              to={`/admin/pets/` + r.id + `/view`}
+                            >
+                              <Visibility fontSize="small" />
+                            </Button>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              color="error"
+                              onClick={() => onArchive(r)}
+                            >
+                              <Archive fontSize="small" />
+                            </Button>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            )}
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 15, 25]}
+          rowsPerPage={rowperpage}
+          page={page}
+          count={pets.length}
+          component="div"
+          onPageChange={handlechangepage}
+          onRowsPerPageChange={handleRowsPerPage}
+        ></TablePagination>
+      </Box>
     </>
   );
 }

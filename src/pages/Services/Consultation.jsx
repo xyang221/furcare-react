@@ -37,6 +37,8 @@ export default function Consultation({ sid }) {
   const [consultations, setConsultations] = useState([]);
 
   const getConsultations = () => {
+    setConsultations([])
+    setMessage("")
     setLoading(true);
     axiosClient
       .get(`/diagnosis/petowner/${id}/service/${sid}`)
@@ -86,7 +88,6 @@ export default function Consultation({ sid }) {
   });
 
   const [open, openConsultation] = useState(false);
-  const [openAdd, setOpenAdd] = useState(false);
 
   const addModal = (ev) => {
     openConsultation(true);
@@ -101,18 +102,36 @@ export default function Consultation({ sid }) {
 
   const onEdit = (r) => {
     getPets();
+    setErrors(null);
+    axiosClient
+      .get(`/diagnosis/${r.id}`)
+      .then(({ data }) => {
+        setConsultation(data);
+      })
+      .catch(() => {
+      });
     openConsultation(true);
   };
 
-  const onSubmit = () => {
-    // setServiceavailed({service_id:sid})
+  const onArchive = (u) => {
+    if (!window.confirm("Are you sure to archive this?")) {
+      return;
+    }
 
-    console.log(consultation);
+    axiosClient.delete(`/diagnosis/${u.id}/archive`).then(() => {
+      setNotification("This consultation diagnosis record was archived.");
+      getConsultations();
+    });
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (consultation.id) {
       axiosClient
         .put(`/diagnosis/${consultation.id}`, consultation)
         .then(() => {
-          setNotification("diagnosis was successfully updated");
+          setNotification("Consultation diagnosis was successfully updated.");
           openConsultation(false);
           getConsultations();
         })
@@ -126,7 +145,7 @@ export default function Consultation({ sid }) {
       axiosClient
         .post(`/diagnosis/petowner/${id}/avail/${sid}`, consultation)
         .then(() => {
-          setNotification("diagnosis was successfully created");
+          setNotification("Consultation diagnosis was successfully saved.");
           openConsultation(false);
           getConsultations();
         })
@@ -175,6 +194,7 @@ export default function Consultation({ sid }) {
           diagnosis={consultation}
           setDiagnosis={setConsultation}
           errors={errors}
+          isUpdate={consultation.id}
         />
 
         {notification && <Alert severity="success">{notification}</Alert>}
@@ -226,12 +246,11 @@ export default function Consultation({ sid }) {
                         <TableCell>{r.servicesavailed.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
-                            <Button
-                              component={Link}
-                              to={`/admin/petowners/` + r.id + `/view`}
+                          <Button
                               variant="contained"
-                              color="info"
                               size="small"
+                              color="info"
+                              onClick={() => onEdit(r)}
                             >
                               <Edit fontSize="small" />
                             </Button>
@@ -240,7 +259,7 @@ export default function Consultation({ sid }) {
                               variant="contained"
                               size="small"
                               color="error"
-                              // onClick={() => onArchive(r)}
+                              onClick={() => onArchive(r)}
                             >
                               <Archive fontSize="small" />
                             </Button>

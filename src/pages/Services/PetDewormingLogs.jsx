@@ -54,6 +54,7 @@ export default function PetDewormingLogs({ sid }) {
 
   const getDeworming = () => {
     setMessage(null);
+    setDeworminglogs([])
     setLoading(true);
     axiosClient
       .get(`/deworminglogs/petowner/${id}/service/${sid}`)
@@ -109,7 +110,7 @@ export default function PetDewormingLogs({ sid }) {
     }
 
     axiosClient.delete(`/deworminglogs/${u.id}/archive`).then(() => {
-      setNotification("Pet Owner was archived");
+      setNotification("This deworming record was archived.");
       getDeworming();
     });
   };
@@ -117,25 +118,24 @@ export default function PetDewormingLogs({ sid }) {
   const onEdit = (r) => {
     getPets();
     setErrors(null);
-    setLoading(true);
     axiosClient
       .get(`/deworminglogs/${r.id}`)
       .then(({ data }) => {
-        setLoading(false);
         setDeworminglog(data);
       })
       .catch(() => {
-        setLoading(false);
       });
     setOpenAdd(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (deworminglog.id) {
       axiosClient
         .put(`/deworminglogs/${deworminglog.id}`, deworminglog)
         .then(() => {
-          setNotification("Pet Deworming was successfully updated");
+          setNotification("Pet deworming was successfully updated.");
           setOpenAdd(false);
           getDeworming();
         })
@@ -149,7 +149,7 @@ export default function PetDewormingLogs({ sid }) {
       axiosClient
         .post(`/deworminglogs/petowner/${id}/service/${sid}`, deworminglog)
         .then(() => {
-          setNotification("Pet Deworming was successfully created");
+          setNotification("Pet deworming was successfully saved.");
           setOpenAdd(false);
           getDeworming();
         })
@@ -194,7 +194,6 @@ export default function PetDewormingLogs({ sid }) {
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
-          loading={loading}
           pets={pets}
           // petid={id}
           deworminglog={deworminglog}

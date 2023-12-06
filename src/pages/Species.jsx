@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 import SpeciesModal from "../components/modals/SpeciesModal";
+import DropDownButtons from "../components/DropDownButtons";
 
 export default function Species() {
   //for table
@@ -69,9 +70,9 @@ export default function Species() {
   const [open, openchange] = useState(false);
 
   const addModal = (ev) => {
-    setSpecie({})
+    setSpecie({});
     setErrors(null);
-    openchange(true)
+    openchange(true);
   };
 
   const closepopup = () => {
@@ -79,7 +80,7 @@ export default function Species() {
   };
 
   const onEdit = (r) => {
-    setErrors(null)
+    setErrors(null);
     setModalloading(true);
     axiosClient
       .get(`/species/${r.id}`)
@@ -92,7 +93,7 @@ export default function Species() {
       });
     openchange(true);
   };
-  
+
   const onArchive = (s) => {
     if (!window.confirm("Are you sure to archive this specie?")) {
       return;
@@ -104,12 +105,14 @@ export default function Species() {
     });
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (specie.id) {
       axiosClient
         .put(`/species/${specie.id}`, specie)
         .then(() => {
-          setNotification("specie was successfully updated");
+          setNotification("A specie was successfully updated.");
           openchange(false);
           getSpecies();
         })
@@ -123,7 +126,7 @@ export default function Species() {
       axiosClient
         .post(`/species`, specie)
         .then(() => {
-          setNotification("specie was successfully added");
+          setNotification("A specie was successfully added.");
           openchange(false);
           getSpecies();
         })
@@ -145,7 +148,6 @@ export default function Species() {
       <Paper
         sx={{
           padding: "10px",
-          margin: "10px",
         }}
       >
         <Box
@@ -154,20 +156,13 @@ export default function Species() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Species</Typography>{" "}
-          
-          {/* <Button
-            component={Link}
-            to={`/admin/species/archives`}
-            variant="contained"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button> */}
+          <DropDownButtons
+            title="Species"
+            optionLink1="/admin/species/archives"
+            optionLabel1="Archives"
+          />
 
-          <Button 
-          onClick={addModal}
-           variant="contained" size="small">
+          <Button onClick={addModal} variant="contained" size="small">
             <Add />
           </Button>
         </Box>
@@ -175,19 +170,18 @@ export default function Species() {
         {notification && <Alert severity="success">{notification}</Alert>}
 
         <SpeciesModal
-        open={open}
-        onClose={closepopup}
-        onClick={closepopup}
-        onSubmit={onSubmit}
-        loading={modalloading}
-        specie={specie}
-        setSpecie={setSpecie}
-        errors={errors}
-        isUpdate={specie.id}
+          open={open}
+          onClose={closepopup}
+          onClick={closepopup}
+          onSubmit={onSubmit}
+          loading={modalloading}
+          specie={specie}
+          setSpecie={setSpecie}
+          errors={errors}
+          isUpdate={specie.id}
         />
 
-        <TableContainer sx={{ height: 380 }} 
-            maxwidth="sm">
+        <TableContainer sx={{ height: 340 }} maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

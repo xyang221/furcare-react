@@ -100,7 +100,9 @@ export default function ServiceAvail({ sid, title }) {
     openServiceavail(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+    
     if (service.id) {
       axiosClient
         .put(`/diagnosis/${service.id}`, service)

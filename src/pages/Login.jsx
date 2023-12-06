@@ -67,9 +67,9 @@ export default function Login() {
         updateUser(data.user);
         setToken(data.token);
         setRole(data.user.role_id);
-        navigate("/");
+        // navigate("/");
 
-        // navigate(from, { replace: true });
+        navigate(from, { replace: true });
       })
       .catch((err) => {
         const response = err.response;

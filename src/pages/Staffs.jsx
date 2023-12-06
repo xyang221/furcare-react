@@ -14,9 +14,9 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
+import DropDownButtons from "../components/DropDownButtons";
 
 export default function Staffs() {
   //for table
@@ -77,7 +77,6 @@ export default function Staffs() {
         sx={{
           minWidth: "90%",
           padding: "10px",
-          margin: "10px",
         }}
       >
         <Box
@@ -86,16 +85,11 @@ export default function Staffs() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Staffs</Typography>{" "}
-
-          <Button
-            component={Link}
-            to={`/admin/staffs/archives`}
-            variant="contained"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button>
+           <DropDownButtons
+            title="Staffs"
+            optionLink1="/admin/staffs/archives"
+            optionLabel1="Archives"
+          />
 
           <Button
             component={Link}
@@ -109,8 +103,7 @@ export default function Staffs() {
 
         {notification && <Alert severity="success">{notification}</Alert>}
 
-
-        <TableContainer sx={{ height: 380 }}>
+        <TableContainer sx={{ height: 340 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -143,7 +136,7 @@ export default function Staffs() {
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.id}</TableCell>
                         <TableCell>{`${r.firstname} ${r.lastname}`}</TableCell>
-                        <TableCell>{r.contact_num}</TableCell>
+                        <TableCell>0{r.contact_num}</TableCell>
                         <TableCell>
                           {r.address.zone}, {r.address.barangay},{" "}
                           {r.address.zipcode.area}

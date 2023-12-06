@@ -18,6 +18,7 @@ import {
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 import UserEdit from "../components/modals/UserEdit";
 import { Link } from "react-router-dom";
+import DropDownButtons from "../components/DropDownButtons";
 
 export default function Users() {
   //for table
@@ -59,12 +60,9 @@ export default function Users() {
       });
   };
 
-
-
   const [roles, setRoles] = useState([]);
 
   const getRoles = () => {
-
     setLoading(true);
     axiosClient
       .get("/roles")
@@ -87,15 +85,14 @@ export default function Users() {
     password: "",
     password_confirmation: "",
     role_id: null,
-   
   });
   const [open, openchange] = useState(false);
 
   const addModal = (ev) => {
     getRoles();
-    setUser({})
+    setUser({});
     setErrors(null);
-    openchange(true)
+    openchange(true);
   };
 
   const closepopup = () => {
@@ -104,7 +101,7 @@ export default function Users() {
 
   const onEdit = (r) => {
     getRoles();
-    setErrors(null)
+    setErrors(null);
     setModalloading(true);
     axiosClient
       .get(`/users/${r.id}`)
@@ -117,7 +114,7 @@ export default function Users() {
       });
     openchange(true);
   };
-  
+
   const onArchive = (u) => {
     if (!window.confirm("Are you sure to archive this user?")) {
       return;
@@ -129,7 +126,9 @@ export default function Users() {
     });
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (user.id) {
       axiosClient
         .put(`/users/${user.id}`, user)
@@ -170,7 +169,6 @@ export default function Users() {
       <Paper
         sx={{
           padding: "10px",
-          margin: "10px",
         }}
       >
         <Box
@@ -179,31 +177,20 @@ export default function Users() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Users</Typography>{" "}
-          
-          <Button
-            component={Link}
-            to={`/admin/users/archives`}
-            variant="contained"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button>
+          <DropDownButtons
+            title="Users"
+            optionLink1="/admin/users/archives"
+            optionLabel1="Archives"
+          />
 
-          <Button 
-          onClick={addModal}
-           variant="contained" size="small">
+          <Button onClick={addModal} variant="contained" size="small">
             <Add />
           </Button>
         </Box>
 
         {notification && <Alert severity="success">{notification}</Alert>}
 
-        {/* <Backdrop open={modalloading} style={{ zIndex: 999 }}>
-          <CircularProgress color="inherit" />
-        </Backdrop> */}
-
-          <UserEdit
+        <UserEdit
           open={open}
           onClick={closepopup}
           onClose={closepopup}
@@ -214,10 +201,9 @@ export default function Users() {
           setUser={setUser}
           errors={errors}
           isUpdate={user.id}
-          />
-          
-        <TableContainer sx={{ height: 380 }} 
-            maxwidth="sm">
+        />
+
+        <TableContainer sx={{ height: 340 }} maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -289,8 +275,6 @@ export default function Users() {
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
       </Paper>
-      {/* </Box> */}
-      {/* </Stack> */}
     </>
   );
 }

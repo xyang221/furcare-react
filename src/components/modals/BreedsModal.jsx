@@ -60,32 +60,22 @@ export default function BreedsModal(props) {
                 ))}
               </Box>
             )}
+            <form onSubmit={(e) => onSubmit(e)} >
             <Stack spacing={2} margin={2}>
           
-               {isUpdate ? (<Select
+            <Select
                   label="Specie"
                   value={breed.specie_id || ''}
                   onChange={(ev) => handleFieldChange("specie_id", ev.target.value)}
-                  disabled
+                  required
                 >
                   {species.map((item) => (
                     <MenuItem key={item.id} value={item.id}>
                       {item.specie}
                     </MenuItem>
                   ))}
-                </Select>) :
-                (<Select
-                  label="Specie"
-                  value={breed.specie_id || ''}
-                  onChange={(ev) => handleFieldChange("specie_id", ev.target.value)}
-                >
-                  {species.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                       {`${item.specie} (${item.description})`}
-                    </MenuItem>
-                  ))}
-                </Select>)
-                }
+                </Select>
+             
 
               <TextField
                 variant="outlined"
@@ -93,6 +83,7 @@ export default function BreedsModal(props) {
                 label="Breed"
                 value={breed.breed}
                 onChange={(ev) => handleFieldChange("breed", ev.target.value)}
+                required
               />
               <TextField
                 variant="outlined"
@@ -100,12 +91,14 @@ export default function BreedsModal(props) {
                 label="Description"
                 value={breed.description}
                 onChange={(ev) => handleFieldChange("description", ev.target.value)}
+                required
               />
              
-              <Button color="primary" variant="contained" onClick={onSubmit}>
+              <Button color="primary" variant="contained" type="submit">
                 Save
               </Button>
             </Stack>
+            </form>
           </DialogContent>
         </Dialog>
       )}

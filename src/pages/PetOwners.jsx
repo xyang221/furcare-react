@@ -19,7 +19,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Visibility } from "@mui/icons-material";
+import { Add, Archive, NavigateNext, Visibility } from "@mui/icons-material";
 import { SearchPetOwner } from "../components/SearchPetOwner";
 
 export default function PetOwners() {
@@ -202,6 +202,7 @@ export default function PetOwners() {
                               size="small"
                             >
                               <Visibility fontSize="small" />
+                              {/* <NavigateNext fontSize="small" /> */}
                             </Button>
 
                             <Button

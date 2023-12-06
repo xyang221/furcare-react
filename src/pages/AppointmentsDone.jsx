@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import {
-  Alert,
   Box,
   Button,
   Paper,
-  Snackbar,
   Stack,
   Table,
   TableBody,
@@ -14,10 +12,11 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
+import { Edit } from "@mui/icons-material";
+import Notif from "../components/Notif";
 
 export default function AppointmentsDone() {
   //for table
@@ -46,7 +45,27 @@ export default function AppointmentsDone() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  //for modal
+  const [errors, setErrors] = useState(null);
+  const [modalloading, setModalloading] = useState(false);
+  const [appointment, setAppointment] = useState({
+    id: null,
+    date: "",
+    purpose: "",
+    remarks: "",
+    petowner_id: null,
+    service_id: null,
+  });
+  const [petowner, setPetowner] = useState({
+    id: null,
+    firstname: "",
+    lastname: "",
+  });
+
+  const [opennotif, setOpennotif] = useState(false);
+  const [open, openchange] = useState(false);
   const [appointments, setAppointments] = useState([]);
+  const [services, setServices] = useState([]);
 
   const getAppointments = () => {
     setLoading(true);
@@ -65,48 +84,15 @@ export default function AppointmentsDone() {
       });
   };
 
-  const [services, setServices] = useState([]);
-
   const getServices = () => {
-    setModalloading(true);
     axiosClient
       .get(`/services`)
       .then(({ data }) => {
-        setModalloading(false);
         setServices(data.data);
       })
       .catch(() => {
-        setModalloading(false);
       });
   };
-
-  const [petowners, setPetowners] = useState([]);
-
-  const getPetowners = () => {
-    setModalloading(true);
-    axiosClient
-      .get(`/petowners`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setPetowners(data.data);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-  };
-
-  //for modal
-  const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [appointment, setAppointment] = useState({
-    id: null,
-    date: "",
-    purpose: "",
-    remarks: "",
-    petowner_id: null,
-    service_id: null,
-  });
-  const [open, openchange] = useState(false);
 
   const closepopup = () => {
     openchange(false);
@@ -114,12 +100,14 @@ export default function AppointmentsDone() {
 
   const onEdit = (r) => {
     setErrors(null);
+    getServices();
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
         setAppointment(data);
+        setPetowner(data.petowner)
       })
       .catch(() => {
         setModalloading(false);
@@ -127,13 +115,16 @@ export default function AppointmentsDone() {
     openchange(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (appointment.id) {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
-          setNotification("appointment was successfully updated");
+          setNotification("Appointment was successfully updated.");
           openchange(false);
+          setOpennotif(true);
           getAppointments();
         })
         .catch((err) => {
@@ -142,26 +133,10 @@ export default function AppointmentsDone() {
             setErrors(response.data.errors);
           }
         });
-    } else {
-      axiosClient
-        .post(`/appointment`, appointment)
-        .then(() => {
-          setNotification("appointment was successfully created");
-          openchange(false);
-          getAppointments();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status === 422) {
-            setErrors(response.data.errors);
-          }
-        });
     }
   };
 
   useEffect(() => {
-    getServices();
-    getPetowners()
     getAppointments();
   }, []);
 
@@ -180,8 +155,8 @@ export default function AppointmentsDone() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Completed Appointments</Typography>{" "}
           <DropDownButtons
+            title="Completed Appointments"
             optionLink1="/admin/appointments/pending"
             optionLabel1="Pending"
             optionLink2="/admin/appointments/confirmed"
@@ -189,7 +164,6 @@ export default function AppointmentsDone() {
             optionLink3="/admin/appointments"
             optionLabel3="Scheduled"
           />
-         
         </Box>
 
         <EditAppointment
@@ -198,7 +172,7 @@ export default function AppointmentsDone() {
           onClick={closepopup}
           onSubmit={onSubmit}
           loading={modalloading}
-          petowners={petowners}
+          petowner={petowner}
           services={services}
           appointment={appointment}
           setAppointment={setAppointment}
@@ -230,11 +204,11 @@ export default function AppointmentsDone() {
               </TableBody>
             )}
 
-{!loading && message && (
+            {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
-                   {message}
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                    {message}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -248,32 +222,26 @@ export default function AppointmentsDone() {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         {/* <TableCell>{r.date}</TableCell> */}
-                        <TableCell>{new Date(r.date).toISOString().split("T")[0]}</TableCell>
+                        <TableCell>
+                          {new Date(r.date).toISOString().split("T")[0]}
+                        </TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
                         <TableCell>
-                            <Stack direction="row" spacing={2}>
+                          <Stack direction="row" spacing={2}>
                             <Button
                               variant="contained"
                               size="small"
                               color="info"
                               onClick={() => onEdit(r)}
                             >
-                              <Typography>edit</Typography>
+                              <Edit fontSize="small"/>
                             </Button>
-                              {/* <Button
-                                variant="contained"
-                                size="small"
-                                color="error"
-                                onClick={() => onCancel(r)}
-                              >
-                                <Typography>CANCEL</Typography>
-                              </Button> */}
-                            </Stack>
-                          </TableCell>
+                          </Stack>
+                        </TableCell>
                       </TableRow>
                     ))}
               </TableBody>
@@ -290,14 +258,7 @@ export default function AppointmentsDone() {
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
 
-<Stack spacing={2} sx={{ width: '100%' }}>
-     
-     <Snackbar open={open} autoHideDuration={6000}  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-       <Alert  severity="success" sx={{ width: '100%' }}  >
-         {notification}
-       </Alert>
-     </Snackbar>
-   </Stack>
+<Notif open={opennotif} notification={notification} />
 
       </Paper>
     </>

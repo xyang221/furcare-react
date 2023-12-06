@@ -19,7 +19,7 @@ import {
 import { Add, Archive, Edit } from "@mui/icons-material";
 import VaccinationLogsModal from "../components/modals/VaccinationLogsModal";
 
-export default function PetVaccinationLogs({ sid }) {
+export default function Vaccination({ sid }) {
   const columns = [
     { id: "date", name: "Date" },
     { id: "weight", name: "Weight" },
@@ -97,16 +97,28 @@ export default function PetVaccinationLogs({ sid }) {
 
   // Function to handle checkbox changes
   const handleCheckboxChange = (item) => {
-    setVaccinationlog((prevVaccinationlog) => ({
-      ...prevVaccinationlog,
-      vaccination_againsts: {
+    setVaccinationlog((prevVaccinationlog) => {
+      const updatedVaccinationAgainsts = {
         ...prevVaccinationlog.vaccination_againsts,
-        [item.id]: item,
-      },
-    }));
+      };
+
+      if (updatedVaccinationAgainsts[item.id]) {
+        // Remove the item if it exists (unchecked)
+        delete updatedVaccinationAgainsts[item.id];
+      } else {
+        // Add the item if it doesn't exist (checked)
+        updatedVaccinationAgainsts[item.id] = item;
+      }
+
+      return {
+        ...prevVaccinationlog,
+        vaccination_againsts: updatedVaccinationAgainsts,
+      };
+    });
   };
 
   const getVaccination = () => {
+    setMessage(null);
     setLoading(true);
     axiosClient
       .get(`/vaccinationlogs/petowner/${id}/service/${sid}`)
@@ -156,7 +168,7 @@ export default function PetVaccinationLogs({ sid }) {
     getAgainsts();
     setOpenAdd(true);
     setVaccinationlog({});
-    setCheckedItems({})
+    setCheckedItems({});
     setErrors(null);
   };
 
@@ -186,6 +198,10 @@ export default function PetVaccinationLogs({ sid }) {
       .then(({ data }) => {
         setLoading(false);
         setVaccinationlog(data);
+        const checkedAgainst = data.vaccination_againsts.map((a) => a);
+        setCheckedItems(checkedAgainst);
+        // setCheckedItems(data.vaccination_againsts)
+        console.log(checkedItems);
       })
       .catch(() => {
         setLoading(false);
@@ -199,7 +215,7 @@ export default function PetVaccinationLogs({ sid }) {
       axiosClient
         .put(`/vaccinationlogs/${vaccinationlog.id}`, vaccinationlog)
         .then(() => {
-          setNotification("vaccinationlog was successfully updated");
+          setNotification("Vaccination was successfully updated.");
           setOpenAdd(false);
           getVaccination();
         })
@@ -213,7 +229,7 @@ export default function PetVaccinationLogs({ sid }) {
       axiosClient
         .post(`/vaccinationlogs/petowner/${id}/service/${sid}`, vaccinationlog)
         .then(() => {
-          setNotification("vaccinationlog was successfully created");
+          setNotification("Vaccination was successfully saved.");
           setOpenAdd(false);
           getVaccination();
         })
@@ -226,10 +242,9 @@ export default function PetVaccinationLogs({ sid }) {
     }
   };
 
-  console.log(vaccinationlog)
+  console.log(vaccinationlog);
 
   useEffect(() => {
-    getAgainsts()
     getVaccination();
   }, []);
 
@@ -242,21 +257,23 @@ export default function PetVaccinationLogs({ sid }) {
         }}
       >
         <Box sx={{ minWidth: "90%" }}>
-          <Box
-            p={2}
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
-          >
-            <Button
-              onClick={handleOpenAddModal}
-              variant="contained"
-              color="success"
-              size="small"
+          {sid && (
+            <Box
+              p={2}
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
             >
-              <Add />
-            </Button>
-          </Box>
+              <Button
+                onClick={handleOpenAddModal}
+                variant="contained"
+                color="success"
+                size="small"
+              >
+                <Add />
+              </Button>
+            </Box>
+          )}
 
           <VaccinationLogsModal
             open={openAdd}
@@ -327,7 +344,9 @@ export default function PetVaccinationLogs({ sid }) {
                           <TableCell>{`${record.weight} kg`}</TableCell>
                           <TableCell>
                             {record.vaccination_againsts.map((va_against) => (
-                              <span key={va_against.id}>{va_against.acronym} </span>
+                              <span key={va_against.id}>
+                                {va_against.acronym}{" "}
+                              </span>
                             ))}
                           </TableCell>
                           <TableCell>{record.description}</TableCell>

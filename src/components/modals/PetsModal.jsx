@@ -158,79 +158,101 @@ export default function PetsModal(props) {
                   ))}
                 </Box>
               )}
-              <form onSubmit={onSubmit} >
-              <Stack spacing={2} margin={2}>
-                {addImage && (
-                  <FormControl>
-                    <TextField
-                      variant="outlined"
-                      id="photo"
-                      label="Photo"
-                      type="file"
-                      onChange={handleImage}
-                      defaultValue={null}
-                      required
-                    />
-                    {error && <p style={{ color: "red" }}>{error}</p>}
-                  </FormControl>
-                )}
-              
-                <TextField
-                  variant="outlined"
-                  id="Name"
-                  label="Name"
-                  value={pet.name || ``}
-                  onChange={(ev) => handleFieldChange("name", ev.target.value)}
-                  required
-                />
+              <form onSubmit={(e) => onSubmit(e)}>
+                <Stack spacing={2} margin={2}>
+                  {addImage && (
+                    <FormControl>
+                      <TextField
+                        variant="outlined"
+                        id="photo"
+                        label="Photo"
+                        type="file"
+                        onChange={handleImage}
+                        defaultValue={null}
+                        required
+                      />
+                      {error && <p style={{ color: "red" }}>{error}</p>}
+                    </FormControl>
+                  )}
 
-                <TextField
-                  label="Birthdate"
-                  variant="outlined"
-                  id="Birthdate"
-                  type="date"
-                  value={pet.birthdate || ``}
-                  onChange={(ev) =>
-                    handleFieldChange("birthdate", ev.target.value)
-                  }
-                  required
-                />
-
-                <FormControl>
-                  <FormLabel id="demo-controlled-radio-buttons-group">
-                    Gender
-                  </FormLabel>
-                  <RadioGroup
-                    row
-                    aria-labelledby="demo-controlled-radio-buttons-group"
-                    name="controlled-radio-buttons-group"
-                    value={pet.gender || ``}
+                  <TextField
+                    variant="outlined"
+                    id="Name"
+                    label="Name"
+                    value={pet.name || ``}
                     onChange={(ev) =>
-                      handleFieldChange("gender", ev.target.value)
+                      handleFieldChange("name", ev.target.value)
                     }
                     required
-                  >
-                    <FormControlLabel
-                      value="Female"
-                      control={<Radio />}
-                      label="Female"
-                    />
-                    <FormControlLabel
-                      value="Male"
-                      control={<Radio />}
-                      label="Male"
-                    />
-                  </RadioGroup>
-                </FormControl>
+                  />
 
-                <TextField
-                  variant="outlined"
-                  id="Color"
-                  label="Color"
-                  value={pet.color || ``}
-                  onChange={(ev) => handleFieldChange("color", ev.target.value)}
-                  required
-                />
+                  <TextField
+                    label="Birthdate"
+                    variant="outlined"
+                    id="Birthdate"
+                    type="date"
+                    value={pet.birthdate || ``}
+                    onChange={(ev) =>
+                      handleFieldChange("birthdate", ev.target.value)
+                    }
+                    required
+                  />
+
+                  <FormControl>
+                    <FormLabel id="demo-controlled-radio-buttons-group">
+                      Gender
+                    </FormLabel>
+                    <RadioGroup
+                      row
+                      aria-labelledby="demo-controlled-radio-buttons-group"
+                      name="controlled-radio-buttons-group"
+                      value={pet.gender || ``}
+                      onChange={(ev) =>
+                        handleFieldChange("gender", ev.target.value)
+                      }
+                      required
+                    >
+                      <FormControlLabel
+                        value="Female"
+                        control={<Radio />}
+                        label="Female"
+                      />
+                      <FormControlLabel
+                        value="Male"
+                        control={<Radio />}
+                        label="Male"
+                      />
+                    </RadioGroup>
+                  </FormControl>
+
+                  <FormControl>
+                    <InputLabel>Breed</InputLabel>
+                    <Select
+                      label="Breed"
+                      value={pet.breed_id || ""}
+                      onChange={(ev) =>
+                        handleFieldChange("breed_id", ev.target.value)
+                      }
+                      required
+                    >
+                      {breeds.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.breed}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <TextField
+                    variant="outlined"
+                    id="Color"
+                    label="Color"
+                    value={pet.color || ``}
+                    onChange={(ev) =>
+                      handleFieldChange("color", ev.target.value)
+                    }
+                    required
+                  />
 
                   {/* <FormControl>
                   <InputLabel>Specie</InputLabel>
@@ -248,27 +270,11 @@ export default function PetsModal(props) {
                   </Select>
                 </FormControl> */}
 
-                <FormControl>
-                  <InputLabel>Breed</InputLabel>
-                  <Select
-                    label="Breed"
-                    value={pet.breed_id || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("breed_id", ev.target.value)
-                    }
-                    required
-                  >
-                    {breeds.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.breed}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <Button color="primary" variant="contained" type="submit">
-                  Save
-                </Button>
-              </Stack>
+                
+                  <Button color="primary" variant="contained" type="submit">
+                    Save
+                  </Button>
+                </Stack>
               </form>
             </DialogContent>
           </Dialog>

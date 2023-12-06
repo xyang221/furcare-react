@@ -16,7 +16,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, ArrowBackIos, Edit } from "@mui/icons-material";
+import { Add, DoneAll, ArrowBackIos, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 
 export default function PetOwnerAppointments() {
@@ -27,7 +27,7 @@ export default function PetOwnerAppointments() {
     { id: "Service", name: "Service" },
     { id: "Status", name: "Status" },
     { id: "Remarks", name: "Remarks" },
-    // { id: "Actions", name: "Actions" },
+    { id: "Actions", name: "Actions" },
   ];
 
   const handlechangepage = (event, newpage) => {
@@ -47,10 +47,24 @@ export default function PetOwnerAppointments() {
   const [loading, setLoading] = useState(false);
 
   const { id } = useParams();
-  const navigate = useNavigate();
+
+  //for modal
+  const [errors, setErrors] = useState(null);
+  const [modalloading, setModalloading] = useState(false);
+  const [appointment, setAppointment] = useState({
+    id: null,
+    date: "",
+    purpose: "",
+    remarks: "",
+    service_id: null,
+  });
+  const [open, setOpen] = useState(false);
+
+  const [petowners, setPetowners] = useState([]);
+  const [services, setServices] = useState([]);
 
   const getAppointments = () => {
-    setMessage("")
+    setMessage("");
     setLoading(true);
     axiosClient
       .get(`/petowners/${id}/appointments`)
@@ -67,6 +81,41 @@ export default function PetOwnerAppointments() {
       });
   };
 
+  const getServices = () => {
+    axiosClient
+      .get(`/services`)
+      .then(({ data }) => {
+        setServices(data.data);
+      })
+      .catch(() => {});
+  };
+
+  const getPetowners = () => {
+    axiosClient
+      .get(`/petowners`)
+      .then(({ data }) => {
+        setPetowners(data.data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+      });
+  };
+
+  const addModal = (ev) => {
+    getPetowners();
+    getServices();
+    setOpen(true);
+    setAppointment({});
+    setErrors(null);
+  };
+
+  const closepopup = () => {
+    setOpen(false);
+  };
+
   const onDelete = (po) => {
     if (!window.confirm("Are you sure?")) {
       return;
@@ -78,79 +127,10 @@ export default function PetOwnerAppointments() {
     });
   };
 
-  const [services, setServices] = useState([]);
-
-  const getServices = () => {
-    setModalloading(true);
-    axiosClient
-      .get(`/services`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setServices(data.data);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-  };
-
-  //for modal
-  const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [appointment, setAppointment] = useState({
-    id: null,
-    date: "",
-    purpose: "",
-    remarks: "",
-  });
-  const [open, openchange] = useState(false);
-  const [openAdd, setOpenAdd] = useState(false);
-
-  const [petowners, setPetowners] = useState([]);
-
-  const getPetowners = () => {
-    setLoading(true);
-    axiosClient
-      .get(`/petowners`)
-      .then(({ data }) => {
-        setLoading(false);
-        setPetowners(data.data);
-      })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
-        setLoading(false);
-      });
-  };
-
-
-  const addModal = (ev) => {
-    getPetowners();
-    getServices();
-    setOpenAdd(true);
-    setAppointment({});
-    setErrors(null);
-  };
-
-  const closepopup = () => {
-    openchange(false);
-    setOpenAdd(false);
-  };
-
-  const onDone = (r) => {
-    if (!window.confirm("Are you sure this appointment was done?")) {
-      return;
-    }
-
-    axiosClient.put(`/appointments/${r.id}/done`).then(() => {
-      setNotification("The appointment was done");
-      getAppointments();
-    });
-  };
-
   const onEdit = (r) => {
     setErrors(null);
+    getPetowners();
+    getServices();
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
@@ -161,7 +141,18 @@ export default function PetOwnerAppointments() {
       .catch(() => {
         setModalloading(false);
       });
-    openchange(true);
+    setOpen(true);
+  };
+
+  const onDone = (r) => {
+    if (!window.confirm("Are you sure this appointment was done?")) {
+      return;
+    }
+
+    axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
+      setNotification("The appointment was done");
+      getAppointments();
+    });
   };
 
   const onSubmit = () => {
@@ -169,8 +160,8 @@ export default function PetOwnerAppointments() {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
-          setNotification("appointment was successfully updated");
-          openchange(false);
+          setNotification("Appointment was successfully updated.");
+          setOpen(false);
           getAppointments();
         })
         .catch((err) => {
@@ -183,8 +174,8 @@ export default function PetOwnerAppointments() {
       axiosClient
         .post(`/appointments/petowner/${id}`, appointment)
         .then(() => {
-          setNotification("appointment was successfully created");
-          setOpenAdd(false);
+          setNotification("Appointment was successfully saved.");
+          setOpen(false);
           getAppointments();
         })
         .catch((err) => {
@@ -207,8 +198,6 @@ export default function PetOwnerAppointments() {
           minWidth: "90%",
         }}
       >
-        {notification && <Alert severity="success">{notification}</Alert>}
-
         <Box
           p={2}
           display="flex"
@@ -216,8 +205,6 @@ export default function PetOwnerAppointments() {
           justifyContent="space-between"
         >
           <Button
-            //  component={Link}
-            //  to={"/admin/appointments/new"}
             onClick={addModal}
             variant="contained"
             color="success"
@@ -226,9 +213,10 @@ export default function PetOwnerAppointments() {
             <Add />
           </Button>
         </Box>
+        {notification && <Alert severity="success">{notification}</Alert>}
 
         <EditAppointment
-          open={openAdd}
+          open={open}
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
@@ -284,24 +272,32 @@ export default function PetOwnerAppointments() {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
-                        {/* <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell> */}
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
-                        {/* <TableCell>
+                        <TableCell>
                           <Stack direction="row" spacing={2}>
-                           
                             <Button
                               variant="contained"
                               size="small"
-                              color="success"
-                              onClick={() => onDone(r)}
+                              color="info"
+                              onClick={() => onEdit(r)}
                             >
-                              <Typography>done</Typography>
+                              <Edit fontSize="small" />
                             </Button>
+                            {r.status === "Confirmed" && (
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="success"
+                                onClick={() => onDone(r)}
+                              >
+                                <DoneAll fontSize="small" />
+                              </Button>
+                            )}
                           </Stack>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                     ))}
               </TableBody>

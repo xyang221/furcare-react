@@ -24,7 +24,7 @@ export default function SpeciesModal(props) {
     onSubmit,
     loading,
     specie,
-    setSpecie, 
+    setSpecie,
     errors,
     isUpdate,
   } = props;
@@ -59,27 +59,34 @@ export default function SpeciesModal(props) {
                 ))}
               </Box>
             )}
-            <Stack spacing={2} margin={2}>
-          
-              <TextField
-                variant="outlined"
-                id="specie"
-                label="Specie"
-                value={specie.specie || ""}
-                onChange={(ev) => handleFieldChange("specie", ev.target.value)}
-              />
-              <TextField
-                variant="outlined"
-                id="Description"
-                label="Description"
-                value={specie.description || ""}
-                onChange={(ev) => handleFieldChange("description", ev.target.value)}
-              />
-             
-              <Button color="primary" variant="contained" onClick={onSubmit}>
-                Save
-              </Button>
-            </Stack>
+            <form onSubmit={(e) => onSubmit(e)}>
+              <Stack spacing={2} margin={2}>
+                <TextField
+                  variant="outlined"
+                  id="specie"
+                  label="Specie"
+                  value={specie.specie || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("specie", ev.target.value)
+                  }
+                  required
+                />
+                <TextField
+                  variant="outlined"
+                  id="Description"
+                  label="Description"
+                  value={specie.description || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("description", ev.target.value)
+                  }
+                  required
+                />
+
+                <Button color="primary" variant="contained" type="submit">
+                  Save
+                </Button>
+              </Stack>
+            </form>
           </DialogContent>
         </Dialog>
       )}

@@ -2,11 +2,9 @@ import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import { Link, useParams } from "react-router-dom";
 import {
-  Alert,
   Box,
   Button,
   Paper,
-  Snackbar,
   Stack,
   Table,
   TableBody,
@@ -15,21 +13,31 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
-import { Add, Archive, Edit } from "@mui/icons-material";
+import { Add, Archive, Close, Done, DoneAll, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
 import { SearchPetOwner } from "../components/SearchPetOwner";
+import Notif from "../components/Notif";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function Appointments() {
   //for table
   const columns = [
     { id: "Date", name: "Date" },
     { id: "client", name: "Client" },
-    { id: "Purpose", name: "Purpose" },
     { id: "Service", name: "Service" },
+    { id: "Purpose", name: "Purpose" },
+    { id: "Remarks", name: "Remarks" },
     { id: "Status", name: "Status" },
+    { id: "Actions", name: "Actions" },
+  ];
+
+  const petownerscolumns = [
+    { id: "id", name: "ID" },
+    { id: "name", name: "Name" },
+    { id: "contact_num", name: "Contact Number" },
+    { id: "address", name: "Address" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -44,15 +52,18 @@ export default function Appointments() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [notification, setNotification] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const [appointments, setAppointments] = useState([]);
   const [petowners, setPetowners] = useState([]);
   const [services, setServices] = useState([]);
   const [query, setQuery] = useState("");
+
+  //for notif modal
   const [opennotif, setOpennotif] = useState(false);
+  const {notification,setNotification} = useStateContext();
+  // const [notification, setNotification] = useState("");
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -65,10 +76,19 @@ export default function Appointments() {
     petowner_id: null,
     service_id: null,
   });
+
+  const [petowner, setPetowner] = useState({
+    id: null,
+    firstname: "",
+    lastname: "",
+  });
+  const [petownerid, setPetownerid] = useState(null);
   const [open, openchange] = useState(false);
-  const [openAdd, setOpenAdd] = useState(false);
 
   const getAppointments = () => {
+    setPetownerid(null)
+    setPetowners([])
+    setMessage(null);
     setLoading(true);
     axiosClient
       .get("/appointments/bydate")
@@ -91,18 +111,7 @@ export default function Appointments() {
       .then(({ data }) => {
         setServices(data.data);
       })
-      .catch(() => {
-      });
-  };
-
-  const getPetowners = () => {
-    axiosClient
-      .get(`/petowners`)
-      .then(({ data }) => {
-        setPetowners(data.data);
-      })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   const search = (query) => {
@@ -128,19 +137,17 @@ export default function Appointments() {
 
   //for modal
 
-  const addModal = (ev) => {
-    getPetowners();
-    // setOpenAdd(true);
+  const addModal = (p) => {
+    getServices();
+    setPetownerid(p.id);
     setAppointment({});
     setErrors(null);
     setNotification("");
     openchange(true);
-    getServices();
   };
 
   const closepopup = () => {
     openchange(false);
-    setOpenAdd(false);
   };
 
   //buttons
@@ -168,12 +175,14 @@ export default function Appointments() {
 
   const onEdit = (r) => {
     setErrors(null);
+    getServices();
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
         setAppointment(data);
+        setPetowner(data.petowner)
       })
       .catch(() => {
         setModalloading(false);
@@ -181,12 +190,14 @@ export default function Appointments() {
     openchange(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (appointment.id) {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
-          setNotification("Appointment was successfully updated");
+          setNotification("Appointment was successfully updated.");
           openchange(false);
           setOpennotif(true);
           getAppointments();
@@ -199,12 +210,13 @@ export default function Appointments() {
         });
     } else {
       axiosClient
-        .post(`/appointments`, appointment)
+        .post(`/appointments/petowner/${petownerid}`, appointment)
         .then(() => {
-          setNotification("Appointment was successfully created");
+          setNotification("Appointment was successfully saved.");
           openchange(false);
           setOpennotif(true);
           getAppointments();
+          setQuery("");
         })
         .catch((err) => {
           const response = err.response;
@@ -218,6 +230,8 @@ export default function Appointments() {
   useEffect(() => {
     getAppointments();
   }, []);
+
+  console.log(petownerid)
 
   return (
     <>
@@ -233,62 +247,73 @@ export default function Appointments() {
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
+          alignItems="center"
         >
-          {/* <Box display="flex" flexDirection="row"> */}
-            <Typography variant="h4">Appointments</Typography>{" "}  
-            
-            <DropDownButtons
-          optionLink1="/admin/appointments/pending"
-          optionLabel1="Pending"
-          optionLink2="/admin/appointments/confirmed"
-          optionLabel2="Confirmed"
-          optionLink3="/admin/appointments/completed"
-          optionLabel3="Completed"
-        />
-            {/* <Button onClick={addModal} variant="contained" size="small" color="success" sx={{marginLeft:"10px", height:"35px"}}>
-              <Add />
-            </Button> */}
-          {/* </Box> */}
-          {/* <SearchPetOwner
+          <DropDownButtons
+            title="Appointments"
+            optionLink1="/admin/appointments/pending"
+            optionLabel1="Pending"
+            optionLink2="/admin/appointments/confirmed"
+            optionLabel2="Confirmed"
+            optionLink3="/admin/appointments/completed"
+            optionLabel3="Completed"
+          />
+
+          <SearchPetOwner
             query={query}
             setQuery={setQuery}
             search={search}
-            getPetowners={getPetowners}
-          /> */}
+            getPetowners={getAppointments}
+          />
         </Box>
 
-      
         <EditAppointment
           open={open}
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
           loading={modalloading}
+          petowner={petowner}
           petowners={petowners}
           services={services}
           appointment={appointment}
           setAppointment={setAppointment}
           errors={errors}
           isUpdate={appointment.id}
+          petownerid={petownerid || null}
         />
+
         <TableContainer sx={{ height: 380 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableCell
-                    style={{ backgroundColor: "black", color: "white" }}
-                    key={column.id}
-                  >
-                    {column.name}
-                  </TableCell>
-                ))}
-              </TableRow>
+              {!query ? (
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell
+                      style={{ backgroundColor: "black", color: "white" }}
+                      key={column.id}
+                    >
+                      {column.name}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ) : (
+                <TableRow>
+                  {petownerscolumns.map((column) => (
+                    <TableCell
+                      style={{ backgroundColor: "black", color: "white" }}
+                      key={column.id}
+                    >
+                      {column.name}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )}
             </TableHead>
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -298,14 +323,14 @@ export default function Appointments() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
               </TableBody>
             )}
 
-            {!loading && (
+            {!loading && !query && (
               <TableBody>
                 {appointments &&
                   appointments
@@ -316,8 +341,9 @@ export default function Appointments() {
                           {new Date(r.date).toISOString().split("T")[0]}
                         </TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
-                        <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
+                        <TableCell>{r.purpose}</TableCell>
+                        <TableCell>{r.remarks}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
@@ -327,7 +353,7 @@ export default function Appointments() {
                               color="info"
                               onClick={() => onEdit(r)}
                             >
-                              <Typography>edit</Typography>
+                              <Edit fontSize="small" />
                             </Button>
 
                             <Button
@@ -336,7 +362,7 @@ export default function Appointments() {
                               color="success"
                               onClick={() => onDone(r)}
                             >
-                              <Typography>Completed</Typography>
+                              <DoneAll fontSize="small" />
                             </Button>
                             <Button
                               variant="contained"
@@ -344,9 +370,37 @@ export default function Appointments() {
                               color="error"
                               onClick={() => onNoShow(r)}
                             >
-                              <Typography>no show</Typography>
+                              <Close fontSize="small" />
                             </Button>
                           </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+              </TableBody>
+            )}
+            {query && petowners && (
+              <TableBody>
+                {petowners &&
+                  petowners
+                    .slice(page * rowperpage, page * rowperpage + rowperpage)
+                    .map((p) => (
+                      <TableRow hover role="checkbox" key={p.id}>
+                        <TableCell>{p.id}</TableCell>
+                        <TableCell>{`${p.firstname} ${p.lastname}`}</TableCell>
+                        <TableCell>0{p.contact_num}</TableCell>
+                        <TableCell>
+                          {p.address.zone}, {p.address.barangay},{" "}
+                          {p.address.zipcode.area}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() => addModal(p)}
+                          >
+                            <Add fontSize="small" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -363,18 +417,7 @@ export default function Appointments() {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
-
-        <Stack spacing={2} sx={{ width: "100%" }}>
-          <Snackbar
-            open={opennotif}
-            autoHideDuration={6000}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          >
-            <Alert severity="success" sx={{ width: "100%" }}>
-              {notification}
-            </Alert>
-          </Snackbar>
-        </Stack>
+        <Notif open={opennotif} notification={notification} />
       </Paper>
     </>
   );

@@ -3,9 +3,11 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { Typography } from "@mui/material";
 
 export default function DropDownButtons(props) {
   const {
+    title,
     optionLink1,
     optionLabel1,
     optionLink2,
@@ -31,7 +33,7 @@ export default function DropDownButtons(props) {
         onClick={handleOpenMenu}
         endIcon={<ArrowDropDownIcon />}
       >
-        Filter
+        <Typography variant="h5">{title}</Typography>
       </Button>
       <Menu
         id="button-menu"
@@ -42,12 +44,16 @@ export default function DropDownButtons(props) {
         <MenuItem onClick={handleCloseMenu} component="a" href={optionLink1}>
           {optionLabel1}
         </MenuItem>
-        <MenuItem onClick={handleCloseMenu} component="a" href={optionLink2}>
-          {optionLabel2}
-        </MenuItem>
-        <MenuItem onClick={handleCloseMenu} component="a" href={optionLink3}>
-          {optionLabel3}
-        </MenuItem>
+        {optionLabel2 && (
+          <MenuItem onClick={handleCloseMenu} component="a" href={optionLink2}>
+            {optionLabel2}
+          </MenuItem>
+        )}
+        {optionLabel3 && (
+          <MenuItem onClick={handleCloseMenu} component="a" href={optionLink3}>
+            {optionLabel3}
+          </MenuItem>
+        )}
       </Menu>
     </div>
   );

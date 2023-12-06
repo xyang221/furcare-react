@@ -100,7 +100,9 @@ export default function ViewStaff() {
     openuserchange(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     setErrors(null);
     setLoading(true);
     axiosClient
@@ -124,7 +126,9 @@ export default function ViewStaff() {
       });
   };
 
-  const onSubmitUser = () => {
+  const onSubmitUser = (e) => {
+    e.preventDefault();
+
     setErrors(null);
     axiosClient
       .put(`/users/${staff.user_id}`, userdata)

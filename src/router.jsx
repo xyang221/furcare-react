@@ -5,7 +5,6 @@ import Signup from "./pages/Signup";
 import Users from "./pages/Users";
 import DefaultLayout from "./components/DefaultLayout";
 import GuestLayout from "./components/GuestLayout";
-import Dashboard from "./pages/Dashboard";
 import UserForm from "./pages/UserForm";
 import PetOwners from "./pages/PetOwners";
 import PetOwnerForm from "./pages/PetOwnerForm";
@@ -35,11 +34,6 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Navigate to="/dashboard" />,
-      },
-
-      {
-        path: "/dashboard",
-        element: <Dashboard />,
       },
 
       {

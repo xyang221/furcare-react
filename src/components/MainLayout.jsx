@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, CssBaseline } from "@mui/material";
 import Navbar from "./Navbar";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
@@ -6,20 +6,22 @@ import { useStateContext } from "../contexts/ContextProvider";
 import Sidebar from "./Sidebar";
 import StaffSidebar from "./StaffSidebar";
 import PetOwnerSidebar from "./PetOwnerSidebar";
-import Dashboard from "../pages/Dashboard";
+import Dashboard from "../pages/Home";
 import Modaltry from "./Modal";
 
-import { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
+import { useRef } from "react";
+import { useReactToPrint } from "react-to-print";
 
 import PrintComponent from "../pages/Example";
+import QrCodeScanner from "./QrCodeScanner";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 export default function MainLayout() {
   const { user, token } = useStateContext();
 
   // Redirect to the login page if there's no token
   if (!token) {
-    return <Navigate to="/login" />
+    return <Navigate to="/login" />;
   }
 
   let sidebarComponent = null;
@@ -28,14 +30,14 @@ export default function MainLayout() {
   switch (user.role_id) {
     case "1":
       sidebarComponent = <Sidebar />;
-      dashboardComponent = <Dashboard/>
+      dashboardComponent = <Dashboard />;
       break;
     case "2":
       sidebarComponent = <StaffSidebar />;
       break;
     case "3":
       sidebarComponent = <PetOwnerSidebar />;
-      dashboardComponent= <>petowner dashboard</>
+      dashboardComponent = <>petowner dashboard</>;
       break;
     default:
       sidebarComponent = null;
@@ -48,9 +50,9 @@ export default function MainLayout() {
         <Navbar />
         <Box display="flex" justifyContent="space-between">
           {sidebarComponent}
-          <Box  flex={5} sx={{marginLeft:"220px"}}>
+          <Box flex={5} sx={{ marginLeft: "220px" }}>
             {/* main layout sagol ang dashboard */}
-     {/* <PrintComponent/> */}
+            {/* <QrCodeScanner /> */}
             <Outlet />
           </Box>
         </Box>

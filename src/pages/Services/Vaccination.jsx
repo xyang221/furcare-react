@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../axios-client";
+import axiosClient from "../../axios-client";
 import { Link, useParams } from "react-router-dom";
 import {
   Alert,
@@ -17,7 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Archive, Edit } from "@mui/icons-material";
-import VaccinationLogsModal from "../components/modals/VaccinationLogsModal";
+import VaccinationLogsModal from "../../components/modals/VaccinationLogsModal";
 
 export default function Vaccination({ sid }) {
   const columns = [

@@ -27,7 +27,7 @@ export default function DewormingLogsModal(props) {
     onSubmit,
     loading,
     pets,
-    petid,
+    pet,
     deworminglog,
     setDeworminglog,
     errors,
@@ -67,8 +67,17 @@ export default function DewormingLogsModal(props) {
                 ))}
               </Box>
             )}
-            <form onSubmit={(e) => onSubmit(e)} on>
+            <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
+              {isUpdate && pet ? (
+                <TextField
+                  variant="outlined"
+                  id="Pet"
+                  label="Pet"
+                  value={pet.name}
+                  disabled
+                />
+              ): (
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
                   <Select
@@ -77,7 +86,6 @@ export default function DewormingLogsModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
-                    disabled={isUpdate}
                     required
                   >
                     {pets.map((item) => (
@@ -87,6 +95,7 @@ export default function DewormingLogsModal(props) {
                     ))}
                   </Select>
                 </FormControl>
+              )}
 
                 <TextField
                   variant="outlined"

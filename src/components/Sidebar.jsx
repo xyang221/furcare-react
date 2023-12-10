@@ -60,9 +60,9 @@ export default function Sidebar() {
           <ListItemButton
             selected={selectedIndex === 6}
             onClick={() => handleListItemClick(6)}
-            to="/"
+            to="/admin/home"
           >
-            <ListItemText primary="Dashboard"></ListItemText>
+            <ListItemText primary="Home"></ListItemText>
             <ListItemIcon>
               <Home />
             </ListItemIcon>

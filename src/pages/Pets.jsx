@@ -22,6 +22,8 @@ import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 import PetsModal from "../components/modals/PetsModal";
+import DropDownButtons from "../components/DropDownButtons";
+import { SearchPetOwner } from "../components/SearchPetOwner";
 
 export default function Pets() {
   const [loading, setLoading] = useState(false);
@@ -57,8 +59,10 @@ export default function Pets() {
 
   const [pets, setPets] = useState([]);
   const [message, setMessage] = useState("");
+  const [query, setQuery] = useState("");
 
   const getPets = () => {
+    setMessage(null);
     setLoading(true);
     axiosClient
       .get(`/pets`)
@@ -209,8 +213,31 @@ export default function Pets() {
     }
   };
 
+  const search = (query) => {
+    if(query){
+    setMessage(null);
+    setPets([])
+      setLoading(true);
+      axiosClient
+        .get(`/pets-search/${query}`)
+        .then(({ data }) => {
+          setLoading(false);
+          setPets(data.data);
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            setMessage(response.data.message);
+          }
+          setLoading(false);
+        });
+      }
+  }
+
   useEffect(() => {
+    if(!query){
     getPets();
+    }
   }, []);
 
   return (
@@ -231,17 +258,11 @@ export default function Pets() {
           flexDirection="row"
           justifyContent="space-between"
         >
-            <Typography variant="h4">Pets</Typography>{" "}
-
-          
-        <Button
-            component={Link}
-            to={`/admin/pets/archives`}
-            variant="contained"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button>
+           <DropDownButtons
+            title="Pets"
+            optionLink1="/admin/pets/archives"
+            optionLabel1="Archives"
+          />
           <Button
           onClick={functionopenpopup}
           variant="contained"
@@ -249,6 +270,8 @@ export default function Pets() {
         >
           <Add/>
         </Button>
+        <SearchPetOwner query={query} setQuery={setQuery} search={search} getPetowners={getPets}/>
+
           </Box>
           
             {notification && <Alert severity="success">{notification}</Alert>}
@@ -291,7 +314,7 @@ export default function Pets() {
                 {loading && (
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                      <TableCell colSpan={6} style={{ textAlign: "center" }}>
                         Loading...
                       </TableCell>
                     </TableRow>

@@ -4,8 +4,9 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { Tab } from "@mui/material";
-import PetDewormingLogs from "../pages/Services/PetDewormingLogs";
+import Deworming from "../pages/Services/Deworming";
 import PetVaccination from "../pages/PetVaccination";
+import PetDeworming from "../pages/PetDeworming";
 
 export default function PetTabs() {
   const [value, setValue] = useState("1");
@@ -28,10 +29,10 @@ export default function PetTabs() {
           <PetVaccination />{" "}
         </TabPanel>
         <TabPanel value="2">
-          <PetDewormingLogs />
+          <PetDeworming />
         </TabPanel>
         <TabPanel value="3">
-          <PetDewormingLogs />
+          <PetDeworming />
         </TabPanel>
       </TabContext>
     </Box>

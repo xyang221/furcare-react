@@ -15,6 +15,8 @@ import { ArrowBackIos, Edit } from "@mui/icons-material";
 import PetsModal from "../components/modals/PetsModal";
 import PetTabs from "../components/PetTabs";
 import UploadImage from "../components/UploadImage";
+import QrCodeGenerator from "../components/QrCodeGenerator";
+import QRCode from "qrcode";
 
 export default function ViewPet() {
   const { id } = useParams();
@@ -58,8 +60,8 @@ export default function ViewPet() {
         setLoading(false);
         setPet(data);
         setPetowner(data.petowner);
-        setSpecie(data.breed.specie)
-        setBreed(data.breed)
+        setSpecie(data.breed.specie);
+        setBreed(data.breed);
       })
       .catch(() => {
         setLoading(false);
@@ -162,6 +164,28 @@ export default function ViewPet() {
     setImage(false);
   };
 
+  const [qr, setQr] = useState("");
+
+  const GenerateQRCode = () => {
+    QRCode.toDataURL(
+      id,
+      {
+        width: 150,
+        margin: 2,
+        color: {
+          dark: "#000000",
+          light: "#EEEEEEFF",
+        },
+      },
+      (err, id) => {
+        if (err) return console.error(err);
+
+        console.log(id);
+        setQr(id);
+      }
+    );
+  };
+
   useEffect(() => {
     getPet();
   }, []);
@@ -207,25 +231,25 @@ export default function ViewPet() {
             <Typography>
               Pet Owner: {petowner.firstname} {petowner.lastname}
             </Typography>
-            <Stack flexDirection="row" >
-            <Stack sx={{marginRight:"10px"}}>
-              <Typography>Pet Name: {pet.name}</Typography>
-              <Typography>Birthdate: {pet.birthdate}</Typography>
-              <Typography>Gender: {pet.gender}</Typography>
-            </Stack>
-            <Stack>
-              <Typography>Specie: {specie.specie}</Typography>
-              <Typography>Breed: {breed.breed}</Typography>
-              <Typography>Color: {pet.color}</Typography>
-            </Stack>
+            <Stack flexDirection="row">
+              <Stack sx={{ marginRight: "10px" }}>
+                <Typography>Pet Name: {pet.name}</Typography>
+                <Typography>Birthdate: {pet.birthdate}</Typography>
+                <Typography>Gender: {pet.gender}</Typography>
+              </Stack>
+              <Stack>
+                <Typography>Specie: {specie.specie}</Typography>
+                <Typography>Breed: {breed.breed}</Typography>
+                <Typography>Color: {pet.color}</Typography>
+              </Stack>
             </Stack>
           </Stack>
+          <QrCodeGenerator qr={qr} GenerateQRCode={GenerateQRCode} />
         </Stack>
         <PetsModal
           open={open}
           onClick={closepopup}
           onClose={closepopup}
-          // id={petdata.id}
           onSubmit={onSubmit}
           loading={loading}
           breeds={breeds}

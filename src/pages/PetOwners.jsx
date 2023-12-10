@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import { Add, Archive, NavigateNext, Visibility } from "@mui/icons-material";
 import { SearchPetOwner } from "../components/SearchPetOwner";
+import DropDownButtons from "../components/DropDownButtons"
 
 export default function PetOwners() {
   //for table
@@ -120,7 +121,11 @@ export default function PetOwners() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Pet Owners</Typography>{" "}
+           <DropDownButtons
+            title="Pet Owners"
+            optionLink1="/admin/petowners/archives"
+            optionLabel1="Archives"
+          />
             <Button
               component={Link}
               to={"/admin/petowners/new"}
@@ -131,14 +136,6 @@ export default function PetOwners() {
               <Add />
             </Button>
           <SearchPetOwner query={query} setQuery={setQuery} search={search} getPetowners={getPetowners}/>
-          {/* <Button
-            component={Link}
-            to={`/admin/petowners/archives`}
-            variant="contained"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button> */}
          
         </Box>
 

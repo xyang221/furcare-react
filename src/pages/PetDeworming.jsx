@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "../../axios-client";
+import axiosClient from "../axios-client";
 import { Link, useParams } from "react-router-dom";
 import {
   Alert,
@@ -17,13 +17,14 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
-import DewormingLogsModal from "../../components/modals/DewormingLogsModal";
+import DewormingLogsModal from "../components/modals/DewormingLogsModal";
 
-export default function PetDewormingLogs({ sid }) {
+export default function PetDeworming() {
+  const { id } = useParams();
+
   //for table
   const columns = [
     { id: "date", name: "Date" },
-    { id: "Pet", name: "Pet" },
     { id: "weight", name: "Weight" },
     { id: "Description", name: "Description" },
     { id: "Administered", name: "Administered" },
@@ -45,19 +46,25 @@ export default function PetDewormingLogs({ sid }) {
 
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState("");
   const [errors, setErrors] = useState(null);
-
+  const [deworminglog, setDeworminglog] = useState({
+    id: null,
+    weight: null,
+    description: "",
+    administered: "",
+    return: "",
+    pet_id: null,
+  });
+  const [pet, setPet] = useState([]);
+  const [open, setOpen] = useState(false);
   const [deworminglogs, setDeworminglogs] = useState([]);
 
-  const { id } = useParams();
-
   const getDeworming = () => {
-    setMessage(null);
-    setDeworminglogs([])
+    setMessage(null)
     setLoading(true);
     axiosClient
-      .get(`/deworminglogs/petowner/${id}/service/${sid}`)
+      .get(`/deworminglogs/pet/${id}`)
       .then(({ data }) => {
         setLoading(false);
         setDeworminglogs(data.data);
@@ -71,61 +78,35 @@ export default function PetDewormingLogs({ sid }) {
       });
   };
 
-  const [pets, setPets] = useState([]);
-
-  const getPets = () => {
-    axiosClient
-      .get(`/petowners/${id}/pets`)
-      .then(({ data }) => {
-        setPets(data.data);
-      })
-      .catch(() => {});
-  };
-
-  const [deworminglog, setDeworminglog] = useState({
-    id: null,
-    weight: "",
-    description: "",
-    administered: "",
-    return: "",
-    pet_id: null,
-  });
-
-  const [openAdd, setOpenAdd] = useState(false);
-
-  const addModal = (ev) => {
-    getPets();
-    setOpenAdd(true);
-    setDeworminglog({});
-    setErrors(null);
-  };
-
   const closepopup = () => {
-    setOpenAdd(false);
+    setOpen(false);
   };
 
-  const onArchive = (u) => {
+  const onEdit = (r) => {
+    setErrors(null);
+    setLoading(true);
+    axiosClient
+      .get(`/deworminglogs/${r.id}`)
+      .then(({ data }) => {
+        setLoading(false);
+        setDeworminglog(data);
+        setPet(data.pet)
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+    setOpen(true);
+  };
+
+  const onArchive = (r) => {
     if (!window.confirm("Are you sure to archive this?")) {
       return;
     }
 
-    axiosClient.delete(`/deworminglogs/${u.id}/archive`).then(() => {
-      setNotification("This deworming record was archived.");
+    axiosClient.delete(`/deworminglogs/${r.id}/archive`).then(() => {
+      setNotification("Pet Owner was archived");
       getDeworming();
     });
-  };
-
-  const onEdit = (r) => {
-    getPets();
-    setErrors(null);
-    axiosClient
-      .get(`/deworminglogs/${r.id}`)
-      .then(({ data }) => {
-        setDeworminglog(data);
-      })
-      .catch(() => {
-      });
-    setOpenAdd(true);
   };
 
   const onSubmit = (e) => {
@@ -135,27 +116,13 @@ export default function PetDewormingLogs({ sid }) {
       axiosClient
         .put(`/deworminglogs/${deworminglog.id}`, deworminglog)
         .then(() => {
-          setNotification("Pet deworming was successfully updated.");
-          setOpenAdd(false);
+          setNotification("Deworming was successfully updated.");
+          setOpen(false);
           getDeworming();
         })
         .catch((err) => {
           const response = err.response;
           if (response && response.status == 422) {
-            setErrors(response.data.errors);
-          }
-        });
-    } else {
-      axiosClient
-        .post(`/deworminglogs/petowner/${id}/service/${sid}`, deworminglog)
-        .then(() => {
-          setNotification("Pet deworming was successfully saved.");
-          setOpenAdd(false);
-          getDeworming();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status === 422) {
             setErrors(response.data.errors);
           }
         });
@@ -168,38 +135,25 @@ export default function PetDewormingLogs({ sid }) {
 
   return (
     <>
-      <Box
+      <Paper
         sx={{
           minWidth: "90%",
+          padding: "10px",
         }}
       >
-        <Box
-          p={2}
-          display="flex"
-          flexDirection="row"
-          justifyContent="space-between"
-        >
-          <Button
-            onClick={addModal}
-            variant="contained"
-            color="success"
-            size="small"
-          >
-            <Add />
-          </Button>
-        </Box>
 
         <DewormingLogsModal
-          open={openAdd}
+          open={open}
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
-          pets={pets}
-          // petid={id}
+          loading={loading}
           deworminglog={deworminglog}
           setDeworminglog={setDeworminglog}
           errors={errors}
-          isUpdate={deworminglog.id}
+          pets={pet}
+          pet={pet}
+          isUpdate={deworminglog.id || null}
         />
 
         {/* <Button
@@ -231,7 +185,7 @@ export default function PetDewormingLogs({ sid }) {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -241,7 +195,7 @@ export default function PetDewormingLogs({ sid }) {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -256,7 +210,6 @@ export default function PetDewormingLogs({ sid }) {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
-                        <TableCell>{r.pet.name}</TableCell>
                         <TableCell>{`${r.weight} kg`}</TableCell>
                         <TableCell>{r.description}</TableCell>
                         <TableCell>{r.administered}</TableCell>
@@ -298,7 +251,7 @@ export default function PetDewormingLogs({ sid }) {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
-      </Box>
+      </Paper>
     </>
   );
 }

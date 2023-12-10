@@ -97,9 +97,9 @@ export default function PetsModal(props) {
   return (
     <>
       <>
-        <Backdrop open={loading} style={{ zIndex: 999 }}>
+        {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
           <CircularProgress color="inherit" />
-        </Backdrop>
+        </Backdrop> */}
 
         {uploadImage && (
           <>

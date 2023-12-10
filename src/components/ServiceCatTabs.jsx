@@ -7,7 +7,7 @@ import { Button, Tab, Typography } from "@mui/material";
 import axiosClient from "../axios-client";
 import Consultation from "../pages/Services/Consultation";
 import ServiceAvail from "../pages/Services/ServiceAvail";
-import PetDewormingLogs from "../pages/Services/PetDewormingLogs";
+import Deworming from "../pages/Services/Deworming";
 import TestResults from "../pages/Services/TestResults";
 import {
   Apartment,
@@ -26,7 +26,7 @@ import {
   Vaccines,
 } from "@mui/icons-material";
 import TreatmentForm from "../pages/TreatmentForm";
-import Vaccination from "../pages/Vaccination";
+import Vaccination from "../pages/Services/Vaccination";
 
 export default function ServiceCatBtns() {
   const [servicesCat, setServicesCat] = useState([]);
@@ -135,7 +135,7 @@ export default function ServiceCatBtns() {
                   {service.id == 8 && <Vaccination sid={service.id} />}
                   {service.id == 9 && <Vaccination sid={service.id} />}
                   {service.id == 10 && <Vaccination sid={service.id} />}
-                  {service.id == 11 && <PetDewormingLogs sid={service.id} />}
+                  {service.id == 11 && <Deworming sid={service.id} />}
                   {service.id == 12 && <TestResults sid={service.id} />}
                   {service.id == 13 && <TestResults sid={service.id} />}
                   {service.id == 14 && <TestResults sid={service.id} />}

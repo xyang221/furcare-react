@@ -32,7 +32,7 @@ import AppointmentsConfirmed from "./pages/AppointmentsConfirmed";
 import Receipt from "./pages/Receipt";
 import ViewPet from "./pages/ViewPet";
 import Pets from "./pages/Pets";
-import DewormingLogs from "./pages/DewormingLogs";
+import PetDeworming from "./pages/PetDeworming";
 import Services from "./pages/Services";
 import Diagnosis from "./pages/Diagnosis";
 import PetOwnerAvail from "./pages/PetOwnerAvail";
@@ -44,6 +44,8 @@ import PrintComponent from "./pages/Billing/ChargeSlipPrint";
 import Settings from "./pages/Settings";
 import SettingsTabs from "./components/SettingsTabs";
 import UserArchives from "./pages/UserArchives";
+import { QrCodeScanner } from "@mui/icons-material";
+import Home from "./pages/Home";
 
 const roles = {
   ADMIN: "1",
@@ -66,7 +68,7 @@ function App() {
             <Route path="editprofile/:id" element={<UserForm />} />
 
             <Route element={<RequireAuth allowedRoles={[roles.ADMIN]} />}>
-
+              <Route path="admin/home" element={<Home />} />
               <Route path="admin/settings" element={<SettingsTabs />} />
 
               <Route path="admin/roles" element={<Roles />} />
@@ -136,7 +138,7 @@ function App() {
                 element={<Diagnosis />}
               />
 
-              <Route path="admin/deworminglogs" element={<DewormingLogs />} />
+              <Route path="admin/deworminglogs" element={<PetDeworming />} />
 
               <Route
                 path="admin/services/petowner/:id/avail/admission"

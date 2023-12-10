@@ -7,6 +7,7 @@ import { Tab } from "@mui/material";
 import Deworming from "../pages/Services/Deworming";
 import PetVaccination from "../pages/PetVaccination";
 import PetDeworming from "../pages/PetDeworming";
+import PetAdmissions from "../pages/PetAdmissions";
 
 export default function PetTabs() {
   const [value, setValue] = useState("1");
@@ -19,10 +20,11 @@ export default function PetTabs() {
     <Box sx={{ width: "100%", typography: "body1" }}>
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs">
+          <TabList onChange={handleChange} aria-label="pet tabs">
             <Tab label="Vaccination Logs" value="1" />
             <Tab label="Deworming Logs" value="2" />
             <Tab label="Medical Records" value="3" />
+            <Tab label="Admission" value="4" />
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -33,6 +35,9 @@ export default function PetTabs() {
         </TabPanel>
         <TabPanel value="3">
           <PetDeworming />
+        </TabPanel>
+        <TabPanel value="4">
+          <PetAdmissions />
         </TabPanel>
       </TabContext>
     </Box>

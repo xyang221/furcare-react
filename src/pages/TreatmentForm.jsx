@@ -14,8 +14,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import PetConditionAdmission from "./PetConditionAdmission";
+import PetMedicationAdmission from "./PetMedicationAdmission";
 
-export default function TreatmentForm() {
+export default function TreatmentForm({ sid }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -24,79 +26,42 @@ export default function TreatmentForm() {
 
   const [treatment, setTreatment] = useState({
     id: null,
+    pet_id: null,
     diagnosis: "",
     body_weight: "",
     heart_rate: "",
-    mucous_membrane: "",
+    mucous_membranes: "",
     pr_prealbumin: "",
-    temp: "",
+    temperature: "",
     respiration_rate: "",
     caspillar_refill_time: "",
-    body_condition_Score: "",
+    body_condition_score: "",
     fluid_rate: "",
     comments: "",
   });
 
-  const [petowner, setPetowner] = useState([]);
-
-  const getPetowner = () => {
-    setLoading(true);
-    axiosClient
-      .get(`/petowners/${id}`)
-      .then(({ data }) => {
-        setLoading(false);
-        setPetowner(data);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
   const [pets, setPets] = useState([]);
   const getPetownerPets = () => {
-    // setLoading(true);
     axiosClient
       .get(`/petowners/${id}/pets`)
       .then(({ data }) => {
-        // setLoading(false);
         setPets(data.data);
       })
-      .catch(() => {
-        // setLoading(false);
-      });
+      .catch(() => {});
   };
 
-  const getPetowners = () => {
-    setLoading(true);
+  const getCurrentTreatment = () => {
     axiosClient
-      .get("/treatments")
+      .get(`/treatments/petowner/${id}/service/${sid}`)
       .then(({ data }) => {
-        setLoading(false);
-        setTreatment(data.data);
+        setTreatment(data);
       })
-      .catch(() => {
-        setLoading(false);
-      });
-
-    // axiosClient
-    //   .get("/petowners")
-    //   .then(({ data }) => {
-    //     setLoading(false);
-    //     setPetowners(data.data);
-    //   })
-    //   .catch(() => {
-    //     setLoading(false);
-    //   });
+      .catch(() => {});
   };
 
-  useEffect(() => {
-    getPetowner();
-    getPetownerPets();
-    // getPetowners();
-  }, []);
+  const onSubmit = (e) => {
+    e.preventDefault();
 
-  const onSubmit = (ev) => {
-    ev.preventDefault();
     if (treatment.id) {
       axiosClient
         .put(`/treatments/${treatment.id}`, treatment)
@@ -112,10 +77,11 @@ export default function TreatmentForm() {
         });
     } else {
       axiosClient
-        .post(`/treatments/petowner/${id}`, treatment)
-        .then(() => {
+        .post(`/treatments/petowner/${id}/service/${sid}`, treatment)
+        .then((response) => {
+          console.log(treatment);
           setNotification("treatment successfully created");
-          navigate(`/admin/services/petowner/${id}/avail/admission`);
+          setTreatment(response.data);
         })
         .catch((err) => {
           const response = err.response;
@@ -129,19 +95,25 @@ export default function TreatmentForm() {
   const [date, setDate] = useState(new Date());
 
   const handleFieldChange = (fieldName, value) => {
-    // Create a copy of the breed object and update the specified field
-    const updatedDiagnosis = { ...treatment, [fieldName]: value };
-    // Update the breed object with the updated value
-    setTreatment(updatedDiagnosis);
+    const updatedTreatment = { ...treatment, [fieldName]: value };
+
+    setTreatment(updatedTreatment);
   };
+
+  useEffect(() => {
+    getPetownerPets();
+    getCurrentTreatment();
+  }, []);
 
   return (
     <Paper
       sx={{
         padding: "10px",
+        display:"flex"
       }}
     >
-      <h1 className="title">Treatment Sheet</h1>
+      <Stack>
+      <Typography variant="h4">Treatment Sheet</Typography>
       {loading && <div className="text-center">Loading...</div>}
       {errors && (
         <div className="alert">
@@ -151,7 +123,7 @@ export default function TreatmentForm() {
         </div>
       )}
       {!loading && (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={(e) => onSubmit(e)}>
           <Typography variant="h6">Date: {date.toDateString()} </Typography>
           <Typography variant="h6">Day: ? </Typography>
           <TextField
@@ -173,96 +145,139 @@ export default function TreatmentForm() {
             >
               {pets.map((item) => (
                 <MenuItem key={item.id} value={item.id}>
-                  {item.name}
+                  {/* {item.name} */}
+                  {`${item.name} (Breed: ${item.breed.breed})`}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-          <TextField
-            value={treatment.deposit}
-            label="Breed"
-            variant="standard"
-            disabled
-          />
           <br></br>
           <Stack flexDirection={"row"}>
             <Stack display={"flex"} flexDirection={"column"} padding={"10px"}>
               <TextField
-                value={treatment.bw}
-                onChange={(ev) => handleFieldChange("bw", ev.target.value)}
+                value={treatment.body_weight}
+                onChange={(ev) =>
+                  handleFieldChange("body_weight", ev.target.value)
+                }
                 label="BW"
                 variant="standard"
                 size="small"
                 required
+                type="number"
               />
               <TextField
-                value={treatment.hr}
-                onChange={(ev) => handleFieldChange("hr", ev.target.value)}
+                value={treatment.heart_rate}
+                onChange={(ev) =>
+                  handleFieldChange("heart_rate", ev.target.value)
+                }
                 label="HR"
                 variant="standard"
                 size="small"
+                type="number"
                 required
               />
               <TextField
-                value={treatment.mm}
-                onChange={(ev) => handleFieldChange("mm", ev.target.value)}
+                value={treatment.mucous_membranes}
+                onChange={(ev) =>
+                  handleFieldChange("mucous_membranes", ev.target.value)
+                }
                 label="MM"
                 variant="standard"
                 size="small"
+                type="number"
                 required
               />
               <TextField
-                value={treatment.pr}
-                onChange={(ev) => handleFieldChange("pr", ev.target.value)}
+                value={treatment.pr_prealbumin}
+                onChange={(ev) =>
+                  handleFieldChange("pr_prealbumin", ev.target.value)
+                }
                 label="PR"
                 variant="standard"
                 size="small"
+                type="number"
+                required
+              />
+              <TextField
+                value={treatment.temperature}
+                onChange={(ev) =>
+                  handleFieldChange("temperature", ev.target.value)
+                }
+                label="Temp"
+                variant="standard"
+                size="small"
+                type="number"
                 required
               />
             </Stack>
             <Stack display={"flex"} flexDirection={"column"} padding={"10px"}>
               <TextField
-                value={treatment.temp}
-                onChange={(ev) => handleFieldChange("temp", ev.target.value)}
-                label="Temp"
-                variant="standard"
-                size="small"
-                required
-              />
-              <TextField
-                value={treatment.rr}
-                onChange={(ev) => handleFieldChange("rr", ev.target.value)}
+                value={treatment.respiration_rate}
+                onChange={(ev) =>
+                  handleFieldChange("respiration_rate", ev.target.value)
+                }
                 label="RR"
                 variant="standard"
                 size="small"
+                type="number"
                 required
               />
 
               <TextField
-                value={treatment.crt}
-                onChange={(ev) => handleFieldChange("crt", ev.target.value)}
+                value={treatment.caspillar_refill_time}
+                onChange={(ev) =>
+                  handleFieldChange("caspillar_refill_time", ev.target.value)
+                }
                 label="CRT"
                 variant="standard"
                 size="small"
+                type="number"
                 required
               />
               <TextField
-                value={treatment.bcs}
-                onChange={(ev) => handleFieldChange("bcs", ev.target.value)}
+                value={treatment.body_condition_score}
+                onChange={(ev) =>
+                  handleFieldChange("body_condition_score", ev.target.value)
+                }
                 label="BCS"
                 variant="standard"
                 size="small"
+                type="number"
+                required
+              />
+              <TextField
+                value={treatment.fluid_rate}
+                onChange={(ev) =>
+                  handleFieldChange("fluid_rate", ev.target.value)
+                }
+                label="FR"
+                variant="standard"
+                size="small"
+                type="number"
                 required
               />
             </Stack>
           </Stack>
-
+          <TextField
+            value={treatment.comments}
+            onChange={(ev) => handleFieldChange("comments", ev.target.value)}
+            label="Comments"
+            variant="standard"
+            size="small"
+            type="text"
+            required
+          />
           <br></br>
-          <Button color="primary" variant="contained" onClick={onSubmit}>
+          <Button color="primary" variant="contained" type="submit">
             Save
           </Button>
         </form>
       )}
+      </Stack>
+      <Stack sx={{display:"flex", flexDirection:"column"}}>
+      <PetConditionAdmission tid={treatment.id}/>
+      <PetMedicationAdmission tid={treatment.id} />
+      </Stack>
     </Paper>
   );
 }

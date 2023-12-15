@@ -40,8 +40,6 @@ export default function Vaccination({ sid }) {
   const [vaccinationlogs, setVaccinationlogs] = useState([]);
   const [pets, setPets] = useState([]);
   const [againsts, setAgainsts] = useState([]);
-  const [checkedItems, setCheckedItems] = useState({});
-  const [selectedItems, setSelectedItems] = useState([]);
   const [vaccinationlog, setVaccinationlog] = useState({
     id: null,
     weight: "",
@@ -49,7 +47,7 @@ export default function Vaccination({ sid }) {
     administered: "",
     return: null,
     pet_id: null,
-    vaccination_againsts: [],
+    vaccination_againsts: "",
   });
 
   const [openAdd, setOpenAdd] = useState(false);
@@ -63,58 +61,6 @@ export default function Vaccination({ sid }) {
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
-  };
-
-  // const handleCheckboxChange = (itemId) => {
-  //   let updatedVaccinationAgainst = [...vaccinationlog.vaccination_againsts];
-
-  //   if (checkedItems.includes(itemId)) {
-  //     updatedVaccinationAgainst = checkedItems.filter(
-  //       (id) => id !== itemId
-  //     );
-  //   } else {
-  //     checkedItems.push(itemId);
-  //   }
-
-  //   setVaccinationlog((prevVaccinationlog) => ({
-  //     ...prevVaccinationlog,
-  //     vaccination_againsts: updatedVaccinationAgainst,
-  //   }));
-  // };
-
-  // const handleCheckboxChange = (itemId) => {
-  //   setVaccinationlog((prevVaccinationlog) => {
-  //     const updatedVaccinationAgainst = prevVaccinationlog.vaccination_againsts.includes(itemId)
-  //       ? prevVaccinationlog.vaccination_againsts.filter((id) => id !== itemId)
-  //       : [...prevVaccinationlog.vaccination_againsts, itemId];
-
-  //     return {
-  //       ...prevVaccinationlog,
-  //       vaccination_againsts: updatedVaccinationAgainst,
-  //     };
-  //   });
-  // };
-
-  // Function to handle checkbox changes
-  const handleCheckboxChange = (item) => {
-    setVaccinationlog((prevVaccinationlog) => {
-      const updatedVaccinationAgainsts = {
-        ...prevVaccinationlog.vaccination_againsts,
-      };
-
-      if (updatedVaccinationAgainsts[item.id]) {
-        // Remove the item if it exists (unchecked)
-        delete updatedVaccinationAgainsts[item.id];
-      } else {
-        // Add the item if it doesn't exist (checked)
-        updatedVaccinationAgainsts[item.id] = item;
-      }
-
-      return {
-        ...prevVaccinationlog,
-        vaccination_againsts: updatedVaccinationAgainsts,
-      };
-    });
   };
 
   const getVaccination = () => {
@@ -168,7 +114,6 @@ export default function Vaccination({ sid }) {
     getAgainsts();
     setOpenAdd(true);
     setVaccinationlog({});
-    setCheckedItems({});
     setErrors(null);
   };
 
@@ -198,10 +143,6 @@ export default function Vaccination({ sid }) {
       .then(({ data }) => {
         setLoading(false);
         setVaccinationlog(data);
-        const checkedAgainst = data.vaccination_againsts.map((a) => a);
-        setCheckedItems(checkedAgainst);
-        // setCheckedItems(data.vaccination_againsts)
-        console.log(checkedItems);
       })
       .catch(() => {
         setLoading(false);
@@ -210,7 +151,9 @@ export default function Vaccination({ sid }) {
     setOpenAdd(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
     if (vaccinationlog.id) {
       axiosClient
         .put(`/vaccinationlogs/${vaccinationlog.id}`, vaccinationlog)
@@ -241,8 +184,6 @@ export default function Vaccination({ sid }) {
         });
     }
   };
-
-  console.log(vaccinationlog);
 
   useEffect(() => {
     getVaccination();
@@ -283,15 +224,10 @@ export default function Vaccination({ sid }) {
             loading={loading}
             pets={pets}
             againsts={againsts}
-            checkedItems={checkedItems}
-            setCheckedItems={setCheckedItems}
             vaccination={vaccinationlog}
             setVaccination={setVaccinationlog}
             errors={errors}
             isUpdate={vaccinationlog.id}
-            selectedItems={selectedItems}
-            setSelectedItems={setSelectedItems}
-            handleCheckboxChange={handleCheckboxChange}
           />
 
           {notification && <Alert severity="success">{notification}</Alert>}
@@ -342,13 +278,7 @@ export default function Vaccination({ sid }) {
                         <TableRow hover role="checkbox" key={record.id}>
                           <TableCell>{record.date}</TableCell>
                           <TableCell>{`${record.weight} kg`}</TableCell>
-                          <TableCell>
-                            {record.vaccination_againsts.map((va_against) => (
-                              <span key={va_against.id}>
-                                {va_against.acronym}{" "}
-                              </span>
-                            ))}
-                          </TableCell>
+                          <TableCell>{record.vaccination_againsts}</TableCell>
                           <TableCell>{record.description}</TableCell>
                           <TableCell>{record.administered}</TableCell>
                           <TableCell>{record.return}</TableCell>

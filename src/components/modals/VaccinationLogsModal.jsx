@@ -16,11 +16,8 @@ import {
   MenuItem,
   Select,
   Stack,
-  TableBody,
   TableCell,
-  TableRow,
   TextField,
-  Typography,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
@@ -34,17 +31,10 @@ export default function VaccinationLogsModal(props) {
     pets,
     vaccination,
     setVaccination,
-    vaccinationdesc,
-    vaccination_againsts,
     againsts,
-    checkedItems,
-    setCheckedItems,
-    handleCheckboxChange,
     errors,
     pet,
     isUpdate,
-    selectedItems,
-    setSelectedItems,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -125,36 +115,37 @@ export default function VaccinationLogsModal(props) {
                 required
               />
 
-              <Box border={1} p={2}>
-                <TableBody>
-                  <InputLabel>Against</InputLabel>
-
+              <Box border={1} p={1}>
                   {againsts.map((item) => (
-                    <TableRow hover role="checkbox" key={item.id}>
-                      <Checkbox
-                        checked={checkedItems[item.id]}
-                        onChange={() => {
-                          handleCheckboxChange(item);
-                        }}
-                      />
+                    <div key={item.id}>
                       <TableCell> {item.acronym} </TableCell>
                       <TableCell> {item.description}</TableCell>
-                    </TableRow>
+                    </div>
                   ))}
-                </TableBody>
+
+              <TextField
+                variant="outlined"
+                id="Against"
+                label="Against"
+                multiline
+                value={vaccination.vaccination_againsts}
+                onChange={(ev) =>
+                  handleFieldChange("vaccination_againsts", ev.target.value)
+                }
+                fullWidth
+              />
               </Box>
+
 
               <TextField
                 variant="outlined"
                 id="Description"
                 label="Description"
                 multiline
-                defaultValue={vaccinationdesc}
                 value={vaccination.description}
                 onChange={(ev) =>
                   handleFieldChange("description", ev.target.value)
                 }
-                required
               />
 
               <FormControl>
@@ -179,7 +170,6 @@ export default function VaccinationLogsModal(props) {
                 id="Return"
                 type="date"
                 value={vaccination.return || ``}
-                defaultValue={null}
                 onChange={(ev) => handleFieldChange("return", ev.target.value)}
                 required
               />

@@ -27,6 +27,7 @@ import {
 } from "@mui/icons-material";
 import TreatmentForm from "../pages/TreatmentForm";
 import Vaccination from "../pages/Services/Vaccination";
+import AdmissionTabs from "./AdmissionTabs";
 
 export default function ServiceCatBtns() {
   const [servicesCat, setServicesCat] = useState([]);
@@ -117,36 +118,39 @@ export default function ServiceCatBtns() {
               )
               .map((service, idx) => (
                 <TabPanel key={idx} value={idx.toString()}>
-                  {service.id == 1 && <Consultation sid={service.id} />}
-                  {service.id == 2 && (
+                  {service.service == "Consultation" && <Consultation sid={service.id} />}
+                  {service.service == "Home Service" && (
                     <ServiceAvail title="Home Service" sid={service.id} />
                   )}
-                  {service.id == 3 && (
+                  {service.service == "Boarding" && (
                     <ServiceAvail title="Boarding" sid={service.id} />
                   )}
-                  {service.id == 4 && (
+                  {service.service == "Grooming" && (
                     <ServiceAvail title="Grooming" sid={service.id} />
                   )}
-                  {service.id == 5 && (
+                  {service.service == "Surgery" && (
                     <ServiceAvail title="Surgery" sid={service.id} />
                   )}
-                  {service.id == 6 && <Vaccination sid={service.id} />}
-                  {service.id == 7 && <Vaccination sid={service.id} />}
-                  {service.id == 8 && <Vaccination sid={service.id} />}
-                  {service.id == 9 && <Vaccination sid={service.id} />}
-                  {service.id == 10 && <Vaccination sid={service.id} />}
-                  {service.id == 11 && <Deworming sid={service.id} />}
-                  {service.id == 12 && <TestResults sid={service.id} />}
-                  {service.id == 13 && <TestResults sid={service.id} />}
-                  {service.id == 14 && <TestResults sid={service.id} />}
-                  {service.id == 15 && <TestResults sid={service.id} />}
-                  {service.id == 16 && <TestResults sid={service.id} />}
-                  {service.id == 17 && <TestResults sid={service.id} />}
-                  {service.id == 18 && <TestResults sid={service.id} />}
-                  {service.id == 19 && (
+                  {service.service == "DHLPPI" && <Vaccination sid={service.id} />}
+                  {service.service == "BRONCHICINE" && <Vaccination sid={service.id} />}
+                  {service.service == "HEARTWORM" && <Vaccination sid={service.id} />}
+                  {service.service == "RABIES" && <Vaccination sid={service.id} />}
+                  {service.service == "TRICAT" && <Vaccination sid={service.id} />}
+                  {service.service == "Deworming" && <Deworming sid={service.id} />}
+                  {service.service == "CBC" && <TestResults sid={service.id} />}
+                  {service.service == "BLOOD CHEM" && <TestResults sid={service.id} />}
+                  {service.service == "PARVO TEST" && <TestResults sid={service.id} />}
+                  {service.service == "DISTEMPER" && <TestResults sid={service.id} />}
+                  {service.service == "EHRLICHIA" && <TestResults sid={service.id} />}
+                  {service.service == "HEARTWORM" && <TestResults sid={service.id} />}
+                  {service.service == "4DX" && <TestResults sid={service.id} />}
+                  {service.service == "Medicine" && (
                     <ServiceAvail title="Medicines" sid={service.id} />
                   )}
-                  {service.id == 22 && <TreatmentForm sid={service.id} />}
+                   {service.service == "Tick/Flea Treatment" && (
+                    <ServiceAvail title="Tick/Flea Treatment" sid={service.id} />
+                  )}
+                  {service.service == "Admission" && <AdmissionTabs sid={service.id} />}
                 </TabPanel>
               ))}
           </TabContext>

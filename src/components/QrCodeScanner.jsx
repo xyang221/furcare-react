@@ -1,38 +1,64 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Html5QrcodeScanner } from "html5-qrcode";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Html5QrcodeScanner } from 'html5-qrcode';
+import CryptoJS from 'crypto-js';
 
-export default function QrCodeScanner() {
+const QrCodeScanner = () => {
   const navigate = useNavigate();
+  const [qrresult, setQrresult] = useState(null);
+  let scanner; 
 
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner("reader", {
-      fps: 5,
-      qrbox: 250,
-    });
-
     function success(result) {
-      scanner.clear();
-      navigate(`/admin/pets/${result}/view`);
+      const secretPass = 'XkhZG4fW2t2W';
+      const decryptedData = decryptData(result, secretPass);
+      setQrresult(decryptedData);
     }
 
     function error(err) {
       console.warn(err);
     }
 
-    scanner.render(success, error);
+    const decryptData = (encryptedData, secretPass) => {
+      const bytes = CryptoJS.AES.decrypt(encryptedData, secretPass);
+      const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      return decryptedData;
+    };
+
+    try {
+      scanner = new Html5QrcodeScanner('reader', {
+        fps: 5,
+        qrbox: 250,
+      });
+      scanner.render(success, error);
+    } catch (err) {
+      console.error('Error rendering scanner:', err);
+    }
 
     return () => {
-      scanner.clear();
+      
+      if (scanner) {
+        scanner.clear();
+      }
+   
     };
-  }, [navigate]);
+  }, []);
 
+  useEffect(() => {
+    if (qrresult) {
+      if (scanner) {
+        scanner.clear();
+      }
+      navigate(`/admin/pets/${qrresult}/view`);
+    }
+  }, [qrresult, navigate]);
 
   return (
-    <div className="app">
+    <>
       <h1>QR Scanner</h1>
-      <div id="reader" style={{ width: "250px", height: "250px" }}></div>
-     </div>
+      <div id="reader" style={{ width: '250px', height: '250px' }}></div>
+    </>
   );
-}
+};
 
+export default QrCodeScanner;

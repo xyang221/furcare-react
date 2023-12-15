@@ -11,16 +11,16 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { ArrowBackIos, Edit } from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import PetsModal from "../components/modals/PetsModal";
 import PetTabs from "../components/PetTabs";
 import UploadImage from "../components/UploadImage";
 import QrCodeGenerator from "../components/QrCodeGenerator";
 import QRCode from "qrcode";
+import CryptoJS from "crypto-js";
 
 export default function ViewPet() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
   const [notification, setNotification] = useState(null);
@@ -165,10 +165,22 @@ export default function ViewPet() {
   };
 
   const [qr, setQr] = useState("");
+  const [qrval, setQrval] = useState("");
+
+  const secretPass = "XkhZG4fW2t2W";
+
+  const encryptData = () => {
+    const data = CryptoJS.AES.encrypt(
+      JSON.stringify(id),
+      secretPass
+    ).toString();
+
+    setQrval(data);
+  };
 
   const GenerateQRCode = () => {
     QRCode.toDataURL(
-      id,
+      qrval,
       {
         width: 150,
         margin: 2,
@@ -177,17 +189,18 @@ export default function ViewPet() {
           light: "#EEEEEEFF",
         },
       },
-      (err, id) => {
+      (err, qrval) => {
         if (err) return console.error(err);
 
-        console.log(id);
-        setQr(id);
+        console.log(qrval);
+        setQr(qrval);
       }
     );
   };
 
   useEffect(() => {
     getPet();
+    encryptData();
   }, []);
 
   return (
@@ -244,7 +257,8 @@ export default function ViewPet() {
               </Stack>
             </Stack>
           </Stack>
-          <QrCodeGenerator qr={qr} GenerateQRCode={GenerateQRCode} />
+          {/* qrcode */}
+          <QrCodeGenerator qr={qr} GenerateQRCode={GenerateQRCode} petname={pet.name}/>
         </Stack>
         <PetsModal
           open={open}

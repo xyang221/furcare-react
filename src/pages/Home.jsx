@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import QrCodeScanner from "../components/QrCodeScanner";
+import { Button } from "@mui/material";
 
 export default function Home() {
 
-  // if (token) {
-  //     return <Navigate to="/" />;
-  // }
+  const [openscan, setOpenscan] = useState(false);
 
   return (
     <>
-    <QrCodeScanner/>
+      <Button onClick={(e) => setOpenscan(true)}>scan</Button>
+      {openscan ? <QrCodeScanner /> : null}
     </>
-  )
+  );
 }

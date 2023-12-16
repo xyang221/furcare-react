@@ -32,7 +32,6 @@ export default function PetOwnerForm() {
     zipcode_id: null,
     barangay: "",
     zone: "",
-    username: "",
     email: "",
     password: "",
     password_confirmation: "",
@@ -223,18 +222,6 @@ export default function PetOwnerForm() {
             <Typography variant="h5" padding={1}>
               Create an Account
             </Typography>
-         
-            <TextField
-              id="Username"
-              label="Username"
-              size="small"
-              value={petowner.username}
-              onChange={(ev) =>
-                setPetowner({ ...petowner, username: ev.target.value })
-              }
-              fullWidth
-              required
-            />
             <TextField
               id="Email"
               label="Email"

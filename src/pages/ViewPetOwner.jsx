@@ -40,7 +40,6 @@ export default function ViewPetOwner() {
 
   const [userdata, setUserdata] = useState({
     id: null,
-    username: "",
     email: "",
     password: "",
     password_confirmation: "",
@@ -222,7 +221,6 @@ export default function ViewPetOwner() {
                 <Edit fontSize="small" />
               </IconButton>
             </Typography>
-            <Typography>Username: {userdata.username}</Typography>
             <Typography>Email: {userdata.email} </Typography>
           </Stack>
         </Stack>

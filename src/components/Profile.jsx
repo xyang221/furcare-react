@@ -15,7 +15,7 @@ import UserEdit from "./modals/UserEdit";
 import LogoutModal from "./modals/LogoutModal";
 
 export default function Profile() {
-  const { user, setToken, updateUser } = useStateContext();
+  const { user, setToken, updateUser, staff } = useStateContext();
   const navigate = useNavigate();
 
   //for modal
@@ -25,7 +25,6 @@ export default function Profile() {
 
   const [userprofile, setUserprofile] = useState({
     id: null,
-    username: "",
     email: "",
     password: "",
     password_confirmation: "",
@@ -36,10 +35,10 @@ export default function Profile() {
 
   const [roles, setRoles] = useState([]);
 
-    //for menuitem
-    const [open, setOpen] = useState(false);
-    const [openlogout, setOpenlogout] = useState(false);
-    const anchorRef = useRef(null);
+  //for menuitem
+  const [open, setOpen] = useState(false);
+  const [openlogout, setOpenlogout] = useState(false);
+  const anchorRef = useRef(null);
 
   const logoutmodal = () => {
     setOpenlogout(true);
@@ -50,20 +49,9 @@ export default function Profile() {
 
     axiosClient.post("/logout").then(() => {
       setToken(null);
-      updateUser({})
+      updateUser({});
       navigate("/login");
     });
-  };
-
-  const getRoles = () => {
-    axiosClient
-      .get("/roles")
-      .then(({ data }) => {
-        setRoles(data.data);
-      })
-      .catch(() => {
-        setNotification("There is something wrong in the roles api");
-      });
   };
 
   const closepopup = () => {
@@ -86,7 +74,6 @@ export default function Profile() {
   };
 
   const onEdit = () => {
-    getRoles();
     setErrors(null);
     setopenchange(true);
     getUser();
@@ -100,7 +87,7 @@ export default function Profile() {
         .then((response) => {
           setNotification("User was successfully updated");
           setopenchange(false);
-          updateUser(response.data)
+          updateUser(response.data);
         })
         .catch((err) => {
           const response = err.response;
@@ -124,8 +111,6 @@ export default function Profile() {
         });
     }
   };
-
-
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -169,9 +154,9 @@ export default function Profile() {
           aria-haspopup="true"
           onClick={handleToggle}
         >
-          <Avatar sx={{ width: 30, height: 30, margin:"5px" }} />
+          <Avatar sx={{ width: 30, height: 30, margin: "5px" }} />
           <Typography variant="span" color="white">
-            {user.username}
+            {staff.firstname === "null" ? "ADMIN" : staff.firstname}
           </Typography>
         </Button>
         <Popper

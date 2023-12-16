@@ -3,8 +3,6 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -31,13 +29,12 @@ function Copyright(props) {
         Your Website
       </Link>{" "}
       {new Date().getFullYear()}
-      {"."}
     </Typography>
   );
 }
 
 export default function Login() {
-  const { user, updateUser, setToken, setRole, token } = useStateContext();
+  const { user, updateUser, setToken, updateStaff, token } = useStateContext();
 
   // if (token) {
   //   return <Navigate to="/" />;
@@ -47,7 +44,7 @@ export default function Login() {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
-  const usernameRef = useRef();
+  const emailRef = useRef();
   const passwordRef = useRef();
 
   const [errors, setErrors] = useState(null);
@@ -55,20 +52,17 @@ export default function Login() {
   const onSubmit = (ev) => {
     ev.preventDefault();
     const payload = {
-      username: usernameRef.current.value,
+      email: emailRef.current.value,
       password: passwordRef.current.value,
     };
-
     setErrors(null);
 
     axiosClient
       .post("/login", payload)
       .then(({ data }) => {
+        updateStaff(data.staff);
         updateUser(data.user);
         setToken(data.token);
-        setRole(data.user.role_id);
-        // navigate("/");
-
         navigate(from, { replace: true });
       })
       .catch((err) => {
@@ -111,7 +105,7 @@ export default function Login() {
       >
         <Box
           sx={{
-            marginTop: "25%",
+            marginTop: "35%",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -135,13 +129,14 @@ export default function Login() {
               </Box>
             )}
             <TextField
-              inputRef={usernameRef}
+              inputRef={emailRef}
               margin="normal"
               fullWidth
-              id="username"
-              label="Username"
-              type="text"
-              name="username"
+              id="Email Address"
+              label="Email Address"
+              type="email"
+              name="Email Address"
+              size="small"
               autoFocus
               required
             />
@@ -153,12 +148,9 @@ export default function Login() {
               label="Password"
               type="password"
               id="password"
+              size="small"
               required
             />
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
             <Button
               type="submit"
               fullWidth
@@ -181,7 +173,7 @@ export default function Login() {
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
+        {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
       </Container>
     </Background>
   );

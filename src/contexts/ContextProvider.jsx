@@ -2,9 +2,11 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const StateContext = createContext({
     user: null,
+    staff: null,
     token: null,
     notification: null,
     setUser: () => {},
+    setStaff: () => {},
     setToken: () => {},
     setNotification: () => {},
 })
@@ -14,8 +16,14 @@ export const ContextProvider =({children}) => {
     const [token, _setToken] = useState(localStorage.getItem('ACCESS_TOKEN'));
     const [user, setUser] = useState({
         id: localStorage.getItem('User_id'),
-        username: localStorage.getItem('Username'),
-        role_id: localStorage.getItem('Role')
+        email: localStorage.getItem('email'),
+        role_id: localStorage.getItem('Role'),
+        firstname: localStorage.getItem('firstname'),
+        lastname: localStorage.getItem('lastname'),
+    });
+    const [staff, setStaff] = useState({
+        firstname: localStorage.getItem('firstname'),
+        lastname: localStorage.getItem('lastname'),
     });
 
     const setNotification = (message) => {
@@ -26,19 +34,26 @@ export const ContextProvider =({children}) => {
     }
 
         useEffect(() => {
-            if (user.id && user.username) {
+            if (user.id && user.email) {
                 localStorage.setItem('User_id', user.id);
-                localStorage.setItem('Username', user.username);
+                localStorage.setItem('email', user.email);
                 localStorage.setItem('Role', user.role_id);
+                localStorage.setItem('firstname', staff.firstname);
+                localStorage.setItem('lastname', staff.lastname);
             } else {
                 localStorage.removeItem('User_id');
-                localStorage.removeItem('Username');
+                localStorage.removeItem('email');
                 localStorage.removeItem('Role');
+                localStorage.removeItem('firstname');
+                localStorage.removeItem('lastname');
             }
         }, [user]);
     
         const updateUser = (newUser) => {
             setUser(newUser);
+        };
+        const updateStaff = (newStaff) => {
+            setStaff(newStaff);
         };
     
 
@@ -59,6 +74,8 @@ export const ContextProvider =({children}) => {
             setNotification,
             user, 
             updateUser,
+            staff,
+            updateStaff
          
         }}>
             {children}

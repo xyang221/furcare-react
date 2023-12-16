@@ -69,7 +69,7 @@ export default function PetOwnerSidebar() {
           <ListItemButton
             selected={selectedIndex === 1}
             onClick={() => handleListItemClick(1)}
-            to="pets"
+            to="/pets"
           >
             <ListItemText primary="Pets"></ListItemText>
             <ListItemIcon>

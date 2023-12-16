@@ -79,16 +79,6 @@ export default function UserEdit(props) {
 
               <TextField
                 variant="outlined"
-                id="Username"
-                label="Username"
-                value={user.username}
-                onChange={(ev) =>
-                  handleFieldChange("username", ev.target.value)
-                }
-                required
-              />
-              <TextField
-                variant="outlined"
                 id="Email"
                 label="Email"
                 type="email"

@@ -46,6 +46,7 @@ import SettingsTabs from "./components/SettingsTabs";
 import UserArchives from "./pages/UserArchives";
 import { QrCodeScanner } from "@mui/icons-material";
 import Home from "./pages/Home";
+import ViewPetOwnerPets from "./pages/ViewPetOwnerPets";
 
 const roles = {
   ADMIN: "1",
@@ -57,6 +58,13 @@ function App() {
   return (
     <>
       <Routes>
+        {/* Guest Routes */}
+        <Route path="/" element={<GuestLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+        </Route>
+
+        {/* Authenticated Routes */}
         <Route
           element={
             <RequireAuth
@@ -67,109 +75,95 @@ function App() {
           <Route path="/" element={<MainLayout />}>
             <Route path="editprofile/:id" element={<UserForm />} />
 
-            <Route element={<RequireAuth allowedRoles={[roles.ADMIN]} />}>
-              <Route path="admin/home" element={<Home />} />
-              <Route path="admin/settings" element={<SettingsTabs />} />
+            {/* Admin-Only Routes */}
+            <Route
+              path="admin/*"
+              element={<RequireAuth allowedRoles={[roles.ADMIN]} />}
+            >
+              <Route path="home" element={<Home />} />
+              <Route path="settings" element={<SettingsTabs />} />
 
-              <Route path="admin/roles" element={<Roles />} />
+              <Route path="roles" element={<Roles />} />
 
-              <Route path="admin/users" element={<Users />} />
-              <Route path="admin/users/archives" element={<UserArchives />} />
+              <Route path="users" element={<Users />} />
+              <Route path="users/archives" element={<UserArchives />} />
 
-              <Route path="admin/staffs" element={<Staffs />} />
-              <Route path="admin/staffs/new" element={<StaffForm />} />
-              <Route path="admin/staffs/:id" element={<StaffForm />} />
-              <Route path="admin/staffs/:id/view" element={<ViewStaff />} />
+              <Route path="staffs" element={<Staffs />} />
+              <Route path="staffs/new" element={<StaffForm />} />
+              <Route path="staffs/:id" element={<StaffForm />} />
+              <Route path="staffs/:id/view" element={<ViewStaff />} />
+              <Route path="staffs/archives" element={<StaffsArchives />} />
+
+              <Route path="petowners" element={<PetOwners />} />
+              <Route path="petowners/new" element={<PetOwnerForm />} />
               <Route
-                path="admin/staffs/archives"
-                element={<StaffsArchives />}
-              />
-
-              <Route path="admin/petowners" element={<PetOwners />} />
-              <Route path="admin/petowners/new" element={<PetOwnerForm />} />
-              <Route
-                path="admin/petowners/:id/appointments"
+                path="petowners/:id/appointments"
                 element={<PetOwnerAppointments />}
               />
+              <Route path="petowners/:id/view" element={<ViewPetOwner />} />
+              <Route path="petowners/archives" element={<PetOwnerArchives />} />
+
+              <Route path="pets/:id/view" element={<ViewPet />} />
+              <Route path="pets" element={<Pets />} />
+              <Route path="pets/archives" element={<PetsArchives />} />
+              <Route path="pets/species" element={<Species />} />
+              <Route path="pets/breeds" element={<Breeds />} />
+
+              <Route path="appointments" element={<Appointments />} />
               <Route
-                path="admin/petowners/:id/view"
-                element={<ViewPetOwner />}
-              />
-              <Route
-                path="admin/petowners/archives"
-                element={<PetOwnerArchives />}
-              />
-
-              <Route path="admin/pets/:id/view" element={<ViewPet />} />
-
-              <Route path="admin/pets" element={<Pets />} />
-              <Route path="admin/pets/archives" element={<PetsArchives />} />
-
-              <Route path="admin/pets/species" element={<Species />} />
-              <Route path="admin/pets/breeds" element={<Breeds />} />
-
-              <Route path="admin/appointments" element={<Appointments />} />
-              <Route
-                path="admin/appointments/confirmed"
+                path="appointments/confirmed"
                 element={<AppointmentsConfirmed />}
               />
               <Route
-                path="admin/appointments/pending"
+                path="appointments/pending"
                 element={<AppointmentsPending />}
               />
               <Route
-                path="admin/appointments/completed"
+                path="appointments/completed"
                 element={<AppointmentsDone />}
               />
 
-              <Route path="admin/:id/chargeslip" element={<PrintComponent />} />
+              <Route path=":id/chargeslip" element={<PrintComponent />} />
 
+              <Route path="services/petowners" element={<PetOwnerAvail />} />
               <Route
-                path="admin/services/petowners"
-                element={<PetOwnerAvail />}
-              />
-              <Route
-                path="admin/services/petowners/:id/avail"
+                path="services/petowners/:id/avail"
                 element={<ServiceCatBtns />}
               />
-              {/* <Route path="admin/services" element={<Services />} /> */}
+              {/* <Route path="services" element={<Services />} /> */}
+              <Route path="services/consultation" element={<Diagnosis />} />
               <Route
-                path="admin/services/consultation"
-                element={<Diagnosis />}
-              />
-
-              <Route path="admin/deworminglogs" element={<PetDeworming />} />
-
-              <Route
-                path="admin/services/petowner/:id/avail/admission"
+                path="services/petowner/:id/avail/admission"
                 element={<ClientServiceForm />}
               />
               <Route
-                path="admin/services/petowner/:id/avail/admission/treatment"
+                path="services/petowner/:id/avail/admission/treatment"
                 element={<TreatmentForm />}
               />
 
-              <Route path="admin/clientservice" element={<ClientService />} />
+              <Route path="clientservice" element={<ClientService />} />
             </Route>
 
-            <Route element={<RequireAuth allowedRoles={[roles.STAFF]} />}>
-              {/* <Route path="staff/dashboard" element={<StaffLayout />} /> */}
-              <Route path="staffs/new" element={<StaffForm />} />
+            {/* Staff-Only Routes */}
+            <Route
+              path="staffs/*"
+              element={<RequireAuth allowedRoles={[roles.STAFF]} />}
+            >
+              <Route path="register" element={<StaffForm />} />
             </Route>
 
-            <Route element={<RequireAuth allowedRoles={[roles.PETOWNER]} />}>
-              {/* <Route path="dashboard" element={<PetOwnerLayout />} /> */}
-              <Route path="pets" element={<PetOwnerPets />} />
+            {/* Pet Owner-Only Routes */}
+            <Route
+              path="petowners/*"
+              element={<RequireAuth allowedRoles={[roles.PETOWNER]} />}
+            >
+              <Route path="pets" element={<ViewPetOwnerPets />} />
               <Route path="appointments" element={<PetOwnerAppointments />} />
             </Route>
           </Route>
         </Route>
 
-        <Route path="/" element={<GuestLayout />}>
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-        </Route>
-
+        {/* 404 Not Found */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

@@ -156,7 +156,7 @@ export default function Profile() {
         >
           <Avatar sx={{ width: 30, height: 30, margin: "5px" }} />
           <Typography variant="span" color="white">
-            {staff.firstname === "null" ? "ADMIN" : staff.firstname}
+          {staff.firstname && staff.lastname !== "null" ? `${staff.firstname} ${staff.lastname}` : "ADMIN"}
           </Typography>
         </Button>
         <Popper

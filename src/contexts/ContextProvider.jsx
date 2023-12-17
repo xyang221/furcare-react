@@ -18,8 +18,6 @@ export const ContextProvider =({children}) => {
         id: localStorage.getItem('User_id'),
         email: localStorage.getItem('email'),
         role_id: localStorage.getItem('Role'),
-        firstname: localStorage.getItem('firstname'),
-        lastname: localStorage.getItem('lastname'),
     });
     const [staff, setStaff] = useState({
         firstname: localStorage.getItem('firstname'),
@@ -38,8 +36,10 @@ export const ContextProvider =({children}) => {
                 localStorage.setItem('User_id', user.id);
                 localStorage.setItem('email', user.email);
                 localStorage.setItem('Role', user.role_id);
+                if(user.role_id === 2) {
                 localStorage.setItem('firstname', staff.firstname);
                 localStorage.setItem('lastname', staff.lastname);
+            }
             } else {
                 localStorage.removeItem('User_id');
                 localStorage.removeItem('email');

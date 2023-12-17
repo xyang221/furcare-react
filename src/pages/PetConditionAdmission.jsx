@@ -29,6 +29,7 @@ import {
   Close,
   Delete,
   Edit,
+  Refresh,
   Save,
 } from "@mui/icons-material";
 import { ContextProvider, useStateContext } from "../contexts/ContextProvider";
@@ -70,6 +71,10 @@ export default function PetConditionAdmission({ tid }) {
 
   const handlePetCondition = () => {
     setAddbtn(true);
+  };
+
+  const handleClose = () => {
+    setAddbtn(false);
   };
 
   //for modal
@@ -164,22 +169,33 @@ export default function PetConditionAdmission({ tid }) {
     setPetcondition(updatedPetcondition);
   };
 
-  useEffect(() => {
+  const handleRefresh = () => {
     getTreatmentPetCondition();
+  };
+
+  useEffect(() => {
+    if(tid){
+    getTreatmentPetCondition();
+    }
   }, []);
 
   return (
     <>
-      <Stack sx={{ border: "1px solid black" }}>
         {notification && <Alert severity="success">{notification}</Alert>}
-        <Button
+      <Stack sx={{ margin:"10px", border: "1px solid black" }}>
+        <Box sx={{display:"flex", justifyContent:"space-between",  margin:"5px" }}>
+          <Typography> <IconButton color="success" onClick={handleRefresh}>
+            <Refresh />
+          </IconButton>Pet Condition:</Typography>
+        <IconButton
           color="success"
           variant="contained"
           onClick={handlePetCondition}
         >
-          Add Pet condition
-        </Button>
-        <TableContainer sx={{ height: 340 }} maxwidth="sm">
+          <Add/>
+        </IconButton>
+        </Box>
+        <TableContainer sx={{ height: 300,  }} maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -263,14 +279,24 @@ export default function PetConditionAdmission({ tid }) {
                     />
                   </TableCell>
                   <TableCell>
+                  <Stack direction="row">
                     <IconButton
                       variant="contained"
                       size="small"
                       color="success"
                       onClick={(e) => onSubmit(e)}
                     >
-                      <Check fontSize="small" />
+                      <Save fontSize="small" />
                     </IconButton>
+                    <IconButton
+                      variant="contained"
+                      size="small"
+                      color="error"
+                      onClick={handleClose}
+                    >
+                      <Close fontSize="small" />
+                    </IconButton>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               </TableBody>

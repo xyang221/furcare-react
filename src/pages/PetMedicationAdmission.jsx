@@ -29,6 +29,7 @@ import {
   Close,
   Delete,
   Edit,
+  Refresh,
   Save,
 } from "@mui/icons-material";
 import { useStateContext } from "../contexts/ContextProvider";
@@ -38,7 +39,7 @@ export default function PetMedicationAdmission({ tid }) {
   const {notification, setNotification} = useStateContext();
   //for table
   const columns = [
-    { id: "AM/PM", name: "AM/PM" },
+    // { id: "AM/PM", name: "AM/PM" },
     { id: "medicine", name: "medicine" },
     { id: "price", name: "price" },
     { id: "description", name: "description" },
@@ -48,16 +49,16 @@ export default function PetMedicationAdmission({ tid }) {
   ];
 
   const [loading, setLoading] = useState(false);
-  const [petconditions, setPetconditions] = useState([]);
+  const [medications, setMedications] = useState([]);
   // const [notification, setNotification] = useState("");
 
-  const getTreatmentPetCondition = () => {
+  const getTreatmentPetMedication = () => {
     setLoading(true);
     axiosClient
-      .get(`/treatments/${tid}/petconditions`)
+      .get(`/treatments/${tid}/medications`)
       .then(({ data }) => {
         setLoading(false);
-        setPetconditions(data.data);
+        setMedications(data.data);
       })
       .catch(() => {
         setLoading(false);
@@ -67,30 +68,27 @@ export default function PetMedicationAdmission({ tid }) {
   //for add table
   const [addbtn, setAddbtn] = useState(false);
 
-  const handlePetCondition = () => {
+  const handleMedication = () => {
     setAddbtn(true);
   };
 
   //for modal
   const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [petcondition, setPetcondition] = useState({
+  const [medication, setMedication] = useState({
     id: null,
-    is_AM_or_PM: "",
-    eating: "",
-    drinking: "",
-    urinated: "",
-    vomit: "",
-    defecated: "",
+    medicine_id:null,
+    description: "",
+    quantity: "",
+    dosage: "",
   });
 
   const onEdit = (r) => {
     setErrors(null);
     setAddbtn(true)
     axiosClient
-      .get(`/petconditions/${r.id}`)
+      .get(`/medications/${r.id}`)
       .then(({ data }) => {
-        setPetcondition(data);
+        setMedication(data);
       })
       .catch(() => {
       });
@@ -103,19 +101,19 @@ export default function PetMedicationAdmission({ tid }) {
 
     axiosClient.delete(`/users/${u.id}/archive`).then(() => {
       setNotification("User was archived");
-      getTreatmentPetCondition();
+      getTreatmentPetMedication();
     });
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (petcondition.id) {
+    if (medication.id) {
       axiosClient
-        .put(`/petconditions/${petcondition.id}`, petcondition)
+        .put(`/medications/${medication.id}`, medication)
         .then(() => {
-          setNotification("Pet condition was successfully updated.");
-          getTreatmentPetCondition();
+          setNotification("Medication was successfully updated.");
+          getTreatmentPetMedication();
           setAddbtn(false)
         })
         .catch((err) => {
@@ -126,10 +124,10 @@ export default function PetMedicationAdmission({ tid }) {
         });
     } else {
       axiosClient
-        .post(`/petconditions/treatment/${tid}`, petcondition)
+        .post(`/medications/treatment/${tid}`, medication)
         .then(() => {
-          setNotification("Pet condition was successfully saved.");
-          getTreatmentPetCondition();
+          setNotification("Medication was successfully saved.");
+          getTreatmentPetMedication();
           setAddbtn(false)
         })
         .catch((err) => {
@@ -142,30 +140,34 @@ export default function PetMedicationAdmission({ tid }) {
   };
 
   const handleFieldChange = (fieldName, value) => {
-    const updatedPetcondition = { ...petcondition, [fieldName]: value };
+    const updatedMedication = { ...medication, [fieldName]: value };
+    setMedication(updatedMedication);
+  };
 
-    setPetcondition(updatedPetcondition);
+  const handleRefresh = () => {
+    getTreatmentPetMedication();
   };
 
   useEffect(() => {
-    getTreatmentPetCondition();
   }, []);
 
   return (
     <>
-      <Stack sx={{ border: "1px solid black" }}>
-        <Box sx={{display:"flex", justifyContent:"space-between"}}>
-          <Typography>Medication:</Typography>
-        <Button
+      {notification && <Alert severity="success">{notification}</Alert>}
+      <Stack sx={{ margin:"10px", border: "1px solid black" }}>
+        <Box sx={{display:"flex", justifyContent:"space-between",  margin:"5px" }}>
+          <Typography> <IconButton color="success" onClick={handleRefresh}>
+            <Refresh />
+          </IconButton>Medication:</Typography>
+        <IconButton
           color="success"
           variant="contained"
-          onClick={handlePetCondition}
+          onClick={handleMedication}
         >
-          Add
-        </Button>
+          <Add/>
+        </IconButton>
         </Box>
-        {notification && <Alert severity="success">{notification}</Alert>}
-        <TableContainer sx={{ height: 340 }} maxwidth="sm">
+        <TableContainer sx={{ height: 300 }} maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -190,11 +192,11 @@ export default function PetMedicationAdmission({ tid }) {
                   <TableCell></TableCell>
                   <TableCell>
                     <TextField
-                      value={petcondition.eating}
+                      value={medication.description}
                       onChange={(ev) =>
-                        handleFieldChange("eating", ev.target.value)
+                        handleFieldChange("description", ev.target.value)
                       }
-                      label="eating"
+                      label="description"
                       variant="standard"
                       size="small"
                       required
@@ -202,11 +204,11 @@ export default function PetMedicationAdmission({ tid }) {
                   </TableCell>
                   <TableCell>
                     <TextField
-                      value={petcondition.drinking}
+                      value={medication.quantity}
                       onChange={(ev) =>
-                        handleFieldChange("drinking", ev.target.value)
+                        handleFieldChange("quantity", ev.target.value)
                       }
-                      label="drinking"
+                      label="quantity"
                       variant="standard"
                       size="small"
                       required
@@ -214,49 +216,35 @@ export default function PetMedicationAdmission({ tid }) {
                   </TableCell>
                   <TableCell>
                     <TextField
-                      value={petcondition.urinated}
+                      value={medication.dosage}
                       onChange={(ev) =>
-                        handleFieldChange("urinated", ev.target.value)
+                        handleFieldChange("dosage", ev.target.value)
                       }
-                      label="urinated"
+                      label="dosage"
                       variant="standard"
                       size="small"
                       required
                     />
                   </TableCell>
                   <TableCell>
-                    <TextField
-                      value={petcondition.vomit}
-                      onChange={(ev) =>
-                        handleFieldChange("vomit", ev.target.value)
-                      }
-                      label="vomit"
-                      variant="standard"
-                      size="small"
-                      required
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      value={petcondition.defecated}
-                      onChange={(ev) =>
-                        handleFieldChange("defecated", ev.target.value)
-                      }
-                      label="defecated"
-                      variant="standard"
-                      size="small"
-                      required
-                    />
-                  </TableCell>
-                  <TableCell>
+                  <Stack direction="row">
                     <IconButton
                       variant="contained"
                       size="small"
                       color="success"
                       onClick={(e) => onSubmit(e)}
                     >
-                      <Check fontSize="small" />
+                      <Save fontSize="small" />
                     </IconButton>
+                    <IconButton
+                      variant="contained"
+                      size="small"
+                      color="success"
+                      onClick={(e) => onSubmit(e)}
+                    >
+                      <Close fontSize="small" />
+                    </IconButton>
+                    </Stack>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -264,16 +252,14 @@ export default function PetMedicationAdmission({ tid }) {
 
             {!loading && (
               <TableBody>
-                {petconditions &&
-                  petconditions.map((r) => (
+                {medications &&
+                  medications.map((r) => (
                     <TableRow hover role="checkbox" key={r.id}>
-                      {/* <TableCell>{r.id}</TableCell> */}
-                      <TableCell>{r.is_AM_or_PM}</TableCell>
-                      <TableCell>{r.eating}</TableCell>
-                      <TableCell>{r.drinking}</TableCell>
-                      <TableCell>{r.urinated}</TableCell>
-                      <TableCell>{r.vomit}</TableCell>
-                      <TableCell>{r.defecated}</TableCell>
+                      <TableCell>{r.medicine.medicine}</TableCell>
+                      <TableCell>{r.medicine.price}</TableCell>
+                      <TableCell>{r.description}</TableCell>
+                      <TableCell>{r.quantity}</TableCell>
+                      <TableCell>{r.dosage}</TableCell>
                       <TableCell>
                         <Stack direction="row">
                           <IconButton

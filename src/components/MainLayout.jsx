@@ -7,14 +7,6 @@ import Sidebar from "./Sidebar";
 import StaffSidebar from "./StaffSidebar";
 import PetOwnerSidebar from "./PetOwnerSidebar";
 import Dashboard from "../pages/Home";
-import Modaltry from "./Modal";
-
-import { useRef } from "react";
-import { useReactToPrint } from "react-to-print";
-
-import PrintComponent from "../pages/Example";
-import QrCodeScanner from "./QrCodeScanner";
-import { Html5QrcodeScanner } from "html5-qrcode";
 
 export default function MainLayout() {
   const { user, token } = useStateContext();

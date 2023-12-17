@@ -99,6 +99,11 @@ export default function AppointmentsConfirmed() {
     petowner_id: null,
     service_id: null,
   });
+  const [petowner, setPetowner] = useState({
+    id: null,
+    firstname: "",
+    lastname: "",
+  });
   const [open, openchange] = useState(false);
 
   const closepopup = () => {
@@ -125,6 +130,7 @@ export default function AppointmentsConfirmed() {
       .then(({ data }) => {
         setModalloading(false);
         setAppointment(data);
+        setPetowner(data.petowner)
       })
       .catch(() => {
         setModalloading(false);
@@ -205,6 +211,7 @@ export default function AppointmentsConfirmed() {
           onClick={closepopup}
           onSubmit={onSubmit}
           loading={modalloading}
+          petowner={petowner}
           petowners={petowners}
           services={services}
           appointment={appointment}

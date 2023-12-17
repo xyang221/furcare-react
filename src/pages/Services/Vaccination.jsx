@@ -97,15 +97,12 @@ export default function Vaccination({ sid }) {
   };
 
   const getAgainsts = () => {
-    setLoading(true);
     axiosClient
       .get(`/againsts`)
       .then(({ data }) => {
-        setLoading(false);
         setAgainsts(data.data);
       })
       .catch(() => {
-        setLoading(false);
       });
   };
 

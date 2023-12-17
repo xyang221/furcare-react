@@ -10,7 +10,6 @@ import NotFound from "./pages/NotFound";
 import RequireAuth from "./contexts/RequireAuth";
 import GuestLayout from "./components/GuestLayout";
 import Users from "./pages/Users";
-import UserForm from "./pages/UserForm";
 import ViewStaff from "./pages/ViewStaff";
 import ViewPetOwner from "./pages/ViewPetOwner";
 import Appointments from "./pages/Appointments";
@@ -44,7 +43,6 @@ import PrintComponent from "./pages/Billing/ChargeSlipPrint";
 import Settings from "./pages/Settings";
 import SettingsTabs from "./components/SettingsTabs";
 import UserArchives from "./pages/UserArchives";
-import { QrCodeScanner } from "@mui/icons-material";
 import Home from "./pages/Home";
 import ViewPetOwnerPets from "./pages/ViewPetOwnerPets";
 
@@ -58,12 +56,6 @@ function App() {
   return (
     <>
       <Routes>
-        {/* Guest Routes */}
-        <Route path="/" element={<GuestLayout />}>
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-        </Route>
-
         {/* Authenticated Routes */}
         <Route
           element={
@@ -73,8 +65,6 @@ function App() {
           }
         >
           <Route path="/" element={<MainLayout />}>
-            <Route path="editprofile/:id" element={<UserForm />} />
-
             {/* Admin-Only Routes */}
             <Route
               path="admin/*"
@@ -147,7 +137,7 @@ function App() {
             {/* Staff-Only Routes */}
             <Route
               path="staffs/*"
-              element={<RequireAuth allowedRoles={[roles.STAFF]} />}
+              element={<RequireAuth allowedRoles={roles.STAFF} />}
             >
               <Route path="register" element={<StaffForm />} />
             </Route>
@@ -161,6 +151,12 @@ function App() {
               <Route path="appointments" element={<PetOwnerAppointments />} />
             </Route>
           </Route>
+        </Route>
+
+        {/* Guest Routes */}
+        <Route path="/" element={<GuestLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
         </Route>
 
         {/* 404 Not Found */}

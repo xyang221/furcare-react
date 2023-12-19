@@ -11,7 +11,7 @@ import PetOwnerPayments from '../pages/PetOwnerPayments';
 import ServiceCatBtns from './ServiceCatTabs';
 import GenerateBilling from '../pages/Billing/GenerateBilling';
 
-export default function PetOWnerTabs() {
+export default function PetOWnerTabs({petowner}) {
   const [value, setValue] = useState('1');
 
   const handleChange = (event, newValue) => {
@@ -31,7 +31,7 @@ export default function PetOWnerTabs() {
           </TabList>
         </Box>
         <TabPanel value="1"><PetOwnerPets/></TabPanel>
-        <TabPanel value="2"><PetOwnerAppointments/></TabPanel>
+        <TabPanel value="2"><PetOwnerAppointments petowner={petowner}/></TabPanel>
         <TabPanel value="3"><PetOwnerPayments/></TabPanel>
         <TabPanel value="4"><ServiceCatBtns/> </TabPanel>
         <TabPanel value="5"><GenerateBilling/></TabPanel>

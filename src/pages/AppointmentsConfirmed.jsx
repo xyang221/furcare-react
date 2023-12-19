@@ -28,6 +28,8 @@ export default function AppointmentsConfirmed() {
     { id: "client", name: "Client" },
     { id: "Purpose", name: "Purpose" },
     { id: "Service", name: "Service" },
+    { id: "Remarks", name: "Remarks" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
@@ -73,6 +75,17 @@ export default function AppointmentsConfirmed() {
       .get(`/services`)
       .then(({ data }) => {
         setServices(data.data);
+      })
+      .catch(() => {});
+  };
+
+  const [doctors, setDoctors] = useState([]);
+
+  const getVets = () => {
+    axiosClient
+      .get(`/doctors`)
+      .then(({ data }) => {
+        setDoctors(data.data);
       })
       .catch(() => {});
   };
@@ -124,13 +137,15 @@ export default function AppointmentsConfirmed() {
   const onEdit = (r) => {
     setErrors(null);
     getPetowners();
+    getServices();
+    getVets();
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
         setAppointment(data);
-        setPetowner(data.petowner)
+        setPetowner(data.petowner);
       })
       .catch(() => {
         setModalloading(false);
@@ -175,7 +190,6 @@ export default function AppointmentsConfirmed() {
   };
 
   useEffect(() => {
-    getServices();
     getAppointments();
   }, []);
 
@@ -214,6 +228,7 @@ export default function AppointmentsConfirmed() {
           petowner={petowner}
           petowners={petowners}
           services={services}
+          doctors={doctors}
           appointment={appointment}
           setAppointment={setAppointment}
           errors={errors}
@@ -237,7 +252,7 @@ export default function AppointmentsConfirmed() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -247,7 +262,7 @@ export default function AppointmentsConfirmed() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -268,6 +283,8 @@ export default function AppointmentsConfirmed() {
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
+                        <TableCell>{r.remarks}</TableCell>
+                        <TableCell>{r.doctor.fullname}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>

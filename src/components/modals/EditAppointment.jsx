@@ -4,20 +4,21 @@ import {
   Backdrop,
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   IconButton,
   InputLabel,
-  Menu,
   MenuItem,
   Select,
   Stack,
   TextField,
 } from "@mui/material";
-import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 
 export default function EditAppointment(props) {
   const {
@@ -27,9 +28,9 @@ export default function EditAppointment(props) {
     onSubmit,
     loading,
     petowner,
-    petowners,
     petownerid,
     services,
+    doctors,
     appointment,
     setAppointment,
     errors,
@@ -42,6 +43,21 @@ export default function EditAppointment(props) {
     // Update the appointment object with the updated value
     setAppointment(updatedAppointment);
   };
+
+  const [withRemarks, setWithremarks] = useState(false);
+
+  const handleRemarksChange = (event) => {
+    setWithremarks(event.target.checked);
+    if (!event.target.checked) {
+      // Clear remarks if the checkbox is unchecked
+      handleFieldChange("remarks", "");
+    }
+  };
+
+  useEffect(() => {
+    // Check if appointment remarks are empty and update withRemarks accordingly
+    setWithremarks(!!appointment.remarks);
+  }, [appointment.remarks]);
 
   return (
     <>
@@ -66,120 +82,130 @@ export default function EditAppointment(props) {
                 ))}
               </Box>
             )}
-            <form onSubmit={(e) => onSubmit(e)} on >
-            <Stack spacing={2} margin={2}>
-
-              {petownerid ? (
-                <FormControl>
-                  <InputLabel>Pet Owner</InputLabel>
-                  <Select
-                    label="Pet Owner"
-                    value={petownerid}
-                    onChange={(ev) =>
-                      handleFieldChange("petowner_id", ev.target.value)
-                    }
-                    disabled
-                  >
-                    {petowners.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {`${item.firstname} ${item.lastname}`}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              ) : (
+            <form onSubmit={(e) => onSubmit(e)} on>
+              <Stack spacing={2} margin={2}>
                 <TextField
                   variant="outlined"
                   id="Pet Owner"
                   label="Pet Owner"
+                  defaultValue={petownerid}
                   value={`${petowner.firstname} ${petowner.lastname}`}
-                  disabled
-                />
-              )}
-
-              {isUpdate && (
-                <TextField
-                  variant="outlined"
-                  id="Status"
-                  label="Status"
-                  value={appointment.status}
-                  onChange={(ev) =>
-                    handleFieldChange("status", ev.target.value)
-                  }
-                  disabled
-                />
-              )}
-
-              {isUpdate ? (
-                <TextField
-                  variant="outlined"
-                  id="Date"
-                  label="Date"
-                  type="date"
-                  // value={appointment.date}
-                  value={new Date(appointment.date).toISOString().split("T")[0]}
-                  onChange={(ev) => handleFieldChange("date", ev.target.value)}
+                  InputProps={{
+                    readOnly: true,
+                    "aria-readonly": true,
+                  }}
                   required
                 />
-              ) : (
+
+                {isUpdate && (
+                  <TextField
+                    variant="outlined"
+                    id="Status"
+                    label="Status"
+                    value={appointment.status}
+                    onChange={(ev) =>
+                      handleFieldChange("status", ev.target.value)
+                    }
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
+                  />
+                )}
+
                 <TextField
-                  label="Date"
+                  label="Date and Time"
                   variant="outlined"
                   id="Date"
-                  type="date"
-                  value={appointment.date || ``}
-                  // defaultValue={null}
+                  type="datetime-local"
+                  value={appointment.date || ""}
                   onChange={(ev) => handleFieldChange("date", ev.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{
+                    min: new Date().toISOString().split("T")[0] + "T00:00",
+                  }} // Set minimum date to today
                   required
                 />
-              )}
 
-              <FormControl>
-                <InputLabel>Services</InputLabel>
-                <Select
-                  label="Services"
-                  value={appointment.service_id || ""}
+                <FormControl>
+                  <InputLabel>Services</InputLabel>
+                  <Select
+                    label="Services"
+                    value={appointment.service_id || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("service_id", ev.target.value)
+                    }
+                    required
+                  >
+                    {services.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        value={item.id}
+                        disabled={item.isAvailable === 0}
+                      >
+                        {`${item.service} (${item.category.category})`}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <TextField
+                  variant="outlined"
+                  id="Purpose"
+                  label="Purpose"
+                  value={appointment.purpose || ""}
                   onChange={(ev) =>
-                    handleFieldChange("service_id", ev.target.value)
+                    handleFieldChange("purpose", ev.target.value)
                   }
                   required
-                >
-                  {services.map((item) => (
-                    <MenuItem
-                      key={item.id}
-                      value={item.id}
-                      disabled={item.isAvailable === 0}
-                    >
-                      {`${item.service} (${item.category.category})`}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                />
 
-              <TextField
-                variant="outlined"
-                id="Purpose"
-                label="Purpose"
-                value={appointment.purpose || ""}
-                onChange={(ev) => handleFieldChange("purpose", ev.target.value)}
-                required
-              />
+                <FormControl>
+                  <InputLabel>Veterinarian</InputLabel>
+                  <Select
+                    label="Veterinarian"
+                    value={appointment.vet_id || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("vet_id", ev.target.value)
+                    }
+                    required
+                  >
+                    {doctors.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.fullname}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-              <TextField
-                variant="outlined"
-                id="Remarks"
-                label="Remarks"
-                multiline
-                rows={2}
-                value={appointment.remarks || ""}
-                onChange={(ev) => handleFieldChange("remarks", ev.target.value)}
-                required
-              />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={withRemarks}
+                      onChange={handleRemarksChange}
+                    />
+                  }
+                  label="Remarks"
+                />
 
-              <Button color="primary" variant="contained" type="submit">
-                Save
-              </Button>
-            </Stack>
+                {withRemarks && (
+                  <TextField
+                    variant="outlined"
+                    id="Remarks"
+                    label="Remarks"
+                    multiline
+                    rows={2}
+                    value={appointment.remarks || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("remarks", ev.target.value)
+                    }
+                  />
+                )}
+
+                <Button color="primary" variant="contained" type="submit">
+                  Save
+                </Button>
+              </Stack>
             </form>
           </DialogContent>
         </Dialog>

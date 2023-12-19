@@ -19,14 +19,15 @@ import {
 import { Add, DoneAll, ArrowBackIos, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 
-export default function PetOwnerAppointments() {
+export default function PetOwnerAppointments({ petowner }) {
   //for table
   const columns = [
     { id: "Date", name: "Date" },
     { id: "Purpose", name: "Purpose" },
     { id: "Service", name: "Service" },
-    { id: "Status", name: "Status" },
     { id: "Remarks", name: "Remarks" },
+    { id: "Veterinarian", name: "Veterinarian" },
+    { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -57,10 +58,10 @@ export default function PetOwnerAppointments() {
     purpose: "",
     remarks: "",
     service_id: null,
+    vet_id: null,
   });
   const [open, setOpen] = useState(false);
 
-  const [petowners, setPetowners] = useState([]);
   const [services, setServices] = useState([]);
 
   const getAppointments = () => {
@@ -90,22 +91,20 @@ export default function PetOwnerAppointments() {
       .catch(() => {});
   };
 
-  const getPetowners = () => {
+  const [doctors, setDoctors] = useState([]);
+
+  const getVets = () => {
     axiosClient
-      .get(`/petowners`)
+      .get(`/doctors`)
       .then(({ data }) => {
-        setPetowners(data.data);
+        setDoctors(data.data);
       })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
-      });
+      .catch(() => {});
   };
 
+
   const addModal = (ev) => {
-    getPetowners();
+    getVets();
     getServices();
     setOpen(true);
     setAppointment({});
@@ -129,8 +128,8 @@ export default function PetOwnerAppointments() {
 
   const onEdit = (r) => {
     setErrors(null);
-    getPetowners();
     getServices();
+    getVets();
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
@@ -155,7 +154,9 @@ export default function PetOwnerAppointments() {
     });
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
+
     if (appointment.id) {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
@@ -221,13 +222,16 @@ export default function PetOwnerAppointments() {
           onClick={closepopup}
           onSubmit={onSubmit}
           loading={modalloading}
-          petowners={petowners}
           petownerid={id}
+          petowner={petowner}
           services={services}
+          doctors={doctors}
           appointment={appointment}
           setAppointment={setAppointment}
           errors={errors}
           isUpdate={appointment.id}
+          // withRemarks={withRemarks}
+          // handleChange={handleRemarksChange}
         />
 
         <TableContainer sx={{ height: 350 }}>
@@ -247,7 +251,10 @@ export default function PetOwnerAppointments() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -257,7 +264,10 @@ export default function PetOwnerAppointments() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -274,8 +284,9 @@ export default function PetOwnerAppointments() {
                         <TableCell>{r.date}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
-                        <TableCell>{r.status}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
+                        <TableCell>{r.doctor.fullname}</TableCell>
+                        <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button

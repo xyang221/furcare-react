@@ -27,6 +27,7 @@ export default function AppointmentsDone() {
     { id: "Service", name: "Service" },
     { id: "Status", name: "Status" },
     { id: "Remarks", name: "Remarks" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -94,6 +95,17 @@ export default function AppointmentsDone() {
       });
   };
 
+  const [doctors, setDoctors] = useState([]);
+
+  const getVets = () => {
+    axiosClient
+      .get(`/doctors`)
+      .then(({ data }) => {
+        setDoctors(data.data);
+      })
+      .catch(() => {});
+  };
+
   const closepopup = () => {
     openchange(false);
   };
@@ -101,6 +113,7 @@ export default function AppointmentsDone() {
   const onEdit = (r) => {
     setErrors(null);
     getServices();
+    getVets()
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
@@ -174,6 +187,7 @@ export default function AppointmentsDone() {
           loading={modalloading}
           petowner={petowner}
           services={services}
+          doctors={doctors}
           appointment={appointment}
           setAppointment={setAppointment}
           errors={errors}
@@ -197,7 +211,7 @@ export default function AppointmentsDone() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -207,7 +221,7 @@ export default function AppointmentsDone() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -228,8 +242,9 @@ export default function AppointmentsDone() {
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
-                        <TableCell>{r.status}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
+                        <TableCell>{r.doctor.fullname}</TableCell>
+                        <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button

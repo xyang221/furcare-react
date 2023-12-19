@@ -263,7 +263,7 @@ export default function ViewPetOwner() {
           isUpdate={userdata.id}
         />
 
-        <PetOwnerTabs />
+        <PetOwnerTabs petowner={petownerdata} />
       </div>
     </Paper>
   );

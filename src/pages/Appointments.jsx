@@ -29,6 +29,7 @@ export default function Appointments() {
     { id: "Service", name: "Service" },
     { id: "Purpose", name: "Purpose" },
     { id: "Remarks", name: "Remarks" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
@@ -58,6 +59,7 @@ export default function Appointments() {
   const [appointments, setAppointments] = useState([]);
   const [petowners, setPetowners] = useState([]);
   const [services, setServices] = useState([]);
+  const [doctors, setDoctors] = useState([]);
   const [query, setQuery] = useState("");
 
   //for notif modal
@@ -70,11 +72,12 @@ export default function Appointments() {
   const [modalloading, setModalloading] = useState(false);
   const [appointment, setAppointment] = useState({
     id: null,
-    date: "",
+    date: null,
     purpose: "",
     remarks: "",
     petowner_id: null,
     service_id: null,
+    vet_id: null,
   });
 
   const [petowner, setPetowner] = useState({
@@ -82,11 +85,11 @@ export default function Appointments() {
     firstname: "",
     lastname: "",
   });
-  const [petownerid, setPetownerid] = useState(null);
+  const [pid, setPid] = useState(null);
   const [open, openchange] = useState(false);
 
   const getAppointments = () => {
-    setPetownerid(null)
+    setPid(null)
     setPetowners([])
     setMessage(null);
     setLoading(true);
@@ -110,6 +113,15 @@ export default function Appointments() {
       .get(`/services`)
       .then(({ data }) => {
         setServices(data.data);
+      })
+      .catch(() => {});
+  };
+
+  const getVets = () => {
+    axiosClient
+      .get(`/doctors`)
+      .then(({ data }) => {
+        setDoctors(data.data);
       })
       .catch(() => {});
   };
@@ -139,7 +151,9 @@ export default function Appointments() {
 
   const addModal = (p) => {
     getServices();
-    setPetownerid(p.id);
+    getVets()
+    setPid(p.id);
+    setPetowner(p)
     setAppointment({});
     setErrors(null);
     setNotification("");
@@ -176,6 +190,7 @@ export default function Appointments() {
   const onEdit = (r) => {
     setErrors(null);
     getServices();
+    getVets()
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
@@ -210,7 +225,7 @@ export default function Appointments() {
         });
     } else {
       axiosClient
-        .post(`/appointments/petowner/${petownerid}`, appointment)
+        .post(`/appointments/petowner/${pid}`, appointment)
         .then(() => {
           setNotification("Appointment was successfully saved.");
           openchange(false);
@@ -230,8 +245,6 @@ export default function Appointments() {
   useEffect(() => {
     getAppointments();
   }, []);
-
-  console.log(petownerid)
 
   return (
     <>
@@ -274,13 +287,14 @@ export default function Appointments() {
           onSubmit={onSubmit}
           loading={modalloading}
           petowner={petowner}
+          petownerid={pid}
           petowners={petowners}
           services={services}
+          doctors={doctors}
           appointment={appointment}
           setAppointment={setAppointment}
           errors={errors}
           isUpdate={appointment.id}
-          petownerid={petownerid || null}
         />
 
         <TableContainer sx={{ height: 380 }}>
@@ -313,7 +327,7 @@ export default function Appointments() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -323,7 +337,7 @@ export default function Appointments() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -341,9 +355,10 @@ export default function Appointments() {
                           {new Date(r.date).toISOString().split("T")[0]}
                         </TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
-                        <TableCell>{r.service.service}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
+                        <TableCell>{r.service.service}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
+                        <TableCell>{r.doctor.fullname}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>

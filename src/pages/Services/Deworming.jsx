@@ -49,6 +49,18 @@ export default function Deworming({ sid }) {
   const [errors, setErrors] = useState(null);
 
   const [deworminglogs, setDeworminglogs] = useState([]);
+  const [deworminglog, setDeworminglog] = useState({
+    id: null,
+    weight: "",
+    description: "",
+    return: "",
+    pet_id: null,
+    vet_id: null,
+  });
+  const [pets, setPets] = useState([]);
+  const [vets, setVets] = useState([]);
+
+  const [openAdd, setOpenAdd] = useState(false);
 
   const { id } = useParams();
 
@@ -71,8 +83,6 @@ export default function Deworming({ sid }) {
       });
   };
 
-  const [pets, setPets] = useState([]);
-
   const getPets = () => {
     axiosClient
       .get(`/petowners/${id}/pets`)
@@ -82,19 +92,20 @@ export default function Deworming({ sid }) {
       .catch(() => {});
   };
 
-  const [deworminglog, setDeworminglog] = useState({
-    id: null,
-    weight: "",
-    description: "",
-    administered: "",
-    return: "",
-    pet_id: null,
-  });
+  const getVets = () => {
+    axiosClient
+      .get(`/doctors`)
+      .then(({ data }) => {
+        setVets(data.data);
+      })
+      .catch(() => {});
+  };
 
-  const [openAdd, setOpenAdd] = useState(false);
+
 
   const addModal = (ev) => {
     getPets();
+    getVets()
     setOpenAdd(true);
     setDeworminglog({});
     setErrors(null);
@@ -117,6 +128,7 @@ export default function Deworming({ sid }) {
 
   const onEdit = (r) => {
     getPets();
+    getVets()
     setErrors(null);
     axiosClient
       .get(`/deworminglogs/${r.id}`)
@@ -194,7 +206,7 @@ export default function Deworming({ sid }) {
           onClick={closepopup}
           onSubmit={onSubmit}
           pets={pets}
-          // petid={id}
+          vets={vets}
           deworminglog={deworminglog}
           setDeworminglog={setDeworminglog}
           errors={errors}
@@ -258,7 +270,7 @@ export default function Deworming({ sid }) {
                         <TableCell>{r.pet.name}</TableCell>
                         <TableCell>{`${r.weight} kg`}</TableCell>
                         <TableCell>{r.description}</TableCell>
-                        <TableCell>{r.administered}</TableCell>
+                        <TableCell>{r.vet.fullname}</TableCell>
                         <TableCell>{r.return}</TableCell>
                         <TableCell>{r.servicesavailed.status}</TableCell>
                         <TableCell>

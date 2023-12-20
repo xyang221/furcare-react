@@ -16,6 +16,7 @@ import {
   Select,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
@@ -27,6 +28,7 @@ export default function DewormingLogsModal(props) {
     onSubmit,
     loading,
     pets,
+    vets,
     pet,
     deworminglog,
     setDeworminglog,
@@ -69,15 +71,16 @@ export default function DewormingLogsModal(props) {
             )}
             <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
-              {isUpdate && pet ? (
-                <TextField
-                  variant="outlined"
-                  id="Pet"
-                  label="Pet"
-                  value={pet.name}
-                  disabled
-                />
-              ): (
+                {isUpdate ? (
+                  <Typography variant="body1">
+                    Date: {deworminglog.date}
+                  </Typography>
+                ) : (
+                  <Typography variant="body1">
+                    Date: {date.toDateString()}
+                  </Typography>
+                )}
+
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
                   <Select
@@ -86,6 +89,7 @@ export default function DewormingLogsModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
+                    readOnly={isUpdate}
                     required
                   >
                     {pets.map((item) => (
@@ -95,7 +99,6 @@ export default function DewormingLogsModal(props) {
                     ))}
                   </Select>
                 </FormControl>
-              )}
 
                 <TextField
                   variant="outlined"
@@ -118,25 +121,27 @@ export default function DewormingLogsModal(props) {
                   variant="outlined"
                   id="Description"
                   label="Description"
-                  value={deworminglog.description}
+                  value={deworminglog.description || ""}
                   onChange={(ev) =>
                     handleFieldChange("description", ev.target.value)
                   }
-                  required
                 />
 
                 <FormControl>
                   <InputLabel>Administered</InputLabel>
                   <Select
                     label="Administered"
-                    value={deworminglog.administered || ""}
+                    value={deworminglog.vet_id || ""}
                     onChange={(ev) =>
-                      handleFieldChange("administered", ev.target.value)
+                      handleFieldChange("vet_id", ev.target.value)
                     }
                     required
                   >
-                    <MenuItem value="Doctor Reina">Doctor Reina</MenuItem>
-                    <MenuItem value="Doctor Philip">Doctor Philip</MenuItem>
+                    {vets.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.fullname}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
 
@@ -149,6 +154,7 @@ export default function DewormingLogsModal(props) {
                   onChange={(ev) =>
                     handleFieldChange("return", ev.target.value)
                   }
+                  InputLabelProps={{ shrink: true }}
                   required
                 />
 

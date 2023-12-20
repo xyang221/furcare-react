@@ -41,48 +41,44 @@ export default function ServiceAvailModal(props) {
 
   const [date, setDate] = useState(new Date());
 
-
   return (
     <>
       <Backdrop open={loading} style={{ zIndex: 999 }}>
-      <CircularProgress color="inherit" />
+        <CircularProgress color="inherit" />
       </Backdrop>
       {!loading && (
-        
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-        <DialogTitle>
-          {title}
-          <IconButton onClick={onClose} style={{ float: "right" }}>
-            <Close color="primary"></Close>
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          {errors && (
-            <Box>
-              {Object.keys(errors).map((key) => (
-                <Alert severity="error" key={key}>
-                  {errors[key][0]}
-                </Alert>
-              ))}
-            </Box>
-          )}
-            <form onSubmit={(e) => onSubmit(e)} >
+          <DialogTitle>
+            {title}
+            <IconButton onClick={onClose} style={{ float: "right" }}>
+              <Close color="primary"></Close>
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            {errors && (
+              <Box>
+                {Object.keys(errors).map((key) => (
+                  <Alert severity="error" key={key}>
+                    {errors[key][0]}
+                  </Alert>
+                ))}
+              </Box>
+            )}
+            <form onSubmit={(e) => onSubmit(e)}>
+              <Stack spacing={2} margin={2}>
+                <Typography variant="h6">
+                  Date: {date.toDateString()}{" "}
+                </Typography>
 
-          <Stack spacing={2} margin={2}>
-
-            <Box
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
-            >
-              
-              <Typography variant="h6">{title} </Typography>
-
-              <Typography variant="h6">
-                Date: {date.toDateString()}{" "}
-              </Typography>
-            </Box>
-
+                <TextField
+                  label="Price"
+                  variant="standard"
+                  type="number"
+                  value={serviceavail.unit_price || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("unit_price", ev.target.value)
+                  }
+                />
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
                   <Select
@@ -100,18 +96,14 @@ export default function ServiceAvailModal(props) {
                     ))}
                   </Select>
                 </FormControl>
-      
-            <Button
-              color="primary"
-              variant="contained"
-              type="submit"
-            >
-              Avail
-            </Button>
-          </Stack>
-          </form>
-        </DialogContent>
-      </Dialog>
+
+                <Button color="primary" variant="contained" type="submit">
+                  Avail
+                </Button>
+              </Stack>
+            </form>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

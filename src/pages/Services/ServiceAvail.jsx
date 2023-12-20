@@ -16,7 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
-import { Add, Visibility } from "@mui/icons-material";
+import { Add, Archive, Visibility } from "@mui/icons-material";
 import ServiceAvailModal from "../../components/modals/ServiceAvailModal";
 
 export default function ServiceAvail({ sid, title }) {
@@ -36,6 +36,7 @@ export default function ServiceAvail({ sid, title }) {
   const [serviceavails, setServiceavails] = useState([]);
 
   const getServiceAvailed = () => {
+    setServiceavails([])
     setMessage(null)
     setLoading(true);
     axiosClient
@@ -80,6 +81,7 @@ export default function ServiceAvail({ sid, title }) {
   const [service, setServiceavail] = useState({
     id: null,
     pet_id: null,
+    unit_price:null,
   });
 
   const [open, openServiceavail] = useState(false);
@@ -95,9 +97,15 @@ export default function ServiceAvail({ sid, title }) {
     openServiceavail(false);
   };
 
-  const onEdit = (r) => {
-    getPets();
-    openServiceavail(true);
+  const onArchive = (u) => {
+    if (!window.confirm("Are you sure to archive this?")) {
+      return;
+    }
+
+    axiosClient.delete(`/servicesavailed/${u.id}/archive`).then(() => {
+      setNotification("This service availed record was archived.");
+      getServiceAvailed();
+    });
   };
 
   const onSubmit = (e) => {
@@ -220,27 +228,14 @@ export default function ServiceAvail({ sid, title }) {
                         <TableCell>{r.pet.name}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
-                          <Stack direction="row" spacing={2}>
-                            <Button
-                              component={Link}
-                              to={`/admin/petowners/` + r.id + `/view`}
-                              variant="contained"
-                              color="info"
-                              size="small"
-                            >
-                              <Visibility fontSize="small" />
-                              {/* <Typography>view</Typography> */}
-                            </Button>
-
                             <Button
                               variant="contained"
                               size="small"
                               color="error"
-                              // onClick={() => onArchive(r)}
+                              onClick={() => onArchive(r)}
                             >
-                              {/* <Archive fontSize="small" /> */}
+                              <Archive fontSize="small" />
                             </Button>
-                          </Stack>
                         </TableCell>
                       </TableRow>
                     ))}

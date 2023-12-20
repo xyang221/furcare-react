@@ -32,7 +32,6 @@ export default function ViewStaff() {
 
   const [userdata, setUserdata] = useState({
     id: null,
-    username: "",
     email: "",
     password: "",
     password_confirmation: "",
@@ -163,7 +162,6 @@ export default function ViewStaff() {
         <p>Contact Number: {staff.contact_num}</p>
 
         <h2>User Account</h2>
-        <p>Username: {userdata.username} </p>
         <p>Email: {userdata.email} </p>
 
         <Button

@@ -31,7 +31,6 @@ export default function StaffForm() {
     zipcode_id: null,
     barangay: "",
     zone: "",
-    username: "",
     email: "",
     password: "",
     password_confirmation: "",
@@ -223,17 +222,6 @@ export default function StaffForm() {
               Create an Account
             </Typography>
 
-            <TextField
-              id="Username"
-              label="Username"
-              size="small"
-              value={staff.username}
-              onChange={(ev) =>
-                setStaff({ ...staff, username: ev.target.value })
-              }
-              fullWidth
-              required
-            />
             <TextField
               id="Email"
               label="Email"

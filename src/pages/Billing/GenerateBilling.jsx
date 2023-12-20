@@ -285,12 +285,12 @@ export default function GenerateBilling() {
                       <TextField
                         size="small"
                         type="number"
-                        value={
-                          item.unit_price === null
-                            ? serviceAvailedPrices[item.id]
-                            : item.unit_price
-                        }
-                        // value={serviceAvailedPrices[item.id]}
+                        // value={
+                        //   item.unit_price === null
+                        //     ? serviceAvailedPrices[item.id]
+                        //     : item.unit_price
+                        // }
+                        value={serviceAvailedPrices[item.id]}
                         onChange={(ev) => handlePriceChange(ev, item.id)}
                         required
                       />

@@ -44,11 +44,12 @@ export default function Vaccination({ sid }) {
     id: null,
     weight: "",
     description: "",
-    administered: "",
+    va_againsts:"",
     return: null,
     pet_id: null,
-    vaccination_againsts: "",
+    vet_id: null,
   });
+  const [vets, setVets] = useState([]);
 
   const [openAdd, setOpenAdd] = useState(false);
 
@@ -64,6 +65,7 @@ export default function Vaccination({ sid }) {
   };
 
   const getVaccination = () => {
+    setVaccinationlogs([])
     setMessage(null);
     setLoading(true);
     axiosClient
@@ -106,9 +108,19 @@ export default function Vaccination({ sid }) {
       });
   };
 
+  const getVets = () => {
+    axiosClient
+      .get(`/doctors`)
+      .then(({ data }) => {
+        setVets(data.data);
+      })
+      .catch(() => {});
+  };
+
   const handleOpenAddModal = () => {
     getPets();
     getAgainsts();
+    getVets()
     setOpenAdd(true);
     setVaccinationlog({});
     setErrors(null);
@@ -124,7 +136,7 @@ export default function Vaccination({ sid }) {
     }
 
     axiosClient.delete(`/vaccinationlogs/${record.id}/archive`).then(() => {
-      setNotification("Pet Owner was archived");
+      setNotification("Vaccination was archived");
       getVaccination();
     });
   };
@@ -132,6 +144,7 @@ export default function Vaccination({ sid }) {
   const handleEdit = (record) => {
     getPets();
     getAgainsts();
+    getVets()
     setErrors(null);
     setLoading(true);
 
@@ -221,6 +234,7 @@ export default function Vaccination({ sid }) {
             loading={loading}
             pets={pets}
             againsts={againsts}
+            vets={vets}
             vaccination={vaccinationlog}
             setVaccination={setVaccinationlog}
             errors={errors}
@@ -275,9 +289,9 @@ export default function Vaccination({ sid }) {
                         <TableRow hover role="checkbox" key={record.id}>
                           <TableCell>{record.date}</TableCell>
                           <TableCell>{`${record.weight} kg`}</TableCell>
-                          <TableCell>{record.vaccination_againsts}</TableCell>
+                          <TableCell>{record.va_againsts}</TableCell>
                           <TableCell>{record.description}</TableCell>
-                          <TableCell>{record.administered}</TableCell>
+                          <TableCell>{record.vet.fullname}</TableCell>
                           <TableCell>{record.return}</TableCell>
                           <TableCell>{record.servicesavailed.status}</TableCell>
                           <TableCell>

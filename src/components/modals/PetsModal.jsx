@@ -45,6 +45,7 @@ export default function PetsModal(props) {
     addImage,
     handleImage,
     uploadImage,
+    specie,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -94,6 +95,47 @@ export default function PetsModal(props) {
   //   }
   // };
 
+  const colors = [
+    { id: "Black", color: "Black" },
+    { id: "White", color: "White" },
+    { id: "Brown", color: "Brown" },
+    { id: "Cream", color: "Cream" },
+    { id: "Grey", color: "Grey" },
+    { id: "Yellow", color: "Yellow" },
+    { id: "Red", color: "Red" },
+    { id: "Others", color: "Others" },
+  ];
+
+  const [selectedOption, setSelectedOption] = useState("");
+  const [otherText, setOtherText] = useState("");
+
+  const handleDropdownChange = (event) => {
+    const value = event.target.value;
+    setSelectedOption(value);
+    handleFieldChange("color", value);
+
+    // Clear the otherText state when a different option is selected
+    if (value !== "Others") {
+      setOtherText("");
+    }
+  };
+
+  const handleOtherTextChange = (event) => {
+    setOtherText(event.target.value);
+    handleFieldChange("color", event.target.value);
+  };
+
+  // When updating, set selectedOption based on pet.color
+  useEffect(() => {
+    const colorMatch = colors.find((color) => color.color === pet.color);
+    if (colorMatch) {
+      setSelectedOption(colorMatch.color);
+    } else {
+      setSelectedOption("Others");
+      setOtherText(pet.color)
+    }
+  }, [pet.color]);
+
   return (
     <>
       <>
@@ -103,7 +145,6 @@ export default function PetsModal(props) {
 
         {uploadImage && (
           <>
-            {/* {!loading && ( */}
             <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
               <DialogTitle>
                 Upload Image
@@ -120,7 +161,7 @@ export default function PetsModal(props) {
                     label="Photo"
                     type="file"
                     onChange={handleImage}
-                    defaultValue={null}
+                    InputLabelProps={{ shrink: true }}
                   />
                   {error && <p style={{ color: "red" }}>{error}</p>}
                   {/* <Button type="submit" variant="contained" color="primary">
@@ -137,7 +178,6 @@ export default function PetsModal(props) {
                 </Stack>
               </DialogContent>
             </Dialog>
-            {/* )} */}
           </>
         )}
         {!loading && (
@@ -160,21 +200,6 @@ export default function PetsModal(props) {
               )}
               <form onSubmit={(e) => onSubmit(e)}>
                 <Stack spacing={2} margin={2}>
-                  {addImage && (
-                    <FormControl>
-                      <TextField
-                        variant="outlined"
-                        id="photo"
-                        label="Photo"
-                        type="file"
-                        onChange={handleImage}
-                        defaultValue={null}
-                        required
-                      />
-                      {error && <p style={{ color: "red" }}>{error}</p>}
-                    </FormControl>
-                  )}
-
                   <TextField
                     variant="outlined"
                     id="Name"
@@ -195,6 +220,7 @@ export default function PetsModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("birthdate", ev.target.value)
                     }
+                    InputLabelProps={{ shrink: true }}
                     required
                   />
 
@@ -226,51 +252,68 @@ export default function PetsModal(props) {
                   </FormControl>
 
                   <FormControl>
-                    <InputLabel>Breed</InputLabel>
+                    <InputLabel>Specie</InputLabel>
                     <Select
-                      label="Breed"
-                      value={pet.breed_id || ""}
-                      onChange={(ev) =>
-                        handleFieldChange("breed_id", ev.target.value)
-                      }
+                      label="Specie"
+                      value={selectedSpecie || ""}
+                      onChange={handleSpecieChange}
                       required
+                      fullWidth
                     >
-                      {breeds.map((item) => (
+                      {species.map((item) => (
                         <MenuItem key={item.id} value={item.id}>
-                          {item.breed}
+                          {item.specie}
                         </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
 
-                  <TextField
-                    variant="outlined"
-                    id="Color"
-                    label="Color"
-                    value={pet.color || ``}
-                    onChange={(ev) =>
-                      handleFieldChange("color", ev.target.value)
-                    }
-                    required
-                  />
+                  {selectedSpecie && (
+                    <FormControl>
+                      <InputLabel>Breed</InputLabel>
+                      <Select
+                        label="Breed"
+                        value={pet.breed_id || ""}
+                        onChange={(ev) =>
+                          handleFieldChange("breed_id", ev.target.value)
+                        }
+                        required
+                        fullWidth
+                      >
+                        {breeds.map((item) => (
+                          <MenuItem key={item.id} value={item.id}>
+                            {item.breed}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
 
-                  {/* <FormControl>
-                  <InputLabel>Specie</InputLabel>
-                  <Select
-                    label="Specie"
-                    value={selectedSpecie}
-          onChange={handleSpecieChange}
-                    required
-                  >
-                    {species.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.specie}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl> */}
+                  <FormControl>
+                    <InputLabel>Color</InputLabel>
+                    <Select
+                      label="Color"
+                      value={selectedOption || ""}
+                      onChange={handleDropdownChange}
+                      required
+                    >
+                      {colors.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.color}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
 
-                
+                  {selectedOption === "Others" && (
+                    <TextField
+                      type="text"
+                      value={otherText || ""}
+                      onChange={handleOtherTextChange}
+                      placeholder="Enter the other color"
+                    />
+                  )}
+
                   <Button color="primary" variant="contained" type="submit">
                     Save
                   </Button>

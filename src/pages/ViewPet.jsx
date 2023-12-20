@@ -41,7 +41,6 @@ export default function ViewPet() {
   const [breed, setBreed] = useState([]);
   const [petowner, setPetowner] = useState([]);
 
-  const [breeds, setBreeds] = useState([]);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(null);
   const [image, setImage] = useState(false);
@@ -68,20 +67,51 @@ export default function ViewPet() {
       });
   };
 
-  const getBreeds = () => {
+  const [breeds, setBreeds] = useState([]);
+  const [species, setSpecies] = useState([]);
+  const [selectedSpecie, setSelectedSpecie] = useState(null);
+
+  const getSpecies = () => {
     axiosClient
-      .get("/breeds")
+      .get(`/species`)
       .then(({ data }) => {
-        setBreeds(data.data);
+        setSpecies(data.data);
       })
       .catch(() => {});
+  };
+  
+  const handleSpecieChange = (event) => {
+    const selectedSpecietype = event.target.value;
+    setSelectedSpecie(selectedSpecietype);
+    getBreeds(selectedSpecietype);
+  };
+  
+  const getBreeds = (query) => {
+    if (query) {
+      axiosClient
+        .get(`/breeds-specie/${query}`)
+        .then(({ data }) => {
+          setBreeds(data.data || []); // Use an empty array as default if data is falsy
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            console.log(response.data.message);
+          }
+        });
+    } else {
+      setBreeds([]); // Clear breeds when no query (selected species) is provided
+    }
   };
 
   const onEdit = () => {
     getPet();
     setErrors(null);
-    getBreeds();
+    getSpecies();
     setOpen(true);
+    if (specie.id) {
+      setSelectedSpecie(specie.id);
+    }
   };
 
   const onSubmit = (ev) => {
@@ -203,20 +233,30 @@ export default function ViewPet() {
     encryptData();
   }, []);
 
+   // Fetch breeds when selectedSpecie changes
+   useEffect(() => {
+    if (selectedSpecie) {
+      getBreeds(selectedSpecie);
+    } else {
+      setBreeds([]);
+    }
+  }, [selectedSpecie]);
+
   return (
     <div>
       <br></br>
-      <div className="card animate fadeInDown">
+      <div>
         {notification && <Alert severity="success">{notification}</Alert>}
         <Box display="flex" flexDirection="row">
           <Button
             component={Link}
             to={`/admin/petowners/` + petowner.id + `/view`}
             size="small"
+            
           >
-            <Typography variant="inherit"> {petowner.firstname}</Typography>
+            <Typography variant="caption"> {petowner.firstname}</Typography>
           </Button>
-          <Typography> / {pet.name}</Typography>
+          <Typography variant="button"> / {pet.name}</Typography>
         </Box>
         <Divider />
         <Stack flexDirection="row" padding={1}>
@@ -258,7 +298,11 @@ export default function ViewPet() {
             </Stack>
           </Stack>
           {/* qrcode */}
-          <QrCodeGenerator qr={qr} GenerateQRCode={GenerateQRCode} petname={pet.name}/>
+          <QrCodeGenerator
+            qr={qr}
+            GenerateQRCode={GenerateQRCode}
+            petname={pet.name}
+          />
         </Stack>
         <PetsModal
           open={open}
@@ -274,6 +318,10 @@ export default function ViewPet() {
           isUpdate={pet.id}
           addImage={pet.id === null}
           handleImage={handleImage}
+          selectedSpecie={selectedSpecie}
+          handleSpecieChange={handleSpecieChange}
+          species={species}
+          specie={breed.specie_id}
         />
 
         {/* <PetsModal

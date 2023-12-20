@@ -88,7 +88,6 @@ export default function EditAppointment(props) {
                   variant="outlined"
                   id="Pet Owner"
                   label="Pet Owner"
-                  defaultValue={petownerid}
                   value={`${petowner.firstname} ${petowner.lastname}`}
                   InputProps={{
                     readOnly: true,

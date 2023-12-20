@@ -69,17 +69,26 @@ export default function PetOwnerPets() {
   };
 
   const handleSpecieChange = (event) => {
-    const selectedSpeciesId = event.target.value;
-    setSelectedSpecie(selectedSpeciesId);
+    const selectedSpecietype = event.target.value;
+    setSelectedSpecie(selectedSpecietype);
+    getBreeds(selectedSpecietype);
   };
 
-  const getBreeds = () => {
-    axiosClient
-      .get(`/breeds`)
-      .then(({ data }) => {
-        setBreeds(data.data);
-      })
-      .catch(() => {});
+  const getBreeds = (query) => {
+    if (query) {
+      setBreeds([]);
+      axiosClient
+        .get(`/breeds-specie/${query}`)
+        .then(({ data }) => {
+          setBreeds(data.data);
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            console.log(response.data.message);
+          }
+        });
+    }
   };
 
   const getPets = () => {
@@ -112,7 +121,8 @@ export default function PetOwnerPets() {
   const [open, openchange] = useState(false);
 
   const functionopenpopup = (ev) => {
-    getBreeds();
+    getSpecies();
+    setSelectedSpecie(null)
     openchange(true);
     setPet({});
     setErrors(null);
@@ -151,20 +161,8 @@ export default function PetOwnerPets() {
           }
         });
     } else {
-      if (!pet.photo) {
-        setError("Please select an image to upload.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("photo", pet.photo);
-
       axiosClient
-        .post(`/petowners/${id}/addpet`, pet, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
+        .post(`/petowners/${id}/addpet`, pet)
         .then(() => {
           setNotification("Pet was successfully added");
           openchange(false);
@@ -224,7 +222,6 @@ export default function PetOwnerPets() {
           <Button
             onClick={functionopenpopup}
             variant="contained"
-            color="success"
             size="small"
           >
             <Add />
@@ -236,10 +233,11 @@ export default function PetOwnerPets() {
           open={open}
           onClick={closepopup}
           onClose={closepopup}
-          // id={petdata.id}
           setImageData={setImageData}
           onSubmit={onSubmit}
-          // loading={loading}
+          selectedSpecie={selectedSpecie}
+          handleSpecieChange={handleSpecieChange}
+          species={species}
           breeds={breeds}
           pet={pet}
           setPet={setPet}

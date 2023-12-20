@@ -25,7 +25,7 @@ export default function Consultation({ sid }) {
   const columns = [
     { id: "Date", name: "Date" },
     { id: "Pet", name: "Pet" },
-    { id: "Remarks", name: "Remarks" },
+    { id: "Diagnosis", name: "Diagnosis" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
@@ -153,6 +153,8 @@ export default function Consultation({ sid }) {
           const response = err.response;
           if (response && response.status === 422) {
             setErrors(response.data.errors);
+          } else if (response && response.status === 404) {
+            console.log(response.data.message);
           }
         });
     }

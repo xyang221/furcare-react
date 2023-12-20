@@ -45,9 +45,9 @@ export default function DiagnosisModal(props) {
 
   return (
     <>
-      <Backdrop open={loading} style={{ zIndex: 999 }}>
+      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
         <CircularProgress color="inherit" />
-      </Backdrop>
+      </Backdrop> */}
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
@@ -69,17 +69,9 @@ export default function DiagnosisModal(props) {
 
             <form onSubmit={(e) => onSubmit(e)} on>
               <Stack spacing={2} margin={2}>
-                <Box
-                  display="flex"
-                  flexDirection="row"
-                  justifyContent="space-between"
-                >
-                  <Typography variant="h6">Diagnosis </Typography>
-
                   <Typography variant="h6">
                     Date: {date.toDateString()}{" "}
                   </Typography>
-                </Box>
                 <TextField
                   label="Price"
                   variant="standard"
@@ -95,7 +87,7 @@ export default function DiagnosisModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
-                    disabled={isUpdate}
+                    readOnly={isUpdate}
                     required
                   >
                     {pets.map((item) => (
@@ -108,11 +100,11 @@ export default function DiagnosisModal(props) {
 
                 <TextField
                   id="outlined-multiline-static"
-                  label="Remarks"
+                  label="Diagnosis"
                   multiline
                   rows={5}
                   fullWidth
-                  placeholder="write your remarks here..."
+                  placeholder="write your diagnosis here..."
                   value={diagnosis.remarks || ""}
                   onChange={(ev) =>
                     handleFieldChange("remarks", ev.target.value)

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Button,
   Alert,
@@ -11,11 +11,11 @@ import {
   IconButton,
   Stack,
   TextField,
-  Typography,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  InputAdornment,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
@@ -38,8 +38,6 @@ export default function DiagnosisModal(props) {
     // Update the breed object with the updated value
     setDiagnosis(updatedDiagnosis);
   };
-
-  const [date, setDate] = useState(new Date());
 
   return (
     <>
@@ -65,12 +63,17 @@ export default function DiagnosisModal(props) {
               </Box>
             )}
 
-            <form onSubmit={(e) => onSubmit(e)} on>
+            <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
                 {!isUpdate && (
                   <TextField
                     label="Consultation Price"
                     type="number"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">₱</InputAdornment>
+                      ),
+                    }}
                     value={diagnosis.unit_price || ""}
                     onChange={(ev) =>
                       handleFieldChange("unit_price", ev.target.value)
@@ -113,7 +116,7 @@ export default function DiagnosisModal(props) {
                     onChange={(ev) =>
                       handleFieldChange("pet_id", ev.target.value)
                     }
-                    readOnly={isUpdate}
+                    readOnly={isUpdate ? true : false}
                     required
                   >
                     {pets.map((item) => (
@@ -135,6 +138,7 @@ export default function DiagnosisModal(props) {
                   onChange={(ev) =>
                     handleFieldChange("remarks", ev.target.value)
                   }
+                  autoFocus
                   required
                 />
 

@@ -33,6 +33,7 @@ export default function TestResultModal(props) {
     isUpdate,
     handleImage,
     error,
+    servicename
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -71,8 +72,7 @@ export default function TestResultModal(props) {
                 <Stack spacing={2} margin={2}>
                   {!isUpdate && (
                     <TextField
-                      label="Price"
-                      variant="standard"
+                      label={`${servicename} Price`}
                       type="number"
                       InputProps={{
                         startAdornment: (
@@ -93,7 +93,7 @@ export default function TestResultModal(props) {
                       onChange={(ev) =>
                         handleFieldChange("pet_id", ev.target.value)
                       }
-                      readOnly={isUpdate}
+                      readOnly={isUpdate ? true : false}
                       required
                     >
                       {pets.map((item) => (

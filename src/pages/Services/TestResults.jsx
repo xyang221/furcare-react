@@ -25,7 +25,7 @@ import TestResultModal from "../../components/modals/TestResultModal";
 import EnlargeImageModal from "../../components/modals/EnlargeImageModal";
 import AttachmentModal from "../../components/modals/AttachmentModal";
 
-export default function TestResults({ sid }) {
+export default function TestResults({ sid,sname }) {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
@@ -325,6 +325,7 @@ export default function TestResults({ sid }) {
             petid={null}
             handleImage={handleImage}
             error={error}
+            servicename={sname}
           />
           <AttachmentModal
             open={upload}

@@ -137,13 +137,13 @@ export default function ServiceCatBtns() {
                   {service.service == "RABIES" && <Vaccination sid={service.id} />}
                   {service.service == "TRICAT" && <Vaccination sid={service.id} />}
                   {service.service == "Deworming" && <Deworming sid={service.id} />}
-                  {service.service == "CBC" && <TestResults sid={service.id} />}
-                  {service.service == "BLOOD CHEM" && <TestResults sid={service.id} />}
-                  {service.service == "PARVO TEST" && <TestResults sid={service.id} />}
-                  {service.service == "DISTEMPER" && <TestResults sid={service.id} />}
-                  {service.service == "EHRLICHIA" && <TestResults sid={service.id} />}
-                  {service.service == "HEARTWORM" && <TestResults sid={service.id} />}
-                  {service.service == "4DX" && <TestResults sid={service.id} />}
+                  {service.service == "CBC" && <TestResults sid={service.id} sname={service.service} />}
+                  {service.service == "BLOOD CHEM" && <TestResults sid={service.id} sname={service.service} />}
+                  {service.service == "PARVO TEST" && <TestResults sid={service.id} sname={service.service} />}
+                  {service.service == "DISTEMPER" && <TestResults sid={service.id} sname={service.service} />}
+                  {service.service == "EHRLICHIA" && <TestResults sid={service.id} sname={service.service} />}
+                  {service.service == "HEARTWORM" && <TestResults sid={service.id} sname={service.service} />}
+                  {service.service == "4DX" && <TestResults sid={service.id} sname={service.service} />}
                   {service.service == "Medicine" && (
                     <ServiceAvail title="Medicines" sid={service.id} />
                   )}

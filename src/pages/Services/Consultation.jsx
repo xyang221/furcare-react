@@ -13,9 +13,8 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import DiagnosisModal from "../../components/modals/DiagnosisModal";
 import { Add, Archive, Edit } from "@mui/icons-material";
 
@@ -35,10 +34,11 @@ export default function Consultation({ sid }) {
   const [loading, setLoading] = useState(false);
 
   const [consultations, setConsultations] = useState([]);
+  const [pets, setPets] = useState([]);
 
   const getConsultations = () => {
-    setConsultations([])
-    setMessage("")
+    setConsultations([]);
+    setMessage("");
     setLoading(true);
     axiosClient
       .get(`/diagnosis/petowner/${id}/service/${sid}`)
@@ -55,7 +55,6 @@ export default function Consultation({ sid }) {
       });
   };
 
-  const [pets, setPets] = useState([]);
   const getPets = () => {
     axiosClient
       .get(`/petowners/${id}/pets`)
@@ -66,6 +65,9 @@ export default function Consultation({ sid }) {
   };
 
   //for table
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
+
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
@@ -73,9 +75,6 @@ export default function Consultation({ sid }) {
     rowperpagechange(+event.target.value);
     pagechange(0);
   };
-
-  const [page, pagechange] = useState(0);
-  const [rowperpage, rowperpagechange] = useState(10);
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -103,12 +102,15 @@ export default function Consultation({ sid }) {
   const onEdit = (r) => {
     getPets();
     setErrors(null);
+    setModalloading(true);
     axiosClient
       .get(`/diagnosis/${r.id}`)
       .then(({ data }) => {
         setConsultation(data);
+        setModalloading(false);
       })
       .catch(() => {
+        setModalloading(false);
       });
     openConsultation(true);
   };
@@ -191,8 +193,6 @@ export default function Consultation({ sid }) {
           onSubmit={onSubmit}
           loading={modalloading}
           pets={pets}
-          addpet={true}
-          // petname={pet.name}
           diagnosis={consultation}
           setDiagnosis={setConsultation}
           errors={errors}
@@ -248,7 +248,7 @@ export default function Consultation({ sid }) {
                         <TableCell>{r.servicesavailed.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
-                          <Button
+                            <Button
                               variant="contained"
                               size="small"
                               color="info"

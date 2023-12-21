@@ -25,13 +25,11 @@ export default function DiagnosisModal(props) {
     onClose,
     onSubmit,
     loading,
-    petname,
     diagnosis,
     setDiagnosis,
     errors,
     pets,
-    addpet,
-    isUpdate
+    isUpdate,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -45,9 +43,9 @@ export default function DiagnosisModal(props) {
 
   return (
     <>
-      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
+      <Backdrop open={loading} style={{ zIndex: 999 }}>
         <CircularProgress color="inherit" />
-      </Backdrop> */}
+      </Backdrop>
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
@@ -69,16 +67,44 @@ export default function DiagnosisModal(props) {
 
             <form onSubmit={(e) => onSubmit(e)} on>
               <Stack spacing={2} margin={2}>
-                  <Typography variant="h6">
-                    Date: {date.toDateString()}{" "}
-                  </Typography>
-                <TextField
-                  label="Price"
-                  variant="standard"
-                  type="number"
-                  value={diagnosis.unit_price || ""}
-                  onChange={(ev) => handleFieldChange("unit_price", ev.target.value)}
-                />
+                {!isUpdate && (
+                  <TextField
+                    label="Consultation Price"
+                    type="number"
+                    value={diagnosis.unit_price || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("unit_price", ev.target.value)
+                    }
+                  />
+                )}
+                {isUpdate ? (
+                  <TextField
+                    variant="outlined"
+                    id="Date"
+                    label="Date"
+                    value={diagnosis.date}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
+                    required
+                  />
+                ) : (
+                  <TextField
+                    variant="outlined"
+                    id="Date"
+                    label="Date"
+                    value={new Date().toLocaleDateString()}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
+                    required
+                  />
+                )}
+
                 <FormControl>
                   <InputLabel>Pet</InputLabel>
                   <Select
@@ -111,8 +137,6 @@ export default function DiagnosisModal(props) {
                   }
                   required
                 />
-
-                <br></br>
 
                 <Button color="primary" variant="contained" type="submit">
                   Save

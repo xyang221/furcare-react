@@ -4,6 +4,7 @@ import axiosClient from "../axios-client";
 import {
   Alert,
   Box,
+  Breadcrumbs,
   Button,
   Divider,
   IconButton,
@@ -18,12 +19,13 @@ import UploadImage from "../components/UploadImage";
 import QrCodeGenerator from "../components/QrCodeGenerator";
 import QRCode from "qrcode";
 import CryptoJS from "crypto-js";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function ViewPet() {
   const { id } = useParams();
+  const { notification, setNotification } = useStateContext();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
-  const [notification, setNotification] = useState(null);
 
   const [pet, setPet] = useState({
     id: null,
@@ -79,13 +81,13 @@ export default function ViewPet() {
       })
       .catch(() => {});
   };
-  
+
   const handleSpecieChange = (event) => {
     const selectedSpecietype = event.target.value;
     setSelectedSpecie(selectedSpecietype);
     getBreeds(selectedSpecietype);
   };
-  
+
   const getBreeds = (query) => {
     if (query) {
       axiosClient
@@ -233,8 +235,8 @@ export default function ViewPet() {
     encryptData();
   }, []);
 
-   // Fetch breeds when selectedSpecie changes
-   useEffect(() => {
+  // Fetch breeds when selectedSpecie changes
+  useEffect(() => {
     if (selectedSpecie) {
       getBreeds(selectedSpecie);
     } else {
@@ -246,23 +248,24 @@ export default function ViewPet() {
     <div>
       <br></br>
       <div>
-        {notification && <Alert severity="success">{notification}</Alert>}
-        <Box display="flex" flexDirection="row">
+        <Breadcrumbs color="primary">
           <Button
             component={Link}
             to={`/admin/petowners/` + petowner.id + `/view`}
+            color="secondary"
+            variant="text"
             size="small"
-            
           >
-            <Typography variant="caption"> {petowner.firstname}</Typography>
+            {petowner.firstname}
           </Button>
-          <Typography variant="button"> / {pet.name}</Typography>
-        </Box>
+          <Typography color="text.primary">{pet.name}</Typography>
+        </Breadcrumbs>
         <Divider />
+        {notification && <Alert severity="success">{notification}</Alert>}
         <Stack flexDirection="row" padding={1}>
           <IconButton variant="contained" color="info" onClick={uploadImage}>
             <img src={`http://localhost:8000/` + pet.photo} height="100" />
-            {/* <Edit fontSize="small" /> */}
+            <Edit fontSize="small" />
           </IconButton>
 
           <UploadImage
@@ -323,7 +326,6 @@ export default function ViewPet() {
           species={species}
           specie={breed.specie_id}
         />
-
         {/* <PetsModal
           open={image}
           onClick={closepopup}
@@ -331,7 +333,6 @@ export default function ViewPet() {
           handleImage={handleImage}
               error={error}
         /> */}
-
         <Stack spacing={2} sx={{ width: "100%" }}>
           <Snackbar
             open={notification}
@@ -343,7 +344,6 @@ export default function ViewPet() {
             </Alert>
           </Snackbar>
         </Stack>
-
         <PetTabs />
       </div>
     </div>

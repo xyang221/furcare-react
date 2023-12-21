@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Alert,
-  Box,
   Button,
   Paper,
   Stack,
@@ -14,12 +13,13 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
-import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
+import { Archive, Edit } from "@mui/icons-material";
 import DewormingLogsModal from "../components/modals/DewormingLogsModal";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function PetDeworming() {
+  const { notification, setNotification } = useStateContext();
   const { id } = useParams();
 
   //for table
@@ -32,6 +32,8 @@ export default function PetDeworming() {
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
 
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
@@ -41,11 +43,7 @@ export default function PetDeworming() {
     pagechange(0);
   };
 
-  const [page, pagechange] = useState(0);
-  const [rowperpage, rowperpagechange] = useState(10);
-
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState(null);
   const [deworminglog, setDeworminglog] = useState({
@@ -57,11 +55,14 @@ export default function PetDeworming() {
     pet_id: null,
   });
   const [pet, setPet] = useState([]);
+  const [vets, setVets] = useState([]);
   const [open, setOpen] = useState(false);
   const [deworminglogs, setDeworminglogs] = useState([]);
+  const [modalloading, setModalloading] = useState(false);
 
   const getDeworming = () => {
-    setMessage(null)
+    setDeworminglogs([]);
+    setMessage(null);
     setLoading(true);
     axiosClient
       .get(`/deworminglogs/pet/${id}`)
@@ -78,22 +79,32 @@ export default function PetDeworming() {
       });
   };
 
+  const getVets = () => {
+    axiosClient
+      .get(`/vets`)
+      .then(({ data }) => {
+        setVets(data.data);
+      })
+      .catch(() => {});
+  };
+
   const closepopup = () => {
     setOpen(false);
   };
 
   const onEdit = (r) => {
+    getVets();
     setErrors(null);
-    setLoading(true);
+    setModalloading(true);
     axiosClient
       .get(`/deworminglogs/${r.id}`)
       .then(({ data }) => {
-        setLoading(false);
+        setModalloading(false);
         setDeworminglog(data);
-        setPet(data.pet)
+        setPet(data.pet);
       })
       .catch(() => {
-        setLoading(false);
+        setModalloading(false);
       });
     setOpen(true);
   };
@@ -104,7 +115,7 @@ export default function PetDeworming() {
     }
 
     axiosClient.delete(`/deworminglogs/${r.id}/archive`).then(() => {
-      setNotification("Pet Owner was archived");
+      setNotification("Deworming was archived");
       getDeworming();
     });
   };
@@ -141,19 +152,18 @@ export default function PetDeworming() {
           padding: "10px",
         }}
       >
-
         <DewormingLogsModal
           open={open}
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
-          loading={loading}
+          loading={modalloading}
           deworminglog={deworminglog}
           setDeworminglog={setDeworminglog}
           errors={errors}
-          pets={pet}
           pet={pet}
-          isUpdate={deworminglog.id || null}
+          vets={vets}
+          isUpdate={true}
         />
 
         {/* <Button
@@ -185,7 +195,10 @@ export default function PetDeworming() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -195,7 +208,10 @@ export default function PetDeworming() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -212,7 +228,7 @@ export default function PetDeworming() {
                         <TableCell>{r.date}</TableCell>
                         <TableCell>{`${r.weight} kg`}</TableCell>
                         <TableCell>{r.description}</TableCell>
-                        <TableCell>{r.administered}</TableCell>
+                        <TableCell>{r.vet.fullname}</TableCell>
                         <TableCell>{r.return}</TableCell>
                         <TableCell>{r.servicesavailed.status}</TableCell>
                         <TableCell>

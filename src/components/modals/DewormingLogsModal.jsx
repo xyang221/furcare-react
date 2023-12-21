@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Backdrop,
@@ -16,7 +16,6 @@ import {
   Select,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
@@ -47,9 +46,9 @@ export default function DewormingLogsModal(props) {
 
   return (
     <>
-      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
+      <Backdrop open={loading} style={{ zIndex: 999 }}>
         <CircularProgress color="inherit" />
-      </Backdrop> */}
+      </Backdrop>
 
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -72,46 +71,77 @@ export default function DewormingLogsModal(props) {
             <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
                 {isUpdate ? (
-                  <Typography variant="body1">
-                    Date: {deworminglog.date}
-                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    id="Date"
+                    label="Date"
+                    value={deworminglog.date}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
+                    required
+                  />
                 ) : (
-                  <Typography variant="body1">
-                    Date: {date.toDateString()}
-                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    id="Date"
+                    label="Date"
+                    value={date.toLocaleDateString()}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
+                    required
+                  />
                 )}
 
-                <FormControl>
-                  <InputLabel>Pet</InputLabel>
-                  <Select
+                {isUpdate ? (
+                  <TextField
+                    variant="outlined"
+                    id="Pet"
                     label="Pet"
-                    value={deworminglog.pet_id || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("pet_id", ev.target.value)
-                    }
-                    readOnly={isUpdate}
+                    value={pet.name}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
                     required
-                  >
-                    {pets.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                  />
+                ) : (
+                  <FormControl>
+                    <InputLabel>Pet</InputLabel>
+                    <Select
+                      label="Pet"
+                      value={deworminglog.pet_id || ""}
+                      onChange={(ev) =>
+                        handleFieldChange("pet_id", ev.target.value)
+                      }
+                      required
+                    >
+                      {pets.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
 
                 <TextField
                   variant="outlined"
                   id="Weight"
                   label="Weight"
                   type="number"
-                  sx={{ width: "30%" }}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">kg</InputAdornment>
                     ),
                   }}
-                  value={deworminglog.weight}
+                  value={deworminglog.weight || ""}
                   onChange={(ev) =>
                     handleFieldChange("weight", ev.target.value)
                   }

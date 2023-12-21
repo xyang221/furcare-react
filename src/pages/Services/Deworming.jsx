@@ -5,7 +5,6 @@ import {
   Alert,
   Box,
   Button,
-  Paper,
   Stack,
   Table,
   TableBody,
@@ -14,12 +13,15 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { Add, Archive, Edit } from "@mui/icons-material";
 import DewormingLogsModal from "../../components/modals/DewormingLogsModal";
+import { useStateContext } from "../../contexts/ContextProvider";
 
 export default function Deworming({ sid }) {
+  const { notification, setNotification } = useStateContext();
+  const { id } = useParams();
+
   //for table
   const columns = [
     { id: "date", name: "Date" },
@@ -31,6 +33,8 @@ export default function Deworming({ sid }) {
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
 
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
@@ -40,11 +44,7 @@ export default function Deworming({ sid }) {
     pagechange(0);
   };
 
-  const [page, pagechange] = useState(0);
-  const [rowperpage, rowperpagechange] = useState(10);
-
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState(null);
   const [errors, setErrors] = useState(null);
 
@@ -61,8 +61,8 @@ export default function Deworming({ sid }) {
   const [vets, setVets] = useState([]);
 
   const [openAdd, setOpenAdd] = useState(false);
-
-  const { id } = useParams();
+  const [pet, setPet] = useState([]);
+  const [modalloading, setModalloading] = useState(false);
 
   const getDeworming = () => {
     setMessage(null);
@@ -94,18 +94,16 @@ export default function Deworming({ sid }) {
 
   const getVets = () => {
     axiosClient
-      .get(`/doctors`)
+      .get(`/vets`)
       .then(({ data }) => {
         setVets(data.data);
       })
       .catch(() => {});
   };
 
-
-
-  const addModal = (ev) => {
+  const addModal = () => {
     getPets();
-    getVets()
+    getVets();
     setOpenAdd(true);
     setDeworminglog({});
     setErrors(null);
@@ -127,15 +125,20 @@ export default function Deworming({ sid }) {
   };
 
   const onEdit = (r) => {
-    getPets();
-    getVets()
+    getVets();
     setErrors(null);
+    setModalloading(true);
+
     axiosClient
       .get(`/deworminglogs/${r.id}`)
       .then(({ data }) => {
+        setModalloading(false);
         setDeworminglog(data);
+        setPet(data.pet);
       })
-      .catch(() => {});
+      .catch(() => {
+        setModalloading(false);
+      });
     setOpenAdd(true);
   };
 
@@ -205,12 +208,14 @@ export default function Deworming({ sid }) {
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
+          loading={modalloading}
           pets={pets}
           vets={vets}
           deworminglog={deworminglog}
           setDeworminglog={setDeworminglog}
           errors={errors}
           isUpdate={deworminglog.id}
+          pet={pet}
         />
 
         {/* <Button

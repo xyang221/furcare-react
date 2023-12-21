@@ -42,13 +42,11 @@ export default function PetVaccination() {
   const [errors, setErrors] = useState(null);
   const [vaccinationlogs, setVaccinationlogs] = useState([]);
   const [againsts, setAgainsts] = useState([]);
-  const [checkedItems, setCheckedItems] = useState({});
-  const [selectedItems, setSelectedItems] = useState([]);
   const [vaccinationlog, setVaccinationlog] = useState({
     id: null,
     weight: "",
     description: "",
-    va_againsts:"",
+    va_againsts: "",
     return: null,
     pet_id: null,
     vet_id: null,
@@ -68,7 +66,7 @@ export default function PetVaccination() {
   };
 
   const getVaccination = () => {
-    setVaccinationlogs([])
+    setVaccinationlogs([]);
     setMessage(null);
     setLoading(true);
     axiosClient
@@ -92,13 +90,12 @@ export default function PetVaccination() {
       .then(({ data }) => {
         setAgainsts(data.data);
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   const getVets = () => {
     axiosClient
-      .get(`/doctors`)
+      .get(`/vets`)
       .then(({ data }) => {
         setVets(data.data);
       })
@@ -122,15 +119,18 @@ export default function PetVaccination() {
 
   const handleEdit = (record) => {
     getAgainsts();
-    getVets()
+    getVets();
     setErrors(null);
+    setModalloading(true);
     axiosClient
       .get(`/vaccinationlogs/${record.id}`)
       .then(({ data }) => {
         setVaccinationlog(data);
-        setPet(data.pet)
+        setPet(data.pet);
+        setModalloading(false);
       })
       .catch(() => {
+        setModalloading(false);
       });
 
     setOpenAdd(true);
@@ -156,7 +156,6 @@ export default function PetVaccination() {
     }
   };
 
-
   useEffect(() => {
     getVaccination();
   }, []);
@@ -170,13 +169,12 @@ export default function PetVaccination() {
         }}
       >
         <Box sx={{ minWidth: "90%" }}>
-
           <VaccinationLogsModal
             open={openAdd}
             onClose={handleCloseModal}
             onClick={handleCloseModal}
             onSubmit={handleSubmit}
-            loading={loading}
+            loading={modalloading}
             againsts={againsts}
             vets={vets}
             vaccination={vaccinationlog}
@@ -184,7 +182,6 @@ export default function PetVaccination() {
             errors={errors}
             pet={pet}
             isUpdate={true}
-            selectedItems={selectedItems}
           />
 
           {notification && <Alert severity="success">{notification}</Alert>}
@@ -206,7 +203,10 @@ export default function PetVaccination() {
               {loading && (
                 <TableBody>
                   <TableRow>
-                    <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
                       Loading...
                     </TableCell>
                   </TableRow>
@@ -216,7 +216,10 @@ export default function PetVaccination() {
               {!loading && message && (
                 <TableBody>
                   <TableRow>
-                    <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
                       {message}
                     </TableCell>
                   </TableRow>

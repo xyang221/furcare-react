@@ -17,17 +17,20 @@ import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
 import { Edit } from "@mui/icons-material";
 import Notif from "../components/Notif";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function AppointmentsDone() {
+  const { notification, setNotification } = useStateContext();
+
   //for table
   const columns = [
     { id: "Date", name: "Date" },
     { id: "client", name: "Client" },
-    { id: "Purpose", name: "Purpose" },
     { id: "Service", name: "Service" },
-    { id: "Status", name: "Status" },
+    { id: "Purpose", name: "Purpose" },
     { id: "Remarks", name: "Remarks" },
     { id: "Veterinarian", name: "Veterinarian" },
+    { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -42,7 +45,6 @@ export default function AppointmentsDone() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -56,6 +58,7 @@ export default function AppointmentsDone() {
     remarks: "",
     petowner_id: null,
     service_id: null,
+    vet_id: null,
   });
   const [petowner, setPetowner] = useState({
     id: null,
@@ -67,8 +70,10 @@ export default function AppointmentsDone() {
   const [open, openchange] = useState(false);
   const [appointments, setAppointments] = useState([]);
   const [services, setServices] = useState([]);
+  const [doctors, setDoctors] = useState([]);
 
   const getAppointments = () => {
+    setAppointments([])
     setLoading(true);
     axiosClient
       .get("/appointments/completed")
@@ -91,15 +96,12 @@ export default function AppointmentsDone() {
       .then(({ data }) => {
         setServices(data.data);
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
-
-  const [doctors, setDoctors] = useState([]);
 
   const getVets = () => {
     axiosClient
-      .get(`/doctors`)
+      .get(`/vets`)
       .then(({ data }) => {
         setDoctors(data.data);
       })
@@ -113,14 +115,14 @@ export default function AppointmentsDone() {
   const onEdit = (r) => {
     setErrors(null);
     getServices();
-    getVets()
+    getVets();
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
         setAppointment(data);
-        setPetowner(data.petowner)
+        setPetowner(data.petowner);
       })
       .catch(() => {
         setModalloading(false);
@@ -211,7 +213,10 @@ export default function AppointmentsDone() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -221,7 +226,10 @@ export default function AppointmentsDone() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -235,15 +243,12 @@ export default function AppointmentsDone() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        {/* <TableCell>{r.date}</TableCell> */}
-                        <TableCell>
-                          {new Date(r.date).toISOString().split("T")[0]}
-                        </TableCell>
+                        <TableCell>{r.date}</TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
-                        <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
+                        <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
-                        <TableCell>{r.doctor.fullname}</TableCell>
+                        <TableCell>{r.vet.fullname}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
@@ -253,7 +258,7 @@ export default function AppointmentsDone() {
                               color="info"
                               onClick={() => onEdit(r)}
                             >
-                              <Edit fontSize="small"/>
+                              <Edit fontSize="small" />
                             </Button>
                           </Stack>
                         </TableCell>
@@ -273,8 +278,7 @@ export default function AppointmentsDone() {
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
 
-<Notif open={opennotif} notification={notification} />
-
+        <Notif open={opennotif} notification={notification} />
       </Paper>
     </>
   );

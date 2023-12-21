@@ -17,17 +17,23 @@ import {
 import DropDownButtons from "../components/DropDownButtons";
 import { Close, Done } from "@mui/icons-material";
 import Notif from "../components/Notif";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function AppointmentsPending() {
+  const { notification, setNotification } = useStateContext();
   //for table
   const columns = [
     { id: "Date", name: "Date" },
     { id: "client", name: "Client" },
-    { id: "Purpose", name: "Purpose" },
     { id: "Service", name: "Service" },
+    { id: "Purpose", name: "Purpose" },
+    { id: "Remarks", name: "Remarks" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
 
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
@@ -37,17 +43,14 @@ export default function AppointmentsPending() {
     pagechange(0);
   };
 
-  const [page, pagechange] = useState(0);
-  const [rowperpage, rowperpagechange] = useState(10);
-
-  const [notification, setNotification] = useState("");
   const [opennotif, setOpennotif] = useState(false);
   const [message, setMessage] = useState("");
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const getAppointments = () => {
-    setMessage(null)
+    setAppointments([])
+    setMessage(null);
     setLoading(true);
     axiosClient
       .get("/appointments/pending")
@@ -70,7 +73,9 @@ export default function AppointmentsPending() {
     }
 
     axiosClient.put(`/appointments/${r.id}/confirm`).then(() => {
-      setNotification(`The appointment of ${r.petowner.firstname} ${r.petowner.lastname} was confirmed`);
+      setNotification(
+        `The appointment of ${r.petowner.firstname} ${r.petowner.lastname} was confirmed`
+      );
       setOpennotif(true);
       getAppointments();
     });
@@ -137,7 +142,10 @@ export default function AppointmentsPending() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -147,7 +155,10 @@ export default function AppointmentsPending() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -161,13 +172,12 @@ export default function AppointmentsPending() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        {/* <TableCell>{r.date}</TableCell> */}
-                        <TableCell>
-                          {new Date(r.date).toISOString().split("T")[0]}
-                        </TableCell>
+                        <TableCell>{r.date}</TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
-                        <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
+                        <TableCell>{r.purpose}</TableCell>
+                        <TableCell>{r.remarks}</TableCell>
+                        <TableCell>{r.vet.fullname}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>

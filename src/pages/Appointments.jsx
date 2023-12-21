@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link, useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -64,8 +63,7 @@ export default function Appointments() {
 
   //for notif modal
   const [opennotif, setOpennotif] = useState(false);
-  const {notification,setNotification} = useStateContext();
-  // const [notification, setNotification] = useState("");
+  const { notification, setNotification } = useStateContext();
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -89,8 +87,9 @@ export default function Appointments() {
   const [open, openchange] = useState(false);
 
   const getAppointments = () => {
-    setPid(null)
-    setPetowners([])
+    setPid(null);
+    setPetowners([]);
+    setAppointments([])
     setMessage(null);
     setLoading(true);
     axiosClient
@@ -119,7 +118,7 @@ export default function Appointments() {
 
   const getVets = () => {
     axiosClient
-      .get(`/doctors`)
+      .get(`/vets`)
       .then(({ data }) => {
         setDoctors(data.data);
       })
@@ -151,9 +150,9 @@ export default function Appointments() {
 
   const addModal = (p) => {
     getServices();
-    getVets()
+    getVets();
     setPid(p.id);
-    setPetowner(p)
+    setPetowner(p);
     setAppointment({});
     setErrors(null);
     setNotification("");
@@ -190,14 +189,14 @@ export default function Appointments() {
   const onEdit = (r) => {
     setErrors(null);
     getServices();
-    getVets()
+    getVets();
     setModalloading(true);
     axiosClient
       .get(`/appointments/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
         setAppointment(data);
-        setPetowner(data.petowner)
+        setPetowner(data.petowner);
       })
       .catch(() => {
         setModalloading(false);
@@ -327,7 +326,10 @@ export default function Appointments() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -337,7 +339,10 @@ export default function Appointments() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -351,14 +356,12 @@ export default function Appointments() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        <TableCell>
-                          {new Date(r.date).toISOString().split("T")[0]}
-                        </TableCell>
+                        <TableCell>{r.date}</TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
-                        <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
+                        <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
-                        <TableCell>{r.doctor.fullname}</TableCell>
+                        <TableCell>{r.vet.fullname}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>

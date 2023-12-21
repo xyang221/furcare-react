@@ -95,7 +95,7 @@ export default function PetOwnerAppointments({ petowner }) {
 
   const getVets = () => {
     axiosClient
-      .get(`/doctors`)
+      .get(`/vets`)
       .then(({ data }) => {
         setDoctors(data.data);
       })

@@ -82,7 +82,7 @@ export default function EditAppointment(props) {
                 ))}
               </Box>
             )}
-            <form onSubmit={(e) => onSubmit(e)} on>
+            <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
                 <TextField
                   variant="outlined"

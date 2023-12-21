@@ -16,6 +16,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  InputAdornment,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
@@ -66,18 +67,30 @@ export default function ServiceAvailModal(props) {
             )}
             <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
-                <Typography variant="h6">
-                  Date: {date.toDateString()}{" "}
-                </Typography>
-
                 <TextField
-                  label="Price"
-                  variant="standard"
+                  label={`${title} Price`}
                   type="number"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">₱</InputAdornment>
+                    ),
+                  }}
                   value={serviceavail.unit_price || ""}
                   onChange={(ev) =>
                     handleFieldChange("unit_price", ev.target.value)
                   }
+                />
+                <TextField
+                  variant="outlined"
+                  id="Date"
+                  label="Date"
+                  value={new Date().toLocaleDateString()}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    readOnly: true,
+                    "aria-readonly": true,
+                  }}
+                  required
                 />
                 <FormControl>
                   <InputLabel>Pet</InputLabel>

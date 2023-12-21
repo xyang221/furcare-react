@@ -6,6 +6,7 @@ import {
   Button,
   CircularProgress,
   Divider,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -17,16 +18,17 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
+import { Add, Archive, Edit } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../../axios-client";
 import TestResultModal from "../../components/modals/TestResultModal";
+import EnlargeImageModal from "../../components/modals/EnlargeImageModal";
+import AttachmentModal from "../../components/modals/AttachmentModal";
 
 export default function TestResults({ sid }) {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
-  const [imageData, setImageData] = useState("");
   const [notification, setNotification] = useState("");
   const [message, setMessage] = useState(null);
 
@@ -38,12 +40,13 @@ export default function TestResults({ sid }) {
     pet_id: null,
     attachment: null,
     description: "",
+    unit_price: null,
   });
 
   const [error, setError] = useState(null);
 
   const getTestresults = () => {
-    setTestresults([])
+    setTestresults([]);
     setMessage(null);
     setLoading(true);
     axiosClient
@@ -62,19 +65,16 @@ export default function TestResults({ sid }) {
   };
 
   const getPets = () => {
-    setLoading(true);
     axiosClient
       .get(`/petowners/${id}/pets`)
       .then(({ data }) => {
-        setLoading(false);
         setPets(data.data);
       })
       .catch((mes) => {
         const response = mes.response;
         if (response && response.status == 404) {
-          setMessage(response.data.message);
+          setErrors(response.data.message);
         }
-        setLoading(false);
       });
   };
 
@@ -86,6 +86,9 @@ export default function TestResults({ sid }) {
     { id: "Actions", name: "Actions" },
   ];
 
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
+
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
@@ -94,32 +97,45 @@ export default function TestResults({ sid }) {
     pagechange(0);
   };
 
-  const [page, pagechange] = useState(0);
-  const [rowperpage, rowperpagechange] = useState(10);
-
   //for modal
   const [open, openchange] = useState(false);
+  const [upload, setUpload] = useState(false);
+  const [trid, setTrid] = useState(null);
+  const [modalloading, setModalloading] = useState(false);
 
-  const functionopenpopup = (ev) => {
+  const openModal = () => {
+    setTestresult({});
     getPets();
     openchange(true);
     setErrors(null);
+    setError(null);
   };
 
-  const closepopup = () => {
+  const closeModal = () => {
     openchange(false);
+    setUpload(false);
   };
 
   // onClicks
   const onEdit = (r) => {
+    getPets();
+    setModalloading(true);
     axiosClient
       .get(`/testresults/${r.id}`)
       .then(({ data }) => {
         setTestresult(data);
+        setModalloading(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        setModalloading(false);
+      });
 
     openchange(true);
+  };
+
+  const onEditAttachment = (r) => {
+    setUpload(true);
+    setTrid(r.id);
   };
 
   const onArchive = (r) => {
@@ -152,7 +168,7 @@ export default function TestResults({ sid }) {
         });
     } else {
       if (!testresult.attachment) {
-        setError("Please select an image to upload.");
+        setError("Please select an image attachment to upload.");
         return;
       }
 
@@ -181,7 +197,7 @@ export default function TestResults({ sid }) {
   };
 
   const handleImage = (e) => {
-    const selectedFile = e.currentTarget.files?.[0] || null;
+    const selectedFile = e.currentTarget.files?.[0];
 
     if (selectedFile) {
       // Validate the file type
@@ -196,12 +212,67 @@ export default function TestResults({ sid }) {
           ...prevImage,
           attachment: selectedFile,
         }));
+        setResult((prevImage) => ({
+          ...prevImage,
+          attachment: selectedFile,
+        }));
         setError(null);
+        setUploadError(null);
       } else {
         setError(
           "The selected file must be of type: jpg, png, jpeg, gif, svg."
         );
+        setUploadError(
+          "The selected file must be of type: jpg, png, jpeg, gif, svg."
+        );
       }
+    }
+  };
+
+  //view attachment
+  const [showImage, setShowImage] = useState(false);
+  const [image, setImage] = useState(null);
+
+  const toggleImage = (r) => {
+    setShowImage(!showImage);
+    setImage(r.attachment);
+  };
+
+  //upload new attachment
+  const [uploadError, setUploadError] = useState(null);
+  const [result, setResult] = useState({
+    attachment: null,
+  });
+
+  const submitImage = (e) => {
+    e.preventDefault();
+
+    if (!result.attachment) {
+      setUploadError("Please select an image attachment to upload.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("attachment", result.attachment);
+
+      axiosClient
+        .post(`/testresults/${trid}/upload-attachment`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          setNotification(response.data.success);
+          setUpload(false);
+          setResult({});
+          getTestresults();
+        })
+        .catch((response) => {
+          setUploadError(response.data.message);
+        });
+    } catch (error) {
+      setUploadError("Failed to upload the attachment.");
     }
   };
 
@@ -230,7 +301,7 @@ export default function TestResults({ sid }) {
             justifyContent="space-between"
           >
             <Button
-              onClick={functionopenpopup}
+              onClick={openModal}
               variant="contained"
               color="success"
               size="small"
@@ -242,10 +313,10 @@ export default function TestResults({ sid }) {
 
           <TestResultModal
             open={open}
-            onClick={closepopup}
-            onClose={closepopup}
-            setImageData={setImageData}
+            onClick={closeModal}
+            onClose={closeModal}
             onSubmit={onSubmit}
+            loading={modalloading}
             pets={pets}
             errors={errors}
             testresult={testresult}
@@ -254,6 +325,20 @@ export default function TestResults({ sid }) {
             petid={null}
             handleImage={handleImage}
             error={error}
+          />
+          <AttachmentModal
+            open={upload}
+            onClick={closeModal}
+            onClose={closeModal}
+            handleImage={handleImage}
+            submitImage={submitImage}
+            uploadError={uploadError}
+          />
+          <EnlargeImageModal
+            open={showImage}
+            onClose={toggleImage}
+            title="Test Result Attachment"
+            image={image}
           />
           <Divider />
           <TableContainer sx={{ height: 350 }}>
@@ -301,7 +386,16 @@ export default function TestResults({ sid }) {
                             <img
                               src={`http://localhost:8000/` + r.attachment}
                               height="50"
-                            />{" "}
+                              width="50"
+                              onClick={() => toggleImage(r)}
+                              style={{ cursor: "pointer" }}
+                            />
+                            <IconButton
+                              color="primary"
+                              onClick={() => onEditAttachment(r)}
+                            >
+                              <Edit fontSize="small" />{" "}
+                            </IconButton>
                           </TableCell>
                           <TableCell>{r.pet.name}</TableCell>
                           <TableCell>{r.description}</TableCell>

@@ -14,12 +14,14 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { Add, Archive, Edit } from "@mui/icons-material";
 import VaccinationLogsModal from "../../components/modals/VaccinationLogsModal";
+import { useStateContext } from "../../contexts/ContextProvider";
 
 export default function Vaccination({ sid }) {
+  const { notification, setNotification } = useStateContext();
+
   const columns = [
     { id: "date", name: "Date" },
     { id: "weight", name: "Weight" },
@@ -34,7 +36,6 @@ export default function Vaccination({ sid }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState(null);
   const [vaccinationlogs, setVaccinationlogs] = useState([]);
@@ -44,14 +45,16 @@ export default function Vaccination({ sid }) {
     id: null,
     weight: "",
     description: "",
-    va_againsts:"",
+    va_againsts: "",
     return: null,
     pet_id: null,
     vet_id: null,
   });
   const [vets, setVets] = useState([]);
+  const [pet, setPet] = useState([]);
 
   const [openAdd, setOpenAdd] = useState(false);
+  const [modalloading, setModalloading] = useState(false);
 
   const { id } = useParams();
 
@@ -65,7 +68,7 @@ export default function Vaccination({ sid }) {
   };
 
   const getVaccination = () => {
-    setVaccinationlogs([])
+    setVaccinationlogs([]);
     setMessage(null);
     setLoading(true);
     axiosClient
@@ -104,13 +107,12 @@ export default function Vaccination({ sid }) {
       .then(({ data }) => {
         setAgainsts(data.data);
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   const getVets = () => {
     axiosClient
-      .get(`/doctors`)
+      .get(`/vets`)
       .then(({ data }) => {
         setVets(data.data);
       })
@@ -120,7 +122,7 @@ export default function Vaccination({ sid }) {
   const handleOpenAddModal = () => {
     getPets();
     getAgainsts();
-    getVets()
+    getVets();
     setOpenAdd(true);
     setVaccinationlog({});
     setErrors(null);
@@ -142,20 +144,20 @@ export default function Vaccination({ sid }) {
   };
 
   const handleEdit = (record) => {
-    getPets();
     getAgainsts();
-    getVets()
+    getVets();
     setErrors(null);
-    setLoading(true);
+    setModalloading(true);
 
     axiosClient
       .get(`/vaccinationlogs/${record.id}`)
       .then(({ data }) => {
-        setLoading(false);
+        setModalloading(false);
         setVaccinationlog(data);
+        setPet(data.pet);
       })
       .catch(() => {
-        setLoading(false);
+        setModalloading(false);
       });
 
     setOpenAdd(true);
@@ -231,7 +233,8 @@ export default function Vaccination({ sid }) {
             onClose={handleCloseModal}
             onClick={handleCloseModal}
             onSubmit={handleSubmit}
-            loading={loading}
+            loading={modalloading}
+            pet={pet}
             pets={pets}
             againsts={againsts}
             vets={vets}

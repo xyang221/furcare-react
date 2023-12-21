@@ -18,9 +18,11 @@ import {
 } from "@mui/material";
 import { Add, Archive, Edit } from "@mui/icons-material";
 import VaccinationLogsModal from "../components/modals/VaccinationLogsModal";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function PetVaccination() {
   const { id } = useParams();
+  const { notification, setNotification } = useStateContext();
 
   const columns = [
     { id: "date", name: "Date" },
@@ -36,7 +38,6 @@ export default function PetVaccination() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState(null);
   const [vaccinationlogs, setVaccinationlogs] = useState([]);
@@ -47,15 +48,15 @@ export default function PetVaccination() {
     id: null,
     weight: "",
     description: "",
-    administered: "",
+    va_againsts:"",
     return: null,
     pet_id: null,
-    vaccination_againsts: [],
+    vet_id: null,
   });
   const [pet, setPet] = useState([]);
-
+  const [vets, setVets] = useState([]);
   const [openAdd, setOpenAdd] = useState(false);
-
+  const [modalloading, setModalloading] = useState(false);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -66,29 +67,8 @@ export default function PetVaccination() {
     setPage(0);
   };
 
-  // Function to handle checkbox changes
-  const handleCheckboxChange = (item) => {
-    setVaccinationlog((prevVaccinationlog) => {
-      const updatedVaccinationAgainsts = {
-        ...prevVaccinationlog.vaccination_againsts,
-      };
-
-      if (updatedVaccinationAgainsts[item.id]) {
-        // Remove the item if it exists (unchecked)
-        delete updatedVaccinationAgainsts[item.id];
-      } else {
-        // Add the item if it doesn't exist (checked)
-        updatedVaccinationAgainsts[item.id] = item;
-      }
-
-      return {
-        ...prevVaccinationlog,
-        vaccination_againsts: updatedVaccinationAgainsts,
-      };
-    });
-  };
-
   const getVaccination = () => {
+    setVaccinationlogs([])
     setMessage(null);
     setLoading(true);
     axiosClient
@@ -116,6 +96,15 @@ export default function PetVaccination() {
       });
   };
 
+  const getVets = () => {
+    axiosClient
+      .get(`/doctors`)
+      .then(({ data }) => {
+        setVets(data.data);
+      })
+      .catch(() => {});
+  };
+
   const handleCloseModal = () => {
     setOpenAdd(false);
   };
@@ -133,16 +122,13 @@ export default function PetVaccination() {
 
   const handleEdit = (record) => {
     getAgainsts();
+    getVets()
     setErrors(null);
     axiosClient
       .get(`/vaccinationlogs/${record.id}`)
       .then(({ data }) => {
         setVaccinationlog(data);
         setPet(data.pet)
-        const checkedAgainst = data.vaccination_againsts.map((a) => a);
-        setCheckedItems(checkedAgainst);
-        // setCheckedItems(data.vaccination_againsts)
-        // console.log(checkedItems);
       })
       .catch(() => {
       });
@@ -192,17 +178,13 @@ export default function PetVaccination() {
             onSubmit={handleSubmit}
             loading={loading}
             againsts={againsts}
-            pets={pet}
-            checkedItems={checkedItems}
-            setCheckedItems={setCheckedItems}
+            vets={vets}
             vaccination={vaccinationlog}
             setVaccination={setVaccinationlog}
             errors={errors}
             pet={pet}
-            isUpdate={vaccinationlog.id}
+            isUpdate={true}
             selectedItems={selectedItems}
-            setSelectedItems={setSelectedItems}
-            handleCheckboxChange={handleCheckboxChange}
           />
 
           {notification && <Alert severity="success">{notification}</Alert>}
@@ -224,7 +206,7 @@ export default function PetVaccination() {
               {loading && (
                 <TableBody>
                   <TableRow>
-                    <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                       Loading...
                     </TableCell>
                   </TableRow>
@@ -234,7 +216,7 @@ export default function PetVaccination() {
               {!loading && message && (
                 <TableBody>
                   <TableRow>
-                    <TableCell colSpan={8} style={{ textAlign: "center" }}>
+                    <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                       {message}
                     </TableCell>
                   </TableRow>
@@ -253,15 +235,9 @@ export default function PetVaccination() {
                         <TableRow hover role="checkbox" key={record.id}>
                           <TableCell>{record.date}</TableCell>
                           <TableCell>{`${record.weight} kg`}</TableCell>
-                          <TableCell>
-                            {record.vaccination_againsts.map((va_against) => (
-                              <span key={va_against.id}>
-                                {va_against.acronym}
-                              </span>
-                            ))}
-                          </TableCell>
+                          <TableCell>{record.va_againsts}</TableCell>
                           <TableCell>{record.description}</TableCell>
-                          <TableCell>{record.administered}</TableCell>
+                          <TableCell>{record.vet.fullname}</TableCell>
                           <TableCell>{record.return}</TableCell>
                           <TableCell>{record.servicesavailed.status}</TableCell>
                           <TableCell>

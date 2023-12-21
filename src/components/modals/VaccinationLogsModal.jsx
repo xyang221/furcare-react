@@ -16,7 +16,10 @@ import {
   MenuItem,
   Select,
   Stack,
+  Table,
+  TableBody,
   TableCell,
+  TableRow,
   TextField,
   Typography,
 } from "@mui/material";
@@ -49,9 +52,9 @@ export default function VaccinationLogsModal(props) {
 
   return (
     <>
-      {/* <Backdrop open={loading} style={{ zIndex: 999 }}>
+      <Backdrop open={loading} style={{ zIndex: 999 }}>
         <CircularProgress color="inherit" />
-      </Backdrop> */}
+      </Backdrop>
 
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -73,45 +76,78 @@ export default function VaccinationLogsModal(props) {
             )}
             <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
-              {isUpdate ?  <Typography variant="body1">
-                  Date: {vaccination.date}
-                </Typography> :   <Typography variant="body1">
-                  Date: {date.toDateString()}
-                </Typography>}
-
-
-
-                <FormControl>
-                  <InputLabel>Pet</InputLabel>
-                  <Select
-                    label="Pet"
-                    value={vaccination.pet_id || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("pet_id", ev.target.value)
-                    }
-                    readOnly={isUpdate}
+                {isUpdate ? (
+                  <TextField
+                    variant="outlined"
+                    id="Date"
+                    label="Date"
+                    value={vaccination.date}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
                     required
-                  >
-                    {pets.map((item) => (
-                      <MenuItem key={item.id} value={item.id}>
-                        {item.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                  />
+                ) : (
+                  <TextField
+                    variant="outlined"
+                    id="Date"
+                    label="Date"
+                    value={date.toLocaleDateString()}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
+                    required
+                  />
+                )}
+
+                {isUpdate ? (
+                  <TextField
+                    variant="outlined"
+                    id="Pet"
+                    label="Pet"
+                    value={pet.name}
+                    InputLabelProps={{ shrink: true }}
+                    InputProps={{
+                      readOnly: true,
+                      "aria-readonly": true,
+                    }}
+                    required
+                  />
+                ) : (
+                  <FormControl>
+                    <InputLabel>Pet</InputLabel>
+                    <Select
+                      label="Pet"
+                      value={vaccination.pet_id || ""}
+                      onChange={(ev) =>
+                        handleFieldChange("pet_id", ev.target.value)
+                      }
+                      required
+                    >
+                      {pets.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
 
                 <TextField
                   variant="outlined"
                   id="Weight"
                   label="Weight"
                   type="number"
-                  sx={{ width: "30%" }}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">kg</InputAdornment>
                     ),
                   }}
-                  value={vaccination.weight}
+                  value={vaccination.weight || ""}
                   onChange={(ev) =>
                     handleFieldChange("weight", ev.target.value)
                   }
@@ -119,24 +155,28 @@ export default function VaccinationLogsModal(props) {
                 />
 
                 <Box border={1} p={1}>
-                  {againsts.map((item) => (
-                    <div key={item.id}>
-                      <TableCell> {item.acronym} </TableCell>
-                      <TableCell> {item.description}</TableCell>
-                    </div>
-                  ))}
-
-                  <TextField
-                    variant="outlined"
-                    id="Against"
-                    label="Against"
-                    value={vaccination.va_againsts || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("va_againsts", ev.target.value)
-                    }
-                    fullWidth
-                  />
+                  <Table>
+                    <TableBody>
+                      {againsts.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.acronym}</TableCell>
+                          <TableCell>{item.description}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </Box>
+
+                <TextField
+                  variant="outlined"
+                  id="Against"
+                  label="Against"
+                  value={vaccination.va_againsts || ""}
+                  onChange={(ev) =>
+                    handleFieldChange("va_againsts", ev.target.value)
+                  }
+                  fullWidth
+                />
 
                 <TextField
                   variant="outlined"
@@ -177,6 +217,9 @@ export default function VaccinationLogsModal(props) {
                     handleFieldChange("return", ev.target.value)
                   }
                   InputLabelProps={{ shrink: true }}
+                  inputProps={{
+                    min: new Date().toISOString().split("T")[0] + "T00:00",
+                  }} // Set minimum date to today
                   required
                 />
 

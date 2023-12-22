@@ -76,49 +76,51 @@ export default function ServiceCatBtns() {
 
   return (
     <Box sx={{ width: "100%", typography: "body1" }}>
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        {servicesCat.map((category, index) => (
-          <Button
-            key={index}
-            onClick={() => handleCategoryClick(category)}
-            variant="contained"
-            size="small"
-            startIcon={categoryIcons[category]}
-            sx={{ margin: 1, height: "35px", width: "200px" }}
-          >
-            {category}
-          </Button>
-        ))}
-      </Box>
+      {servicesCat.map((category, index) => (
+        <Button
+          key={index}
+          onClick={() => handleCategoryClick(category)}
+          variant="contained"
+          size="small"
+          startIcon={categoryIcons[category]}
+          sx={{ margin: 1, height: "35px", width: "200px" }}
+        >
+          {category}
+        </Button>
+      ))}
       {selectedCategory && (
-        <Box sx={{ width: "100%", typography: "body1" }}>
+        <Box sx={{ width: "100%", borderColor: "divider", marginTop: "10px" }}>
           <TabContext value={value}>
-            <TabList aria-label="lab API tabs">
-              {services
-                .filter(
-                  (service) => service.category.category === selectedCategory
-                )
-                .map((service, idx) => (
-                  <Tab
-                    key={idx}
-                    label={service.service}
-                    value={idx.toString()}
-                    onClick={() => setValue(idx.toString())}
-                    icon={
-                      service.isAvailable === 0 ? (
-                        <Block color="error" fontSize="inherit" />
-                      ) : null
-                    }
-                  />
-                ))}
-            </TabList>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <TabList aria-label="lab API tabs">
+                {services
+                  .filter(
+                    (service) => service.category.category === selectedCategory
+                  )
+                  .map((service, idx) => (
+                    <Tab
+                      key={idx}
+                      label={service.service}
+                      value={idx.toString()}
+                      onClick={() => setValue(idx.toString())}
+                      icon={
+                        service.isAvailable === 0 ? (
+                          <Block color="error" fontSize="inherit" />
+                        ) : null
+                      }
+                    />
+                  ))}
+              </TabList>
+            </Box>
             {services
               .filter(
                 (service) => service.category.category === selectedCategory
               )
               .map((service, idx) => (
                 <TabPanel key={idx} value={idx.toString()}>
-                  {service.service == "Consultation" && <Consultation sid={service.id} />}
+                  {service.service == "Consultation" && (
+                    <Consultation sid={service.id} />
+                  )}
                   {service.service == "Home Service" && (
                     <ServiceAvail title="Home Service" sid={service.id} />
                   )}
@@ -131,26 +133,57 @@ export default function ServiceCatBtns() {
                   {service.service == "Surgery" && (
                     <ServiceAvail title="Surgery" sid={service.id} />
                   )}
-                  {service.service == "DHLPPI" && <Vaccination sid={service.id} />}
-                  {service.service == "BRONCHICINE" && <Vaccination sid={service.id} />}
-                  {service.service == "HEARTWORM" && <Vaccination sid={service.id} />}
-                  {service.service == "RABIES" && <Vaccination sid={service.id} />}
-                  {service.service == "TRICAT" && <Vaccination sid={service.id} />}
-                  {service.service == "Deworming" && <Deworming sid={service.id} />}
-                  {service.service == "CBC" && <TestResults sid={service.id} sname={service.service} />}
-                  {service.service == "BLOOD CHEM" && <TestResults sid={service.id} sname={service.service} />}
-                  {service.service == "PARVO TEST" && <TestResults sid={service.id} sname={service.service} />}
-                  {service.service == "DISTEMPER" && <TestResults sid={service.id} sname={service.service} />}
-                  {service.service == "EHRLICHIA" && <TestResults sid={service.id} sname={service.service} />}
-                  {service.service == "HEARTWORM" && <TestResults sid={service.id} sname={service.service} />}
-                  {service.service == "4DX" && <TestResults sid={service.id} sname={service.service} />}
+                  {service.service == "DHLPPI" && (
+                    <Vaccination sid={service.id} />
+                  )}
+                  {service.service == "BRONCHICINE" && (
+                    <Vaccination sid={service.id} />
+                  )}
+                  {service.service == "HEARTWORM" && (
+                    <Vaccination sid={service.id} />
+                  )}
+                  {service.service == "RABIES" && (
+                    <Vaccination sid={service.id} />
+                  )}
+                  {service.service == "TRICAT" && (
+                    <Vaccination sid={service.id} />
+                  )}
+                  {service.service == "Deworming" && (
+                    <Deworming sid={service.id} />
+                  )}
+                  {service.service == "CBC" && (
+                    <TestResults sid={service.id} sname={service.service} />
+                  )}
+                  {service.service == "BLOOD CHEM" && (
+                    <TestResults sid={service.id} sname={service.service} />
+                  )}
+                  {service.service == "PARVO TEST" && (
+                    <TestResults sid={service.id} sname={service.service} />
+                  )}
+                  {service.service == "DISTEMPER" && (
+                    <TestResults sid={service.id} sname={service.service} />
+                  )}
+                  {service.service == "EHRLICHIA" && (
+                    <TestResults sid={service.id} sname={service.service} />
+                  )}
+                  {service.service == "HEARTWORM" && (
+                    <TestResults sid={service.id} sname={service.service} />
+                  )}
+                  {service.service == "4DX" && (
+                    <TestResults sid={service.id} sname={service.service} />
+                  )}
                   {service.service == "Medicine" && (
                     <ServiceAvail title="Medicines" sid={service.id} />
                   )}
-                   {service.service == "Tick/Flea Treatment" && (
-                    <ServiceAvail title="Tick/Flea Treatment" sid={service.id} />
+                  {service.service == "Tick/Flea Treatment" && (
+                    <ServiceAvail
+                      title="Tick/Flea Treatment"
+                      sid={service.id}
+                    />
                   )}
-                  {service.service == "Admission" && <AdmissionTabs sid={service.id} />}
+                  {service.service == "Admission" && (
+                    <AdmissionTabs sid={service.id} />
+                  )}
                 </TabPanel>
               ))}
           </TabContext>

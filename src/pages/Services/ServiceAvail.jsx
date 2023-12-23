@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../../axios-client";
 import {
-  Alert,
   Box,
   Button,
   Paper,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -13,11 +11,11 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
-import { Link, useParams } from "react-router-dom";
-import { Add, Archive, Visibility } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
+import { Add, Archive } from "@mui/icons-material";
 import ServiceAvailModal from "../../components/modals/ServiceAvailModal";
+import Swal from "sweetalert2";
 
 export default function ServiceAvail({ sid, title }) {
   const { id } = useParams();
@@ -29,15 +27,14 @@ export default function ServiceAvail({ sid, title }) {
     { id: "Actions", name: "Actions" },
   ];
 
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [serviceavails, setServiceavails] = useState([]);
 
   const getServiceAvailed = () => {
-    setServiceavails([])
-    setMessage(null)
+    setServiceavails([]);
+    setMessage(null);
     setLoading(true);
     axiosClient
       .get(`/servicesavailed/petowner/${id}/service/${sid}`)
@@ -81,7 +78,7 @@ export default function ServiceAvail({ sid, title }) {
   const [service, setServiceavail] = useState({
     id: null,
     pet_id: null,
-    unit_price:null,
+    unit_price: null,
   });
 
   const [open, openServiceavail] = useState(false);
@@ -98,48 +95,51 @@ export default function ServiceAvail({ sid, title }) {
   };
 
   const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this?")) {
-      return;
-    }
-
-    axiosClient.delete(`/servicesavailed/${u.id}/archive`).then(() => {
-      setNotification("This service availed record was archived.");
-      getServiceAvailed();
+    Swal.fire({
+      title: "Are you sure to archive this?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.delete(`/servicesavailed/${u.id}/archive`).then(() => {
+          Swal.fire({
+            title: "Service was archived!",
+            icon: "success",
+            confirmButtonColor: "black",
+          }).then(() => {
+            getServiceAvailed();
+          });
+        });
+      }
     });
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    
-    if (service.id) {
-      axiosClient
-        .put(`/diagnosis/${service.id}`, service)
-        .then(() => {
-          setNotification("diagnosis was successfully updated");
-          openServiceavail(false);
-          getServiceAvailed();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status == 422) {
-            setErrors(response.data.errors);
-          }
+
+    axiosClient
+      .post(`/servicesavailed/petowner/${id}/service/${sid}`, service)
+      .then((response) => {
+        Swal.fire({
+          title: "Success",
+          text: response.data.message,
+          icon: "success",
+          confirmButtonColor: "black",
         });
-    } else {
-      axiosClient
-        .post(`/servicesavailed/petowner/${id}/service/${sid}`, service)
-        .then(() => {
-          setNotification("Service availed was successfully saved");
-          openServiceavail(false);
-          getServiceAvailed();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status === 422) {
-            setErrors(response.data.errors);
-          }
+        getServiceAvailed();
+      })
+      .catch((response) => {
+        Swal.fire({
+          title: "Error",
+          text: response.response.data.message,
+          icon: "error",
+          confirmButtonColor: "black",
         });
-    }
+        openServiceavail(false);
+      });
   };
 
   useEffect(() => {
@@ -155,8 +155,12 @@ export default function ServiceAvail({ sid, title }) {
           margin: "10px",
         }}
       >
-        <Box display="flex" flexDirection="row" justifyContent="space-between">
-
+        <Box
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
+          padding={1}
+        >
           <Button
             onClick={addModal}
             variant="contained"
@@ -166,7 +170,6 @@ export default function ServiceAvail({ sid, title }) {
             <Add />
           </Button>
         </Box>
-        <br></br>
 
         <ServiceAvailModal
           open={open}
@@ -180,8 +183,6 @@ export default function ServiceAvail({ sid, title }) {
           setServiceavail={setServiceavail}
           errors={errors}
         />
-
-        {notification && <Alert severity="success">{notification}</Alert>}
 
         <TableContainer sx={{ height: 380 }}>
           <Table stickyHeader aria-label="sticky table">
@@ -228,14 +229,14 @@ export default function ServiceAvail({ sid, title }) {
                         <TableCell>{r.pet.name}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="error"
-                              onClick={() => onArchive(r)}
-                            >
-                              <Archive fontSize="small" />
-                            </Button>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="error"
+                            onClick={() => onArchive(r)}
+                          >
+                            <Archive fontSize="small" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

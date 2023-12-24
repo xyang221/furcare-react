@@ -83,7 +83,7 @@ export default function ServiceCatBtns() {
           variant="contained"
           size="small"
           startIcon={categoryIcons[category]}
-          sx={{ margin: 1, height: "35px", width: "200px" }}
+          sx={{ margin: 1, height: "35px", width: "230px" }}
         >
           {category}
         </Button>

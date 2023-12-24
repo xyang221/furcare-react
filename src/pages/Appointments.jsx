@@ -13,14 +13,18 @@ import {
   TablePagination,
   TableRow,
 } from "@mui/material";
-import { Add, Archive, Close, Done, DoneAll, Edit } from "@mui/icons-material";
+import { Add, Close, DoneAll, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
 import { SearchPetOwner } from "../components/SearchPetOwner";
 import Notif from "../components/Notif";
 import { useStateContext } from "../contexts/ContextProvider";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 export default function Appointments() {
+  const navigate = useNavigate();
+
   //for table
   const columns = [
     { id: "Date", name: "Date" },
@@ -41,6 +45,9 @@ export default function Appointments() {
     { id: "Actions", name: "Actions" },
   ];
 
+  const [page, pagechange] = useState(0);
+  const [rowperpage, rowperpagechange] = useState(10);
+
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
@@ -48,9 +55,6 @@ export default function Appointments() {
     rowperpagechange(+event.target.value);
     pagechange(0);
   };
-
-  const [page, pagechange] = useState(0);
-  const [rowperpage, rowperpagechange] = useState(10);
 
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -89,14 +93,14 @@ export default function Appointments() {
   const getAppointments = () => {
     setPid(null);
     setPetowners([]);
-    setAppointments([])
+    setAppointments([]);
     setMessage(null);
     setLoading(true);
     axiosClient
       .get("/appointments/bydate")
       .then(({ data }) => {
-        setLoading(false);
         setAppointments(data.data);
+        setLoading(false);
       })
       .catch((mes) => {
         const response = mes.response;
@@ -147,7 +151,6 @@ export default function Appointments() {
   };
 
   //for modal
-
   const addModal = (p) => {
     getServices();
     getVets();
@@ -165,24 +168,46 @@ export default function Appointments() {
 
   //buttons
   const onDone = (r) => {
-    if (!window.confirm("Are you sure this appointment was completed?")) {
-      return;
-    }
-
-    axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
-      setNotification("The appointment was completed");
-      getAppointments();
+    Swal.fire({
+      title: "Are you sure the pet owner has shown up?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
+          Swal.fire({
+            title: "Appointment proceed!",
+            icon: "success",
+          }).then(() => {
+            navigate(`/admin/petowners/${r.petowner.id}/view`);
+          });
+        });
+      }
     });
   };
 
   const onNoShow = (r) => {
-    if (!window.confirm("Are you sure the petowner didn't show up?")) {
-      return;
-    }
-
-    axiosClient.put(`/appointments/${r.id}/noshow`).then(() => {
-      setNotification("The appointment was not made");
-      getAppointments();
+    Swal.fire({
+      title: "Are you sure the pet owner didn't show up?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.put(`/appointments/${r.id}/noshow`).then(() => {
+          Swal.fire({
+            title: "Appointment cancelled!",
+            icon: "error",
+          }).then(() => {
+            getAppointments();
+          });
+        });
+      }
     });
   };
 

@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { Add, DoneAll, ArrowBackIos, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
+import Swal from "sweetalert2";
 
 export default function PetOwnerAppointments({ petowner }) {
   //for table
@@ -48,6 +49,7 @@ export default function PetOwnerAppointments({ petowner }) {
   const [loading, setLoading] = useState(false);
 
   const { id } = useParams();
+  const navigate = useNavigate();
 
   //for modal
   const [errors, setErrors] = useState(null);
@@ -102,7 +104,6 @@ export default function PetOwnerAppointments({ petowner }) {
       .catch(() => {});
   };
 
-
   const addModal = (ev) => {
     getVets();
     getServices();
@@ -144,13 +145,24 @@ export default function PetOwnerAppointments({ petowner }) {
   };
 
   const onDone = (r) => {
-    if (!window.confirm("Are you sure this appointment was done?")) {
-      return;
-    }
-
-    axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
-      setNotification("The appointment was done");
-      getAppointments();
+    Swal.fire({
+      title: "Are you sure this appointment was done?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
+          Swal.fire({
+            title: "Completed!",
+            icon: "success",
+          });
+          navigate(`/admin/petowners/${r.petowner.id}/view`);
+          getAppointments();
+        });
+      }
     });
   };
 
@@ -285,7 +297,7 @@ export default function PetOwnerAppointments({ petowner }) {
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.service.service}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
-                        <TableCell>{r.doctor.fullname}</TableCell>
+                        <TableCell>{r.vet.fullname}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>

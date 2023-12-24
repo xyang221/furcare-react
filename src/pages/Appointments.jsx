@@ -29,7 +29,7 @@ export default function Appointments() {
   const columns = [
     { id: "Date", name: "Date" },
     { id: "client", name: "Client" },
-    { id: "Service", name: "Service" },
+    { id: "Services", name: "Services" },
     { id: "Purpose", name: "Purpose" },
     { id: "Remarks", name: "Remarks" },
     { id: "Veterinarian", name: "Veterinarian" },
@@ -72,13 +72,14 @@ export default function Appointments() {
   //for modal
   const [errors, setErrors] = useState(null);
   const [modalloading, setModalloading] = useState(false);
+  const [selectedServices, setSelectedServices] = useState([]);
   const [appointment, setAppointment] = useState({
     id: null,
     date: null,
     purpose: "",
     remarks: "",
     petowner_id: null,
-    service_id: null,
+    services: [],
     vet_id: null,
   });
 
@@ -152,13 +153,13 @@ export default function Appointments() {
 
   //for modal
   const addModal = (p) => {
-    getServices();
     getVets();
     setPid(p.id);
     setPetowner(p);
     setAppointment({});
     setErrors(null);
     setNotification("");
+    setSelectedServices([]);
     openchange(true);
   };
 
@@ -213,7 +214,6 @@ export default function Appointments() {
 
   const onEdit = (r) => {
     setErrors(null);
-    getServices();
     getVets();
     setModalloading(true);
     axiosClient
@@ -222,6 +222,7 @@ export default function Appointments() {
         setModalloading(false);
         setAppointment(data);
         setPetowner(data.petowner);
+        setSelectedServices(data.services);
       })
       .catch(() => {
         setModalloading(false);
@@ -267,7 +268,12 @@ export default function Appointments() {
   };
 
   useEffect(() => {
+    setAppointment({ ...appointment, services: selectedServices });
+  }, [selectedServices]);
+
+  useEffect(() => {
     getAppointments();
+    getServices();
   }, []);
 
   return (
@@ -319,6 +325,8 @@ export default function Appointments() {
           setAppointment={setAppointment}
           errors={errors}
           isUpdate={appointment.id}
+          selectedServices={selectedServices}
+          setSelectedServices={setSelectedServices}
         />
 
         <TableContainer sx={{ height: 380 }}>
@@ -383,7 +391,18 @@ export default function Appointments() {
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
-                        <TableCell>{r.service.service}</TableCell>
+                        <TableCell>
+                          {services
+                            .filter((service) =>
+                              r.services.includes(service.id)
+                            )
+                            .map((filteredService) => (
+                              <span key={filteredService.id}>
+                                {filteredService.service}
+                                <br></br>
+                              </span>
+                            ))}
+                        </TableCell>
                         <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
                         <TableCell>{r.vet.fullname}</TableCell>

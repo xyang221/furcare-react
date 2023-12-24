@@ -24,8 +24,8 @@ export default function PetOwnerAppointments({ petowner }) {
   //for table
   const columns = [
     { id: "Date", name: "Date" },
+    { id: "Services", name: "Services" },
     { id: "Purpose", name: "Purpose" },
-    { id: "Service", name: "Service" },
     { id: "Remarks", name: "Remarks" },
     { id: "Veterinarian", name: "Veterinarian" },
     { id: "Status", name: "Status" },
@@ -54,12 +54,13 @@ export default function PetOwnerAppointments({ petowner }) {
   //for modal
   const [errors, setErrors] = useState(null);
   const [modalloading, setModalloading] = useState(false);
+  const [selectedServices, setSelectedServices] = useState([]);
   const [appointment, setAppointment] = useState({
     id: null,
     date: "",
     purpose: "",
     remarks: "",
-    service_id: null,
+    services: [],
     vet_id: null,
   });
   const [open, setOpen] = useState(false);
@@ -67,6 +68,7 @@ export default function PetOwnerAppointments({ petowner }) {
   const [services, setServices] = useState([]);
 
   const getAppointments = () => {
+    setAppointments([]);
     setMessage("");
     setLoading(true);
     axiosClient
@@ -106,10 +108,10 @@ export default function PetOwnerAppointments({ petowner }) {
 
   const addModal = (ev) => {
     getVets();
-    getServices();
     setOpen(true);
     setAppointment({});
     setErrors(null);
+    setSelectedServices([]);
   };
 
   const closepopup = () => {
@@ -129,7 +131,6 @@ export default function PetOwnerAppointments({ petowner }) {
 
   const onEdit = (r) => {
     setErrors(null);
-    getServices();
     getVets();
     setModalloading(true);
     axiosClient
@@ -137,6 +138,7 @@ export default function PetOwnerAppointments({ petowner }) {
       .then(({ data }) => {
         setModalloading(false);
         setAppointment(data);
+        setSelectedServices(data.services);
       })
       .catch(() => {
         setModalloading(false);
@@ -201,7 +203,12 @@ export default function PetOwnerAppointments({ petowner }) {
   };
 
   useEffect(() => {
+    setAppointment({ ...appointment, services: selectedServices });
+  }, [selectedServices]);
+
+  useEffect(() => {
     getAppointments();
+    getServices();
   }, []);
 
   return (
@@ -242,8 +249,8 @@ export default function PetOwnerAppointments({ petowner }) {
           setAppointment={setAppointment}
           errors={errors}
           isUpdate={appointment.id}
-          // withRemarks={withRemarks}
-          // handleChange={handleRemarksChange}
+          selectedServices={selectedServices}
+          setSelectedServices={setSelectedServices}
         />
 
         <TableContainer sx={{ height: 350 }}>
@@ -295,7 +302,18 @@ export default function PetOwnerAppointments({ petowner }) {
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
                         <TableCell>{r.purpose}</TableCell>
-                        <TableCell>{r.service.service}</TableCell>
+                        <TableCell>
+                          {services
+                            .filter((service) =>
+                              r.services.includes(service.id)
+                            )
+                            .map((filteredService) => (
+                              <span key={filteredService.id}>
+                                {filteredService.service}
+                                <br></br>
+                              </span>
+                            ))}
+                        </TableCell>
                         <TableCell>{r.remarks}</TableCell>
                         <TableCell>{r.vet.fullname}</TableCell>
                         <TableCell>{r.status}</TableCell>

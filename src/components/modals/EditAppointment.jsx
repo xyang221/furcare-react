@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -14,11 +15,12 @@ import {
   IconButton,
   InputLabel,
   MenuItem,
+  OutlinedInput,
   Select,
   Stack,
   TextField,
 } from "@mui/material";
-import { Close } from "@mui/icons-material";
+import { Cancel, Check, Close } from "@mui/icons-material";
 
 export default function EditAppointment(props) {
   const {
@@ -28,13 +30,14 @@ export default function EditAppointment(props) {
     onSubmit,
     loading,
     petowner,
-    petownerid,
     services,
     doctors,
     appointment,
     setAppointment,
     errors,
     isUpdate,
+    selectedServices,
+    setSelectedServices,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -126,23 +129,50 @@ export default function EditAppointment(props) {
                   required
                 />
 
-                <FormControl>
-                  <InputLabel>Services</InputLabel>
+                <FormControl sx={{ m: 1, width: 500 }}>
+                  <InputLabel>Multiple Select</InputLabel>
                   <Select
-                    label="Services"
-                    value={appointment.service_id || ""}
-                    onChange={(ev) =>
-                      handleFieldChange("service_id", ev.target.value)
-                    }
                     required
+                    multiple
+                    value={selectedServices}
+                    onChange={(e) => setSelectedServices(e.target.value)}
+                    input={<OutlinedInput label="Multiple Select" />}
+                    renderValue={(selected) => (
+                      <Stack gap={1} direction="row" flexWrap="wrap">
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={
+                              services.find((service) => service.id === value)
+                                ?.service || ""
+                            }
+                            onDelete={() =>
+                              setSelectedServices(
+                                selectedServices.filter(
+                                  (item) => item !== value
+                                )
+                              )
+                            }
+                            deleteIcon={
+                              <Cancel
+                                onMouseDown={(event) => event.stopPropagation()}
+                              />
+                            }
+                          />
+                        ))}
+                      </Stack>
+                    )}
                   >
-                    {services.map((item) => (
+                    {services.map((name) => (
                       <MenuItem
-                        key={item.id}
-                        value={item.id}
-                        disabled={item.isAvailable === 0}
+                        key={name.id}
+                        value={name.id}
+                        sx={{ justifyContent: "space-between" }}
                       >
-                        {`${item.service} (${item.category.category})`}
+                        {name.service}
+                        {selectedServices.includes(name) ? (
+                          <Check color="info" />
+                        ) : null}
                       </MenuItem>
                     ))}
                   </Select>

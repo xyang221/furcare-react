@@ -26,7 +26,6 @@ export default function ServiceAvailModal(props) {
     onClose,
     onSubmit,
     title,
-    loading,
     serviceavail,
     setServiceavail,
     errors,
@@ -44,10 +43,6 @@ export default function ServiceAvailModal(props) {
 
   return (
     <>
-      <Backdrop open={loading} style={{ zIndex: 999 }}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
             {title}
@@ -117,7 +112,6 @@ export default function ServiceAvailModal(props) {
             </form>
           </DialogContent>
         </Dialog>
-      )}
     </>
   );
 }

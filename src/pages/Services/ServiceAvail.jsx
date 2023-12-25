@@ -123,6 +123,7 @@ export default function ServiceAvail({ sid, title }) {
     axiosClient
       .post(`/servicesavailed/petowner/${id}/service/${sid}`, service)
       .then((response) => {
+        openServiceavail(false);
         Swal.fire({
           title: "Success",
           text: response.data.message,
@@ -132,13 +133,13 @@ export default function ServiceAvail({ sid, title }) {
         getServiceAvailed();
       })
       .catch((response) => {
+        openServiceavail(false);
         Swal.fire({
           title: "Error",
           text: response.response.data.message,
           icon: "error",
           confirmButtonColor: "black",
         });
-        openServiceavail(false);
       });
   };
 

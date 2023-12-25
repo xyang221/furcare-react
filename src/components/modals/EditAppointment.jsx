@@ -124,7 +124,7 @@ export default function EditAppointment(props) {
                   onChange={(ev) => handleFieldChange("date", ev.target.value)}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
-                    min: new Date().toISOString().split("T")[0] + "T00:00",
+                    min: isUpdate ? appointment.date : new Date().toISOString().split("T")[0] + "T00:00",
                   }} // Set minimum date to today
                   required
                 />

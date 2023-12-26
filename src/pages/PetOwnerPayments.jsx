@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
-  Backdrop,
   Box,
   Button,
-  CircularProgress,
   Divider,
-  Paper,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -15,28 +11,19 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  Typography,
 } from "@mui/material";
-import {
-  Add,
-  Archive,
-  Delete,
-  Edit,
-  Search,
-  Visibility,
-} from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { useStateContext } from "../contexts/ContextProvider";
+import ChargeSlipDetailsModal from "../components/modals/ChargeSlipDetailsModal";
 
 export default function PetOwnerPayments() {
   //for table
   const columns = [
     { id: "Date", name: "Date" },
-    { id: "Billing", name: "Billing" },
     { id: "Deposit", name: "Deposit" },
     { id: "Balance", name: "Balance" },
     { id: "Status", name: "Status" },
+    { id: "Actions", name: "Actions" },
   ];
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
@@ -44,9 +31,13 @@ export default function PetOwnerPayments() {
   const { id } = useParams();
   const [chargeslip, setChargeSlip] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState(null);
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
+
+  const [modalloading, setModalloading] = useState(false);
+  const [servicesavailed, setServicesavailed] = useState([]);
+  const [petowner, setPetowner] = useState([]);
+  const [clientservice, setClientservice] = useState([]);
+  const [openmodal, setOpenmodal] = useState(false);
 
   const getPayments = () => {
     setLoading(true);
@@ -73,6 +64,76 @@ export default function PetOwnerPayments() {
     pagechange(0);
   };
 
+  const getServicesAvailed = (r) => {
+    setMessage(null);
+    setModalloading(true);
+    setServicesavailed([]);
+    setOpenmodal(true);
+    axiosClient
+      .get(`/clientservices/${r.id}/services`)
+      .then(({ data }) => {
+        setServicesavailed(data.data);
+        setPetowner(data.clientservice.petowner);
+        setClientservice(data.clientservice);
+        setModalloading(false);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setModalloading(false);
+      });
+  };
+
+  const closeModal = () => {
+    setOpenmodal(false);
+  };
+
+  const calculateTotal = () => {
+    const total = servicesavailed.reduce((accumulatedTotal, item) => {
+      const price = item.unit_price || 0;
+      return accumulatedTotal + price * item.quantity;
+    }, 0);
+
+    return total.toFixed(2);
+  };
+
+  const windowOpenPDFforPrint = async () => {
+    try {
+      // Fetch PDF content
+      const response = await axiosClient.get(
+        `/clientservice/${clientservice.id}/generate-chargeslip`,
+        {
+          responseType: "blob",
+          headers: {
+            "Content-Type": "application/pdf",
+          },
+        }
+      );
+
+      const pdfBlob = response.data;
+
+      const url = window.URL.createObjectURL(new Blob([pdfBlob]));
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `ChargeSlip-${
+          clientservice.date
+        }-${`${petowner.firstname}_${petowner.lastname}`}-.pdf`
+      );
+      document.body.appendChild(link);
+
+      // Trigger the download
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      alert("Error fetching PDF:", error);
+    }
+  };
+
   useEffect(() => {
     getPayments();
   }, []);
@@ -85,26 +146,16 @@ export default function PetOwnerPayments() {
           minWidth: "90%",
         }}
       >
-        <Box
-          p={2}
-          display="flex"
-          flexDirection="row"
-          justifyContent="space-between"
-        >
-          {/* <Button
-            component={Link}
-            to={`/admin/${id}/chargeslip`}
-            variant="contained"
-            color="success"
-            size="small"
-          >
-            <Add />
-
-            <Typography>New</Typography>
-          </Button> */}
-        </Box>
-
-        {notification && <Alert severity="success">{notification}</Alert>}
+        <ChargeSlipDetailsModal
+          open={openmodal}
+          onClose={closeModal}
+          petowner={petowner}
+          clientservice={clientservice}
+          servicesavailed={servicesavailed}
+          calculateTotal={calculateTotal()}
+          loading={modalloading}
+          printPDF={windowOpenPDFforPrint}
+        />
 
         <Divider />
         <TableContainer sx={{ height: 350 }}>
@@ -150,11 +201,19 @@ export default function PetOwnerPayments() {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
-                        {/* <TableCell>{r.billing}</TableCell> */}
-                        <TableCell></TableCell>
-                        <TableCell>{r.deposit}</TableCell>
-                        <TableCell>{r.balance}</TableCell>
+                        <TableCell>{r.deposit.toFixed(2)}</TableCell>
+                        <TableCell>{r.balance.toFixed(2)}</TableCell>
                         <TableCell>{r.status}</TableCell>
+                        <TableCell>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="info"
+                            onClick={() => getServicesAvailed(r)}
+                          >
+                            details
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
               </TableBody>

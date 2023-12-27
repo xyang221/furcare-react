@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { Add, Archive, NavigateNext, Visibility } from "@mui/icons-material";
 import { SearchPetOwner } from "../components/SearchPetOwner";
-import DropDownButtons from "../components/DropDownButtons"
+import DropDownButtons from "../components/DropDownButtons";
 
 export default function PetOwners() {
   //for table
@@ -69,9 +69,9 @@ export default function PetOwners() {
   };
 
   const search = (query) => {
-    if(query){
-    setMessage(null);
-    setPetowners([])
+    if (query) {
+      setMessage(null);
+      setPetowners([]);
       setLoading(true);
       axiosClient
         .get(`/petowners-search/${query}`)
@@ -86,8 +86,8 @@ export default function PetOwners() {
           }
           setLoading(false);
         });
-      }
-  }
+    }
+  };
 
   const onArchive = (u) => {
     if (!window.confirm("Are you sure to archive this pet owner?")) {
@@ -101,8 +101,8 @@ export default function PetOwners() {
   };
 
   useEffect(() => {
-    if(!query){
-    getPetowners();
+    if (!query) {
+      getPetowners();
     }
   }, []);
 
@@ -121,11 +121,10 @@ export default function PetOwners() {
           flexDirection="row"
           justifyContent="space-between"
         >
-           <DropDownButtons
-            title="Pet Owners"
-            optionLink1="/admin/petowners/archives"
-            optionLabel1="Archives"
-          />
+          <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
+            <Typography variant="h5" pr={2}>
+              PET OWNERS
+            </Typography>
             <Button
               component={Link}
               to={"/admin/petowners/new"}
@@ -135,8 +134,13 @@ export default function PetOwners() {
             >
               <Add />
             </Button>
-          <SearchPetOwner query={query} setQuery={setQuery} search={search} getPetowners={getPetowners}/>
-         
+          </Box>
+          <SearchPetOwner
+            query={query}
+            setQuery={setQuery}
+            search={search}
+            getPetowners={getPetowners}
+          />
         </Box>
 
         {notification && <Alert severity="success">{notification}</Alert>}

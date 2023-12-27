@@ -223,6 +223,7 @@ export default function PetOwnerPets() {
             onClick={functionopenpopup}
             variant="contained"
             size="small"
+            color="success"
           >
             <Add />
           </Button>

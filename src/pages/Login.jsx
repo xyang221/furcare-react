@@ -1,5 +1,4 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -8,7 +7,6 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import styled from "@emotion/styled";
-import { Pets } from "@mui/icons-material";
 import { Alert, Link } from "@mui/material";
 
 import { useEffect, useRef, useState } from "react";
@@ -112,13 +110,15 @@ export default function Login() {
           }}
           p={2}
         >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <Pets />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Login
+          <img
+            src="../src/assets/furcare-logo.png"
+            height={"70"}
+            width={"70"}
+          />
+          <Typography variant="h6" fontWeight={"bold"}>
+            FUR CARE VETERINARY CLINIC
           </Typography>
-          <Box component="form" onSubmit={onSubmit} sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={onSubmit}>
             {errors && (
               <Box>
                 {Object.keys(errors).map((key) => (
@@ -151,25 +151,23 @@ export default function Login() {
               size="small"
               required
             />
+            <Grid item xs align="right">
+              <Link href="#" variant="body2">
+                Forgot password?
+              </Link>
+            </Grid>
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 2, mb: 2 }}
             >
               Login
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="/signup" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
+            <Grid item align="center">
+              <Link href="/signup" variant="body2">
+                {"Don't have an account? Sign Up"}
+              </Link>
             </Grid>
           </Box>
         </Box>

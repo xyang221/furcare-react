@@ -21,7 +21,7 @@ export default function Navbar() {
       <StyledToolbar>
         <Box display="flex" flexDirection={"row"} alignItems={"center"}>
           <img
-            src="../src/assets/furcare-logo.png"
+            src="/../src/assets/furcare-logo.png"
             height={"50"}
             width={"50"}
           />

@@ -355,7 +355,7 @@ export default function TreatmentForm({ sid }) {
       <Divider/>
       <PetConditionAdmission tid={treatment.id} />
       <Divider/>
-      <PetMedicationAdmission tid={treatment.id} />
+      <PetMedicationAdmission tid={treatment.id} pid={pet.petowner_id}/>
     </Paper>
   );
 }

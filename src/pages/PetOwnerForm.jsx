@@ -87,7 +87,7 @@ export default function PetOwnerForm() {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  const steps = ["Register Pet Owner", "Create a User Account"];
+  const steps = ["Create a User Account", "Register Pet Owner"];
 
   const getStepContent = (step) => {
     switch (step) {
@@ -102,7 +102,64 @@ export default function PetOwnerForm() {
               margin: "auto",
             }}
           >
-            <Typography variant="h5" padding={1}>
+            <Typography variant="h5" padding={1} align="center">
+              Create an Account
+            </Typography>
+            <TextField
+              id="Email"
+              label="Email"
+              size="small"
+              type="email"
+              fullWidth
+              value={petowner.email}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, email: ev.target.value })
+              }
+              required
+            />
+            <TextField
+              variant="outlined"
+              id="Password"
+              size="small"
+              label="Password"
+              type="password"
+              required
+              fullWidth
+              value={petowner.password}
+              onChange={(ev) =>
+                setPetowner({ ...petowner, password: ev.target.value })
+              }
+            />
+            <TextField
+              variant="outlined"
+              id="Password Confirmation"
+              label="Password Confirmation"
+              size="small"
+              fullWidth
+              required
+              type="password"
+              value={petowner.password_confirmation}
+              onChange={(ev) =>
+                setPetowner({
+                  ...petowner,
+                  password_confirmation: ev.target.value,
+                })
+              }
+            />
+          </Box>
+        );
+      case 1:
+        return (
+          <Box
+            sx={{
+              width: "70%",
+              display: "flex",
+              flexDirection: "column",
+              "& > :not(style)": { m: 1 },
+              margin: "auto",
+            }}
+          >
+            <Typography variant="h5" padding={1} align="center">
               Pet Owner Registration
             </Typography>
 
@@ -208,63 +265,7 @@ export default function PetOwnerForm() {
             />
           </Box>
         );
-      case 1:
-        return (
-          <Box
-            sx={{
-              width: "70%",
-              display: "flex",
-              flexDirection: "column",
-              "& > :not(style)": { m: 1 },
-              margin: "auto",
-            }}
-          >
-            <Typography variant="h5" padding={1}>
-              Create an Account
-            </Typography>
-            <TextField
-              id="Email"
-              label="Email"
-              size="small"
-              type="email"
-              fullWidth
-              value={petowner.email}
-              onChange={(ev) =>
-                setPetowner({ ...petowner, email: ev.target.value })
-              }
-              required
-            />
-            <TextField
-              variant="outlined"
-              id="Password"
-              size="small"
-              label="Password"
-              type="password"
-              required
-              fullWidth
-              value={petowner.password}
-              onChange={(ev) =>
-                setPetowner({ ...petowner, password: ev.target.value })
-              }
-            />
-            <TextField
-              variant="outlined"
-              id="Password Confirmation"
-              label="Password Confirmation"
-              size="small"
-              fullWidth
-              required
-              type="password"
-              value={petowner.password_confirmation}
-              onChange={(ev) =>
-                setPetowner({
-                  ...petowner,
-                  password_confirmation: ev.target.value,
-                })
-              }
-            />
-          </Box>
-        );
+
       default:
         return "Unknown step";
     }
@@ -302,12 +303,16 @@ export default function PetOwnerForm() {
             <p>All steps completed</p>
           </div>
         ) : (
-          <div >
-            <form
-              onSubmit={(e) => handleNext(e)}
-            >
+          <div>
+            <form onSubmit={(e) => handleNext(e)}>
               {getStepContent(activeStep)}
-              <Box sx={{ padding: "10px", alignSelf: "center" }}>
+              <Box
+                sx={{
+                  padding: "10px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
                 <Button disabled={activeStep === 0} onClick={handlePrev}>
                   Back
                 </Button>

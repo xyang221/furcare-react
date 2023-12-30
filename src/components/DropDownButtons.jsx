@@ -8,22 +8,16 @@ import { Typography } from "@mui/material";
 export default function DropDownButtons(props) {
   const {
     title,
-    optionLink1,
     optionLabel1,
-    optionLink2,
     optionLabel2,
-    optionLink3,
     optionLabel3,
+    optionLabel4,
+    optionLabel5,
+    handleCloseMenu,
+    anchorEl,
+    handleMenuItemClick,
+    handleOpenMenu,
   } = props;
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleOpenMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <div>
@@ -33,7 +27,7 @@ export default function DropDownButtons(props) {
         onClick={handleOpenMenu}
         endIcon={<ArrowDropDownIcon />}
       >
-        <Typography variant="h5">{title}</Typography>
+        <Typography variant="body2">{title}</Typography>
       </Button>
       <Menu
         id="button-menu"
@@ -41,17 +35,27 @@ export default function DropDownButtons(props) {
         open={Boolean(anchorEl)}
         onClose={handleCloseMenu}
       >
-        <MenuItem onClick={handleCloseMenu} component="a" href={optionLink1}>
+        <MenuItem onClick={() => handleMenuItemClick(optionLabel1)}>
           {optionLabel1}
         </MenuItem>
         {optionLabel2 && (
-          <MenuItem onClick={handleCloseMenu} component="a" href={optionLink2}>
+          <MenuItem onClick={() => handleMenuItemClick(optionLabel2)}>
             {optionLabel2}
           </MenuItem>
         )}
         {optionLabel3 && (
-          <MenuItem onClick={handleCloseMenu} component="a" href={optionLink3}>
+          <MenuItem onClick={() => handleMenuItemClick(optionLabel3)}>
             {optionLabel3}
+          </MenuItem>
+        )}
+        {optionLabel4 && (
+          <MenuItem onClick={() => handleMenuItemClick(optionLabel4)}>
+            {optionLabel4}
+          </MenuItem>
+        )}
+        {optionLabel5 && (
+          <MenuItem onClick={() => handleMenuItemClick(optionLabel5)}>
+            {optionLabel5}
           </MenuItem>
         )}
       </Menu>

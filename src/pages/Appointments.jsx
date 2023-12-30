@@ -12,8 +12,9 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Typography,
 } from "@mui/material";
-import { Add, Close, DoneAll, Edit } from "@mui/icons-material";
+import { Add, Close, Done, DoneAll, Edit } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
 import { SearchPetOwner } from "../components/SearchPetOwner";
@@ -27,6 +28,7 @@ export default function Appointments() {
 
   //for table
   const columns = [
+    { id: "ID", name: "ID" },
     { id: "Date", name: "Date" },
     { id: "client", name: "Client" },
     { id: "Services", name: "Services" },
@@ -88,8 +90,44 @@ export default function Appointments() {
     firstname: "",
     lastname: "",
   });
+
   const [pid, setPid] = useState(null);
   const [open, openchange] = useState(false);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleAppointments = (searchValue) => {
+    setMessage(null);
+    setAppointments([]);
+    setLoading(true);
+    axiosClient
+      .get(`/appointments/${searchValue}`)
+      .then(({ data }) => {
+        setAppointments(data.data);
+        setLoading(false);
+        setAnchorEl(null);
+      })
+      .catch((error) => {
+        const response = error.response;
+        if (response && response.status === 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+        setAnchorEl(null);
+      });
+  };
+
+  const handleMenuItemClick = (searchValue) => {
+    handleAppointments(searchValue);
+  };
+
+  const handleOpenMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
 
   const getAppointments = () => {
     setPid(null);
@@ -98,7 +136,7 @@ export default function Appointments() {
     setMessage(null);
     setLoading(true);
     axiosClient
-      .get("/appointments/bydate")
+      .get("/appointments/current")
       .then(({ data }) => {
         setAppointments(data.data);
         setLoading(false);
@@ -205,7 +243,51 @@ export default function Appointments() {
             title: "Appointment cancelled!",
             icon: "error",
           }).then(() => {
-            getAppointments();
+            handleAppointments("current");
+          });
+        });
+      }
+    });
+  };
+
+  const onAccept = (r) => {
+    Swal.fire({
+      title: "Are you sure to confirm this appointment?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.put(`/appointments/${r.id}/confirm`).then(() => {
+          Swal.fire({
+            title: "Appointment confirmed!",
+            icon: "success",
+          }).then(() => {
+            handleAppointments("current");
+          });
+        });
+      }
+    });
+  };
+
+  const onCancel = (r) => {
+    Swal.fire({
+      title: "Are you sure to cancel this appointment?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.put(`/appointments/${r.id}/cancel`).then(() => {
+          Swal.fire({
+            title: "Appointment cancelled!",
+            icon: "error",
+          }).then(() => {
+            handleAppointments("current");
           });
         });
       }
@@ -237,10 +319,12 @@ export default function Appointments() {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
-          setNotification("Appointment was successfully updated.");
+          Swal.fire({
+            title: "Appointment updated!",
+            icon: "success",
+          });
           openchange(false);
-          setOpennotif(true);
-          getAppointments();
+          handleAppointments("current");
         })
         .catch((err) => {
           const response = err.response;
@@ -255,7 +339,7 @@ export default function Appointments() {
           setNotification("Appointment was successfully saved.");
           openchange(false);
           setOpennotif(true);
-          getAppointments();
+          handleAppointments("current");
           setQuery("");
         })
         .catch((err) => {
@@ -272,7 +356,7 @@ export default function Appointments() {
   }, [selectedServices]);
 
   useEffect(() => {
-    getAppointments();
+    handleAppointments("current");
     getServices();
   }, []);
 
@@ -292,16 +376,23 @@ export default function Appointments() {
           justifyContent="space-between"
           alignItems="center"
         >
-          <DropDownButtons
-            title="Appointments"
-            optionLink1="/admin/appointments/pending"
-            optionLabel1="Pending"
-            optionLink2="/admin/appointments/confirmed"
-            optionLabel2="Confirmed"
-            optionLink3="/admin/appointments/completed"
-            optionLabel3="Completed"
-          />
-
+          <Box display={"flex"} flexDirection={"row"}>
+            <Typography variant="h5" sx={{ mr: 2 }}>
+              Appointments
+            </Typography>
+            <DropDownButtons
+              title="filter"
+              anchorEl={anchorEl}
+              handleMenuItemClick={handleMenuItemClick}
+              handleOpenMenu={handleOpenMenu}
+              handleCloseMenu={handleCloseMenu}
+              optionLabel1="current"
+              optionLabel2="pending"
+              optionLabel3="confirmed"
+              optionLabel4="completed"
+              optionLabel5="cancelled"
+            />
+          </Box>
           <SearchPetOwner
             query={query}
             setQuery={setQuery}
@@ -389,6 +480,7 @@ export default function Appointments() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
+                        <TableCell>{r.id}</TableCell>
                         <TableCell>{r.date}</TableCell>
                         <TableCell>{`${r.petowner.firstname} ${r.petowner.lastname}`}</TableCell>
                         <TableCell>
@@ -409,31 +501,63 @@ export default function Appointments() {
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="info"
-                              onClick={() => onEdit(r)}
-                            >
-                              <Edit fontSize="small" />
-                            </Button>
+                            {r.status === "Confirmed" && (
+                              <>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="info"
+                                  onClick={() => onEdit(r)}
+                                >
+                                  <Edit fontSize="small" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="success"
+                                  onClick={() => onDone(r)}
+                                >
+                                  <DoneAll fontSize="small" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => onNoShow(r)}
+                                >
+                                  <Close fontSize="small" />
+                                </Button>
+                              </>
+                            )}
 
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="success"
-                              onClick={() => onDone(r)}
-                            >
-                              <DoneAll fontSize="small" />
-                            </Button>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="error"
-                              onClick={() => onNoShow(r)}
-                            >
-                              <Close fontSize="small" />
-                            </Button>
+                            {r.status === "Pending" && (
+                              <>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="info"
+                                  onClick={() => onEdit(r)}
+                                >
+                                  <Edit fontSize="small" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  color="success"
+                                  size="small"
+                                  onClick={() => onAccept(r)}
+                                >
+                                  <Done fontSize="small" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => onCancel(r)}
+                                >
+                                  <Close fontSize="small" />
+                                </Button>
+                              </>
+                            )}
                           </Stack>
                         </TableCell>
                       </TableRow>

@@ -16,7 +16,14 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, DoneAll, ArrowBackIos, Edit } from "@mui/icons-material";
+import {
+  Add,
+  DoneAll,
+  ArrowBackIos,
+  Edit,
+  Done,
+  Close,
+} from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import Swal from "sweetalert2";
 
@@ -118,17 +125,6 @@ export default function PetOwnerAppointments({ petowner }) {
     setOpen(false);
   };
 
-  const onDelete = (po) => {
-    if (!window.confirm("Are you sure?")) {
-      return;
-    }
-
-    axiosClient.delete(`/appointments/${po.id}`).then(() => {
-      setNotification("Pet Owner deleted");
-      getAppointments();
-    });
-  };
-
   const onEdit = (r) => {
     setErrors(null);
     getVets();
@@ -146,9 +142,10 @@ export default function PetOwnerAppointments({ petowner }) {
     setOpen(true);
   };
 
+  //buttons
   const onDone = (r) => {
     Swal.fire({
-      title: "Are you sure this appointment was done?",
+      title: "Are you sure the pet owner has shown up?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -158,11 +155,77 @@ export default function PetOwnerAppointments({ petowner }) {
       if (result.isConfirmed) {
         axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
           Swal.fire({
-            title: "Completed!",
+            title: "Appointment proceed!",
             icon: "success",
+          }).then(() => {
+            navigate(`/admin/petowners/${r.petowner.id}/view`);
           });
-          navigate(`/admin/petowners/${r.petowner.id}/view`);
-          getAppointments();
+        });
+      }
+    });
+  };
+
+  const onNoShow = (r) => {
+    Swal.fire({
+      title: "Are you sure the pet owner didn't show up?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.put(`/appointments/${r.id}/noshow`).then(() => {
+          Swal.fire({
+            title: "Appointment cancelled!",
+            icon: "error",
+          }).then(() => {
+            getAppointments();
+          });
+        });
+      }
+    });
+  };
+
+  const onAccept = (r) => {
+    Swal.fire({
+      title: "Are you sure to confirm this appointment?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.put(`/appointments/${r.id}/confirm`).then(() => {
+          Swal.fire({
+            title: "Appointment confirmed!",
+            icon: "success",
+          }).then(() => {
+            getAppointments();
+          });
+        });
+      }
+    });
+  };
+
+  const onCancel = (r) => {
+    Swal.fire({
+      title: "Are you sure to cancel this appointment?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.put(`/appointments/${r.id}/cancel`).then(() => {
+          Swal.fire({
+            title: "Appointment cancelled!",
+            icon: "error",
+          }).then(() => {
+            getAppointments();
+          });
         });
       }
     });
@@ -301,7 +364,6 @@ export default function PetOwnerAppointments({ petowner }) {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
-                        <TableCell>{r.purpose}</TableCell>
                         <TableCell>
                           {services
                             .filter((service) =>
@@ -314,28 +376,68 @@ export default function PetOwnerAppointments({ petowner }) {
                               </span>
                             ))}
                         </TableCell>
+                        <TableCell>{r.purpose}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
                         <TableCell>{r.vet.fullname}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="info"
-                              onClick={() => onEdit(r)}
-                            >
-                              <Edit fontSize="small" />
-                            </Button>
                             {r.status === "Confirmed" && (
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="success"
-                                onClick={() => onDone(r)}
-                              >
-                                <DoneAll fontSize="small" />
-                              </Button>
+                              <>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="info"
+                                  onClick={() => onEdit(r)}
+                                >
+                                  <Edit fontSize="small" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="success"
+                                  onClick={() => onDone(r)}
+                                >
+                                  <DoneAll fontSize="small" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => onNoShow(r)}
+                                >
+                                  <Close fontSize="small" />
+                                </Button>
+                              </>
+                            )}
+
+                            {r.status === "Pending" && (
+                              <>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="info"
+                                  onClick={() => onEdit(r)}
+                                >
+                                  <Edit fontSize="small" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  color="success"
+                                  size="small"
+                                  onClick={() => onAccept(r)}
+                                >
+                                  <Done fontSize="small" />
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => onCancel(r)}
+                                >
+                                  <Close fontSize="small" />
+                                </Button>
+                              </>
                             )}
                           </Stack>
                         </TableCell>

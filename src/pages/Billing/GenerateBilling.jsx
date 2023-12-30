@@ -28,6 +28,7 @@ export default function GenerateBilling() {
     { id: "Quantity", name: "Quantity" },
     { id: "Unit", name: "Unit" },
     { id: "Unit Price", name: "Unit Price" },
+    { id: "Total", name: "Total" },
   ];
 
   const [message, setMessage] = useState(null);
@@ -46,6 +47,7 @@ export default function GenerateBilling() {
     setLoading(true);
     setServicesavailed([]);
     setServiceAvailedPrices({});
+    setClientservice([]);
     axiosClient
       .get(`/servicesavailed/petowner/${id}`)
       .then(({ data }) => {
@@ -126,54 +128,67 @@ export default function GenerateBilling() {
       isNaN(calculateTotal()) ||
       clientservice === undefined ||
       clientservice.deposit === undefined ||
-      isNaN(clientservice.deposit)
+      isNaN(clientservice.deposit) ||
+      clientservice.balance === undefined ||
+      isNaN(clientservice.balance)
     ) {
       return 0;
     }
-
-    const change =
-      cash - (calculateTotal() + clientservice.deposit - clientservice.balance);
-    return Math.max(change, 0); // Ensure the result stays at a minimum of 0
+    if (calculateTotal() !== 0) {
+      const change = cash - (calculateTotal() - clientservice.deposit);
+      return change >= 0 ? change : 0;
+    } else {
+      return 0; 
+    }
   };
 
   const onSubmit = async (ev) => {
     ev.preventDefault();
 
-    try {
-      const updatedServicesPromises = servicesavailed.map((item) => {
-        return axiosClient.put(`/servicesavailed/${item.id}`, {
-          ...item,
-          unit_price: serviceAvailedPrices[item.id] || null,
+    if (servicesavailed.length > 0) {
+      try {
+        const updatedServicesPromises = servicesavailed.map((item) => {
+          return axiosClient.put(`/servicesavailed/${item.id}`, {
+            ...item,
+            unit_price: serviceAvailedPrices[item.id] || null,
+          });
         });
-      });
 
-      await Promise.all(updatedServicesPromises);
+        await Promise.all(updatedServicesPromises);
 
-      if (clientservice) {
-        // Calculate and update client's balance
-        const updatedClientService = {
-          ...clientservice,
-          balance: calculateBalance() || 0,
-        };
+        if (clientservice) {
+          // Calculate and update client's balance
+          const updatedClientService = {
+            ...clientservice,
+            balance: calculateBalance() || 0,
+          };
 
-        await axiosClient.put(
-          `/clientservices/${clientservice.id}`,
-          updatedClientService
-        );
+          await axiosClient.put(
+            `/clientservices/${clientservice.id}`,
+            updatedClientService
+          );
+          Swal.fire({
+            title: "Success",
+            icon: "success",
+            confirmButtonText: "PRINT CHARGE SLIP",
+            confirmButtonColor: "black",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              setCash(0);
+              getServicesAvailed();
+              windowOpenPDFforPrint();
+            }
+          });
+        }
+      } catch (err) {
         Swal.fire({
-          title: "Success",
-          icon: "success",
-          confirmButtonText: "PRINT CHARGE SLIP",
+          title: "Error",
+          text: "No services availed!",
+          icon: "error",
           confirmButtonColor: "black",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            setCash(0);
-            getServicesAvailed();
-            windowOpenPDFforPrint();
-          }
         });
       }
-    } catch (err) {
+    } else {
       Swal.fire({
         title: "Error",
         text: "No services availed!",
@@ -298,16 +313,19 @@ export default function GenerateBilling() {
                           required
                         />
                       </TableCell>
+                      <TableCell>
+                        {item.quantity * (serviceAvailedPrices[item.id] || 0)}
+                      </TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell colSpan={4} align="right">
+                    <TableCell colSpan={5} align="right">
                       Total:
                     </TableCell>
                     <TableCell>{calculateTotal()}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={4} align="right">
+                    <TableCell colSpan={5} align="right">
                       Deposit:
                     </TableCell>
                     <TableCell>
@@ -315,7 +333,7 @@ export default function GenerateBilling() {
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={4} align="right">
+                    <TableCell colSpan={5} align="right">
                       Balance:
                     </TableCell>
                     <TableCell sx={{ width: "30%" }}>
@@ -323,7 +341,7 @@ export default function GenerateBilling() {
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={4} align="right">
+                    <TableCell colSpan={5} align="right">
                       Cash:
                     </TableCell>
                     <TableCell sx={{ width: "30%" }}>
@@ -336,7 +354,7 @@ export default function GenerateBilling() {
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={4} align="right">
+                    <TableCell colSpan={5} align="right">
                       Change:
                     </TableCell>
                     <TableCell>{calculateChange()}</TableCell>

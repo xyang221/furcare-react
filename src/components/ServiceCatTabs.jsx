@@ -28,6 +28,7 @@ import {
 import TreatmentForm from "../pages/TreatmentForm";
 import Vaccination from "../pages/Services/Vaccination";
 import AdmissionTabs from "./AdmissionTabs";
+import Admissions from "../pages/Admissions";
 
 export default function ServiceCatBtns() {
   const [servicesCat, setServicesCat] = useState([]);
@@ -182,7 +183,7 @@ export default function ServiceCatBtns() {
                     />
                   )}
                   {service.service == "Admission" && (
-                    <AdmissionTabs sid={service.id} />
+                    <Admissions sid={service.id} />
                   )}
                 </TabPanel>
               ))}

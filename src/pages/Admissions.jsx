@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Box,
   Button,
@@ -15,17 +18,28 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
-import BreedsModal from "../components/modals/BreedsModal";
-import DropDownButtons from "../components/DropDownButtons";
+import {
+  Add,
+  Archive,
+  Close,
+  Delete,
+  Edit,
+  ExpandMore,
+  Visibility,
+} from "@mui/icons-material";
+import { Link, useParams } from "react-router-dom";
+import AdmissionModal from "../components/modals/AdmissionModal";
+import TreatmentModal from "../components/modals/TreatmentModal";
 
-export default function Admissions() {
+export default function Admissions({ sid }) {
+  const { id } = useParams();
   //for table
   const columns = [
-    { id: "Date Submission", name: "Date Submission" },
-    { id: "Date Released", name: "Date Released" },
-    { id: "Treatment Cost", name: "Treatment Cost" },
+    { id: "Date", name: "Date" },
+    { id: "Day", name: "Day" },
     { id: "Pet", name: "Pet" },
+    { id: "diagnosis", name: "Diagnosis" },
+    { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -41,57 +55,101 @@ export default function Admissions() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [breeds, setBreeds] = useState([]);
+  const [admissions, setAdmissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState("");
+  const [petowner, setPetowner] = useState([]);
 
   const getAdmissions = () => {
+    setMessage("")
     setLoading(true);
     axiosClient
-      .get("/breeds")
+      .get(`/admissions/petowner/${id}/service/${sid}`)
       .then(({ data }) => {
         setLoading(false);
-        setBreeds(data.data);
+        setAdmissions(data.data);
       })
-      .catch(() => {
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
         setLoading(false);
       });
   };
 
-  const [species, setSpecies] = useState([]);
-
-  const getSpecies = () => {
-    setLoading(true);
+  const getPetowner = () => {
+    setModalloading(true);
     axiosClient
-      .get("/species")
+      .get(`/petowners/${id}`)
       .then(({ data }) => {
-        setLoading(false);
-        setSpecies(data.data);
+        setPetowner(data);
+        setModalloading(false);
       })
-      .catch(() => {
-        setLoading(false);
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setModalloading(false);
       });
   };
 
   //for modal
   const [errors, setErrors] = useState(null);
   const [modalloading, setModalloading] = useState(false);
-  const [breed, setBreed] = useState({
+  const [clientservice, setClientservice] = useState({
     id: null,
-    breed: "",
-    description: "",
-    specie_id: null,
+    deposit: null,
   });
-  const [open, openchange] = useState(false);
+  const [treatment, setTreatment] = useState({
+    id: null,
+    day: null,
+    pet_id: null,
+    diagnosis: "",
+    body_weight: "",
+    heart_rate: "",
+    mucous_membranes: "",
+    pr_prealbumin: "",
+    temperature: "",
+    respiration_rate: "",
+    caspillar_refill_time: "",
+    body_condition_score: "",
+    fluid_rate: "",
+    comments: "",
+    unit_price: null,
+  });
+  const [pets, setPets] = useState([]);
+  const [openmodal, setOpenmodal] = useState(false);
+  const [openconsent, setOpenconsent] = useState(false);
 
-  const addModal = (ev) => {
-    setBreed({});
-    setErrors(null);
-    openchange(true);
+  const getPetownerPets = () => {
+    axiosClient
+      .get(`/petowners/${id}/pets`)
+      .then(({ data }) => {
+        setPets(data.data);
+      })
+      .catch(() => {});
   };
 
-  const closepopup = () => {
-    openchange(false);
+  const addModal = () => {
+    getPetownerPets();
+    setClientservice({});
+    setErrors(null);
+    setOpenmodal(true);
+  };
+
+  const addConsent = () => {
+    getPetowner()
+    setClientservice({});
+    setErrors(null);
+    setOpenconsent(true);
+  };
+
+  const closeModal = () => {
+    setOpenmodal(false);
+    setOpenconsent(false)
   };
 
   const onEdit = (r) => {
@@ -101,12 +159,12 @@ export default function Admissions() {
       .get(`/breeds/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
-        setBreed(data);
+        setClientservice(data);
       })
       .catch(() => {
         setModalloading(false);
       });
-    openchange(true);
+    setOpenmodal(true);
   };
 
   const onArchive = (u) => {
@@ -123,12 +181,12 @@ export default function Admissions() {
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (breed.id) {
+    if (clientservice.id) {
       axiosClient
-        .put(`/breeds/${breed.id}`, breed)
+        .put(`/clientservices/${clientservice.id}`, clientservice)
         .then(() => {
-          setNotification("Breed was successfully updated");
-          openchange(false);
+          setNotification("clientservice was successfully updated");
+          setOpenmodal(false);
           getAdmissions();
         })
         .catch((err) => {
@@ -139,10 +197,44 @@ export default function Admissions() {
         });
     } else {
       axiosClient
-        .post(`/breeds`, breed)
+        .post(`/treatments/petowner/${id}/service/${sid}`, treatment)
         .then(() => {
           setNotification("Breed was successfully added");
-          openchange(false);
+          setOpenmodal(false);
+          getAdmissions();
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status === 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    }
+  };
+
+  const onSubmitConsent = (e) => {
+    e.preventDefault();
+
+    if (clientservice.id) {
+      axiosClient
+        .put(`/clientservices/${clientservice.id}`, clientservice)
+        .then(() => {
+          setNotification("clientservice was successfully updated");
+          setOpenconsent(false);
+          getAdmissions();
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status == 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    } else {
+      axiosClient
+        .post(`/clientservices/petowner/${id}`, clientservice)
+        .then(() => {
+          setNotification("Breed was successfully added");
+          setOpenconsent(false);
           getAdmissions();
         })
         .catch((err) => {
@@ -156,7 +248,6 @@ export default function Admissions() {
 
   useEffect(() => {
     getAdmissions();
-    getSpecies();
   }, []);
 
   return (
@@ -172,32 +263,46 @@ export default function Admissions() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <DropDownButtons
-            title="Breeds"
-            optionLink1="/admin/breeds/archives"
-            optionLabel1="Archives"
-          />
-
-          <Button onClick={addModal} variant="contained" size="small">
-            <Add />
+          <Button
+            onClick={addModal}
+            variant="contained"
+            size="small"
+            color="success"
+          >
+            <Add />treatment
+          </Button>
+          <Button
+            onClick={addConsent}
+            variant="contained"
+            size="small"
+            color="success"
+          >
+            <Add />consent for treatment
           </Button>
         </Box>
 
-        {notification && <Alert severity="success">{notification}</Alert>}
-
-        <BreedsModal
-          open={open}
-          onClose={closepopup}
-          onClick={closepopup}
-          onSubmit={onSubmit}
-          loading={modalloading}
-          species={species}
-          breed={breed}
-          setBreed={setBreed}
+        <AdmissionModal
+          open={openconsent}
+          onClose={closeModal}
+          onSubmit={onSubmitConsent}
+          petowner={petowner}
+          clientservice={clientservice}
+          setClientservice={setClientservice}
           errors={errors}
-          isUpdate={breed.id}
+          loading={modalloading}
+        />
+        <TreatmentModal
+          open={openmodal}
+          onClose={closeModal}
+          onSubmit={onSubmit}
+          treatment={treatment}
+          setTreatment={setTreatment}
+          errors={errors}
+          loading={modalloading}
+          pets={pets}
         />
 
+        {notification && <Alert severity="success">{notification}</Alert>}
         <TableContainer sx={{ height: 340 }} maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
@@ -222,35 +327,47 @@ export default function Admissions() {
               </TableBody>
             )}
 
+            {!loading && message && (
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                    {message}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+
             {!loading && (
               <TableBody>
-                {breeds &&
-                  breeds
+                {admissions &&
+                  admissions
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        <TableCell>{r.id}</TableCell>
-                        <TableCell>{r.specie.specie}</TableCell>
-                        <TableCell>{r.breed}</TableCell>
-                        <TableCell>{r.description}</TableCell>
+                        <TableCell>{r.treatment.date}</TableCell>
+                        <TableCell>{r.treatment.day}</TableCell>
+                        <TableCell>{r.treatment.pet.name}</TableCell>
+                        <TableCell>{r.treatment.diagnosis}</TableCell>
+                        <TableCell>{r.servicesavailed.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
                               variant="contained"
                               size="small"
                               color="info"
-                              onClick={() => onEdit(r)}
+                              component={Link}
+                              to={`/admin/treatment/` + r.treatment.id}
                             >
-                              <Edit fontSize="small" />
+                              <Visibility fontSize="small" /><Typography variant="subtitle2" ml={1}> View</Typography>
                             </Button>
-                            <Button
+                            {/* <Button
                               variant="contained"
                               color="error"
                               size="small"
                               onClick={() => onArchive(r)}
                             >
                               <Archive fontSize="small" />
-                            </Button>
+                            </Button> */}
                           </Stack>
                         </TableCell>
                       </TableRow>
@@ -263,7 +380,7 @@ export default function Admissions() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={breeds.length}
+          count={admissions.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}

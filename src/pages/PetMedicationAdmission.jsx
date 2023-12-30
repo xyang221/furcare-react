@@ -3,56 +3,40 @@ import axiosClient from "../axios-client";
 import {
   Alert,
   Box,
-  Button,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   IconButton,
-  Paper,
-  Radio,
-  RadioGroup,
   Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
-  TextField,
   Typography,
 } from "@mui/material";
-import {
-  Add,
-  Archive,
-  Check,
-  Close,
-  Delete,
-  Edit,
-  Refresh,
-  Save,
-} from "@mui/icons-material";
+import { Add, Archive, Edit, Refresh } from "@mui/icons-material";
 import { useStateContext } from "../contexts/ContextProvider";
+import MedicationModal from "../components/modals/MedicationModal";
 
-export default function PetMedicationAdmission({ tid }) {
-
-  const {notification, setNotification} = useStateContext();
+export default function PetMedicationAdmission({ tid, pid }) {
   //for table
   const columns = [
-    // { id: "AM/PM", name: "AM/PM" },
-    { id: "medicine", name: "medicine" },
-    { id: "price", name: "price" },
-    { id: "description", name: "description" },
-    { id: "qty", name: "qty" },
-    { id: "dosage", name: "dosage" },
+    { id: "Medicine", name: "Medicine" },
+    { id: "Quantity", name: "Quantity" },
+    { id: "Dosage", name: "Dosage" },
+    { id: "Description", name: "Description" },
     { id: "Actions", name: "Actions" },
   ];
 
   const [loading, setLoading] = useState(false);
   const [medications, setMedications] = useState([]);
-  // const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState("");
+
+  const [open, setOpen] = useState(false);
+  const [modalloading, setModalloading] = useState(false);
+  const [medicines, setMedicines] = useState([]);
 
   const getTreatmentPetMedication = () => {
+    setMessage("");
     setLoading(true);
     axiosClient
       .get(`/treatments/${tid}/medications`)
@@ -60,37 +44,76 @@ export default function PetMedicationAdmission({ tid }) {
         setLoading(false);
         setMedications(data.data);
       })
-      .catch(() => {
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
         setLoading(false);
       });
-  };
-
-  //for add table
-  const [addbtn, setAddbtn] = useState(false);
-
-  const handleMedication = () => {
-    setAddbtn(true);
   };
 
   //for modal
   const [errors, setErrors] = useState(null);
   const [medication, setMedication] = useState({
     id: null,
-    medicine_id:null,
+    medicine_id: null,
     description: "",
-    quantity: "",
+    quantity: null,
     dosage: "",
+    unit_price: null,
   });
+  const [category, setCategory] = useState([]);
+  const [selectedCat, setSelectedcat] = useState(null);
+
+  const getCategory = () => {
+    axiosClient
+      .get(`/medicinescategory`)
+      .then(({ data }) => {
+        setCategory(data.data);
+      })
+      .catch(() => {});
+  };
+
+  const handleCategoryChange = (event) => {
+    const selectedSpecietype = event.target.value;
+    setSelectedcat(selectedSpecietype);
+    getMedicines(selectedSpecietype);
+  };
+
+  const getMedicines = (query) => {
+    if (query) {
+      setMedicines([]);
+      axiosClient
+        .get(`/medicinesbycategory/${query}`)
+        .then(({ data }) => {
+          setMedicines(data.data);
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            console.log(response.data.message);
+          }
+        });
+    } else {
+      setMedicines([]); // Clear breeds when no query (selected species) is provided
+    }
+  };
 
   const onEdit = (r) => {
     setErrors(null);
-    setAddbtn(true)
+    setOpen(true);
+    getCategory();
+    setModalloading(true);
     axiosClient
       .get(`/medications/${r.id}`)
       .then(({ data }) => {
         setMedication(data);
+        setSelectedcat(data.medicine.category.id);
+        setModalloading(false);
       })
       .catch(() => {
+        setModalloading(false);
       });
   };
 
@@ -100,7 +123,6 @@ export default function PetMedicationAdmission({ tid }) {
     }
 
     axiosClient.delete(`/users/${u.id}/archive`).then(() => {
-      setNotification("User was archived");
       getTreatmentPetMedication();
     });
   };
@@ -112,9 +134,8 @@ export default function PetMedicationAdmission({ tid }) {
       axiosClient
         .put(`/medications/${medication.id}`, medication)
         .then(() => {
-          setNotification("Medication was successfully updated.");
           getTreatmentPetMedication();
-          setAddbtn(false)
+          setOpen(false);
         })
         .catch((err) => {
           const response = err.response;
@@ -124,11 +145,10 @@ export default function PetMedicationAdmission({ tid }) {
         });
     } else {
       axiosClient
-        .post(`/medications/treatment/${tid}`, medication)
+        .post(`/medications/petowner/${pid}/treatment/${tid}`, medication)
         .then(() => {
-          setNotification("Medication was successfully saved.");
           getTreatmentPetMedication();
-          setAddbtn(false)
+          setOpen(false);
         })
         .catch((err) => {
           const response = err.response;
@@ -139,35 +159,69 @@ export default function PetMedicationAdmission({ tid }) {
     }
   };
 
-  const handleFieldChange = (fieldName, value) => {
-    const updatedMedication = { ...medication, [fieldName]: value };
-    setMedication(updatedMedication);
+  const addMedication = () => {
+    setOpen(true);
+    setErrors(null);
+    getCategory();
+    setSelectedcat(null);
+    setMedication({});
   };
 
+  const closeModal = () => {
+    setOpen(false);
+  };
   const handleRefresh = () => {
     getTreatmentPetMedication();
   };
 
   useEffect(() => {
-  }, []);
+    if (selectedCat) {
+      getMedicines(selectedCat);
+    } else {
+      getMedicines([]);
+    }
+  }, [selectedCat]);
 
   return (
     <>
-      {notification && <Alert severity="success">{notification}</Alert>}
-      <Stack sx={{ margin:"10px", border: "1px solid black" }}>
-        <Box sx={{display:"flex", justifyContent:"space-between",  margin:"5px" }}>
-          <Typography> <IconButton color="success" onClick={handleRefresh}>
-            <Refresh />
-          </IconButton>Medication:</Typography>
-        <IconButton
-          color="success"
-          variant="contained"
-          onClick={handleMedication}
+      <Stack sx={{ margin: "5px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
         >
-          <Add/>
-        </IconButton>
+          <Typography>
+            <IconButton color="success" onClick={handleRefresh}>
+              <Refresh />
+            </IconButton>
+            Medication:
+          </Typography>
+          <IconButton
+            color="success"
+            variant="contained"
+            onClick={addMedication}
+          >
+            <Add />
+          </IconButton>
         </Box>
-        <TableContainer sx={{ height: 300 }} maxwidth="sm">
+
+        <MedicationModal
+          open={open}
+          onClose={closeModal}
+          onClick={closeModal}
+          onSubmit={onSubmit}
+          loading={modalloading}
+          medicines={medicines}
+          errors={errors}
+          medication={medication}
+          setMedication={setMedication}
+          selectedCat={selectedCat}
+          handleCategoryChange={handleCategoryChange}
+          category={category}
+          isUpdate={medication.id}
+        />
+        <TableContainer maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -185,66 +239,11 @@ export default function PetMedicationAdmission({ tid }) {
                 </TableRow>
               </TableBody>
             )}
-
-            {addbtn && (
+            {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell></TableCell>
-                  <TableCell>
-                    <TextField
-                      value={medication.description}
-                      onChange={(ev) =>
-                        handleFieldChange("description", ev.target.value)
-                      }
-                      label="description"
-                      variant="standard"
-                      size="small"
-                      required
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      value={medication.quantity}
-                      onChange={(ev) =>
-                        handleFieldChange("quantity", ev.target.value)
-                      }
-                      label="quantity"
-                      variant="standard"
-                      size="small"
-                      required
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      value={medication.dosage}
-                      onChange={(ev) =>
-                        handleFieldChange("dosage", ev.target.value)
-                      }
-                      label="dosage"
-                      variant="standard"
-                      size="small"
-                      required
-                    />
-                  </TableCell>
-                  <TableCell>
-                  <Stack direction="row">
-                    <IconButton
-                      variant="contained"
-                      size="small"
-                      color="success"
-                      onClick={(e) => onSubmit(e)}
-                    >
-                      <Save fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      variant="contained"
-                      size="small"
-                      color="success"
-                      onClick={(e) => onSubmit(e)}
-                    >
-                      <Close fontSize="small" />
-                    </IconButton>
-                    </Stack>
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                    {message}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -255,11 +254,10 @@ export default function PetMedicationAdmission({ tid }) {
                 {medications &&
                   medications.map((r) => (
                     <TableRow hover role="checkbox" key={r.id}>
-                      <TableCell>{r.medicine.medicine}</TableCell>
-                      <TableCell>{r.medicine.price}</TableCell>
-                      <TableCell>{r.description}</TableCell>
+                      <TableCell>{r.medicine.name}</TableCell>
                       <TableCell>{r.quantity}</TableCell>
                       <TableCell>{r.dosage}</TableCell>
+                      <TableCell>{r.description}</TableCell>
                       <TableCell>
                         <Stack direction="row">
                           <IconButton

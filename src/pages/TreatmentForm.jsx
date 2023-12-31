@@ -13,7 +13,7 @@ import {
 import PetConditionAdmission from "./PetConditionAdmission";
 import PetMedicationAdmission from "./PetMedicationAdmission";
 
-export default function TreatmentForm({ sid }) {
+export default function TreatmentForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [errors, setErrors] = useState(null);
@@ -57,20 +57,7 @@ export default function TreatmentForm({ sid }) {
         .put(`/treatments/${treatment.id}`, treatment)
         .then(() => {
           setEdittreatment(false);
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status == 422) {
-            setErrors(response.data.errors);
-          }
-        });
-    } else {
-      axiosClient
-        .post(`/treatments/petowner/${id}/service/${sid}`, treatment)
-        .then((response) => {
-          console.log(treatment);
-          setTreatment(response.data);
-          setEdittreatment(false);
+          getCurrentTreatment();
         })
         .catch((err) => {
           const response = err.response;
@@ -80,8 +67,6 @@ export default function TreatmentForm({ sid }) {
         });
     }
   };
-
-  const [date, setDate] = useState(new Date());
 
   const handleFieldChange = (fieldName, value) => {
     const updatedTreatment = { ...treatment, [fieldName]: value };
@@ -93,6 +78,11 @@ export default function TreatmentForm({ sid }) {
     setEdittreatment(true);
   };
 
+  const onCancel = () => {
+    setEdittreatment(false);
+    getCurrentTreatment();
+  };
+
   useEffect(() => {
     getCurrentTreatment();
   }, []);
@@ -102,23 +92,36 @@ export default function TreatmentForm({ sid }) {
       sx={{
         width: "80%",
         margin: "auto",
+        padding: "10px",
       }}
     >
       <Stack
         sx={{
-          margin: "5px",
-          padding: "5px",
           display: "flex",
           textAlign: "center",
         }}
       >
-        <Button
-          variant="contained"
-          onClick={() => navigate(-1)}
-          sx={{ width: "10%" }}
+        <Box
+          flexDirection={"row"}
+          justifyContent={"space-between"}
+          display={"flex"}
         >
-          back
-        </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate(-1)}
+            sx={{ width: "10%" }}
+          >
+            back
+          </Button>
+          <Button
+            variant="contained"
+            // onClick={() => navigate(-1)}
+            sx={{ width: "10%" }}
+            color="success"
+          >
+            print
+          </Button>
+        </Box>
         <form onSubmit={(e) => onSubmit(e)}>
           <Typography variant="h5" fontWeight={"bold"}>
             Treatment Sheet{" "}
@@ -131,13 +134,7 @@ export default function TreatmentForm({ sid }) {
               ))}
             </div>
           )}
-          {treatment.id ? (
-            <Typography variant="body1">Date: {treatment.date}</Typography>
-          ) : (
-            <Typography variant="body1">
-              Date: {date.toDateString()}{" "}
-            </Typography>
-          )}
+          <Typography variant="body1">Date: {treatment.date}</Typography>
           <Typography variant="body1">Day: {treatment.day} </Typography>
           <Box
             sx={{
@@ -327,12 +324,11 @@ export default function TreatmentForm({ sid }) {
                   Save
                 </Button>
                 <Button
-                  type="submit"
                   variant="contained"
                   color="error"
                   size="small"
                   sx={{ mt: 1, ml: 1 }}
-                  onClick={()=>setEdittreatment(false)}
+                  onClick={onCancel}
                 >
                   cancel
                 </Button>
@@ -352,10 +348,10 @@ export default function TreatmentForm({ sid }) {
           </Box>
         </form>
       </Stack>
-      <Divider/>
+      <Divider sx={{ mt: 1 }} />
       <PetConditionAdmission tid={treatment.id} />
-      <Divider/>
-      <PetMedicationAdmission tid={treatment.id} pid={pet.petowner_id}/>
+      <Divider />
+      <PetMedicationAdmission tid={treatment.id} pid={pet.petowner_id} />
     </Paper>
   );
 }

@@ -19,10 +19,12 @@ import {
 } from "@mui/material";
 import { Add, Archive, Visibility } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
-import axiosClient from "../axios-client";
-import PetsModal from "../components/modals/PetsModal";
+import axiosClient from "../../axios-client";
+import PetsModal from "../../components/modals/PetsModal";
+import { useStateContext } from "../../contexts/ContextProvider";
 
-export default function ViewPetOwnerPets() {
+export default function MyPets() {
+  const { staff } = useStateContext();
   //for table
   const columns = [
     { id: "Photo", name: "Photo" },
@@ -86,7 +88,7 @@ export default function ViewPetOwnerPets() {
     setMessage("");
     setLoading(true);
     axiosClient
-      .get(`/petowners/${id}/pets`)
+      .get(`/petowners/${staff.id}/pets`)
       .then(({ data }) => {
         setLoading(false);
         setPets(data.data);
@@ -206,6 +208,7 @@ export default function ViewPetOwnerPets() {
 
   useEffect(() => {
     getPets();
+    getSpecies();
   }, []);
 
   return (
@@ -213,9 +216,9 @@ export default function ViewPetOwnerPets() {
       <Box
         sx={{
           minWidth: "90%",
+          padding: "15px",
         }}
       >
-       
         {notification && <Alert severity="success">{notification}</Alert>}
 
         <PetsModal
@@ -227,6 +230,7 @@ export default function ViewPetOwnerPets() {
           onSubmit={onSubmit}
           // loading={loading}
           breeds={breeds}
+          species={species}
           pet={pet}
           setPet={setPet}
           errors={errors}
@@ -236,7 +240,9 @@ export default function ViewPetOwnerPets() {
           handleImage={handleImage}
           error={error}
         />
-        <Divider />
+        <Typography variant="h4" mb={1} ml={1}>
+          My Pets
+        </Typography>
         <TableContainer sx={{ height: 350 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
@@ -254,7 +260,10 @@ export default function ViewPetOwnerPets() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -264,7 +273,10 @@ export default function ViewPetOwnerPets() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -296,17 +308,9 @@ export default function ViewPetOwnerPets() {
                               color="info"
                               size="small"
                               component={Link}
-                              to={`/admin/pets/` + r.id + `/view`}
+                              to={`/petowner/pets/` + r.id + `/view`}
                             >
                               <Visibility fontSize="small" />
-                            </Button>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              color="error"
-                              onClick={() => onArchive(r)}
-                            >
-                              <Archive fontSize="small" />
                             </Button>
                           </Stack>
                         </TableCell>

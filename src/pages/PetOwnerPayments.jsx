@@ -38,8 +38,10 @@ export default function PetOwnerPayments() {
   const [petowner, setPetowner] = useState([]);
   const [clientservice, setClientservice] = useState([]);
   const [openmodal, setOpenmodal] = useState(false);
+  const [noservices, setNoservices] = useState("");
 
   const getPayments = () => {
+    setMessage("");
     setLoading(true);
     axiosClient
       .get(`/clientservices/petowner/${id}/all`)
@@ -69,6 +71,7 @@ export default function PetOwnerPayments() {
     setModalloading(true);
     setServicesavailed([]);
     setOpenmodal(true);
+    setNoservices("");
     axiosClient
       .get(`/clientservices/${r.id}/services`)
       .then(({ data }) => {
@@ -80,7 +83,7 @@ export default function PetOwnerPayments() {
       .catch((mes) => {
         const response = mes.response;
         if (response && response.status == 404) {
-          setMessage(response.data.message);
+          setNoservices(response.data.message);
         }
         setModalloading(false);
       });
@@ -155,6 +158,7 @@ export default function PetOwnerPayments() {
           calculateTotal={calculateTotal()}
           loading={modalloading}
           printPDF={windowOpenPDFforPrint}
+          message={noservices}
         />
 
         <Divider />

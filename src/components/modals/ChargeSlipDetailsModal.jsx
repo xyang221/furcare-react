@@ -29,6 +29,7 @@ export default function ChargeSlipDetailsModal(props) {
     calculateTotal,
     loading,
     printPDF,
+    message,
   } = props;
 
   const columns = [
@@ -37,6 +38,7 @@ export default function ChargeSlipDetailsModal(props) {
     { id: "Quantity", name: "Quantity" },
     { id: "Unit", name: "Unit" },
     { id: "Unit Price", name: "Unit Price" },
+    { id: "Total", name: "Total" },
   ];
 
   return (
@@ -87,6 +89,15 @@ export default function ChargeSlipDetailsModal(props) {
                   </TableRow>
                 </TableHead>
 
+                {message && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                        {message}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
                 <TableBody>
                   {servicesavailed.map((item) => (
                     <TableRow hover role="checkbox" key={item.id}>
@@ -94,23 +105,28 @@ export default function ChargeSlipDetailsModal(props) {
                       <TableCell>{item.service.service}</TableCell>
                       <TableCell>{item.quantity}</TableCell>
                       <TableCell>{item.unit}</TableCell>
-                      <TableCell>{item.unit_price.toFixed(2)}</TableCell>
+                      <TableCell>
+                        {parseFloat(item.unit_price).toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        {parseFloat(item.quantity * item.unit_price).toFixed(2)}
+                      </TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell colSpan={4} align="right">
+                    <TableCell colSpan={5} align="right">
                       Total:
                     </TableCell>
                     <TableCell>{calculateTotal}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={4} align="right">
+                    <TableCell colSpan={5} align="right">
                       Deposit:
                     </TableCell>
                     <TableCell>{clientservice.deposit}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={4} align="right">
+                    <TableCell colSpan={5} align="right">
                       Balance:
                     </TableCell>
                     <TableCell>{clientservice.balance}</TableCell>

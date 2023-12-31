@@ -49,6 +49,7 @@ export default function StaffSidebar() {
           marginTop: "75px",
         },
         display: { xs: "none", sm: "block" },
+        zIndex: 999,
       }}
       variant="permanent"
       anchor="left"

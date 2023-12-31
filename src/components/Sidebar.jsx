@@ -1,10 +1,5 @@
 import styled from "@emotion/styled";
-import {
-  Home,
-  ListRounded,
-  People,
-  Pets,
-} from "@mui/icons-material";
+import { Home, ListRounded, People, Pets } from "@mui/icons-material";
 import {
   Drawer,
   List,
@@ -53,9 +48,11 @@ export default function Sidebar() {
           marginTop: "75px",
         },
         display: { xs: "none", sm: "block" },
+        zIndex: 999,
       }}
       variant="permanent"
       anchor="left"
+      hideBackdrop={true}
     >
       <StyledList>
         <ListItem>

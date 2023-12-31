@@ -37,9 +37,7 @@ export default function TestResultModal(props) {
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
-    // Create a copy of the user object and update the specified field
     const updatedTestresult = { ...testresult, [fieldName]: value };
-    // Update the user object with the updated value
     setTestresult(updatedTestresult);
   };
 
@@ -109,8 +107,8 @@ export default function TestResultModal(props) {
                       <TextField
                         accept="image/*"
                         variant="outlined"
-                        id="photo"
-                        label="Photo"
+                        id="Attachment"
+                        label="Attachment"
                         type="file"
                         onChange={handleImage}
                         defaultValue={null}

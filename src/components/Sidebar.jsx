@@ -1,26 +1,21 @@
 import styled from "@emotion/styled";
 import {
-  Archive,
   Home,
   ListRounded,
-  MedicalServices,
-  MiscellaneousServices,
   People,
-  Person,
-  Person2,
   Pets,
 } from "@mui/icons-material";
 import {
-  Box,
+  Drawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 
-const StyledList = styled(List)(({theme}) => ({
+const StyledList = styled(List)(({ theme }) => ({
   // selected and (selected + hover) states
   "&& .Mui-selected, && .Mui-selected:hover": {
     backgroundColor: "black",
@@ -38,7 +33,6 @@ const StyledList = styled(List)(({theme}) => ({
 }));
 
 export default function Sidebar() {
-
   const [selectedIndex, setSelectedIndex] = useState(
     parseInt(localStorage.getItem("selectedIndex")) || 0
   );
@@ -49,11 +43,19 @@ export default function Sidebar() {
   };
 
   return (
-    <Box
-      flex={1}
-      sx={{ backgroundColor: "white", display: { xs: "none", sm: "block" }, overflow:"auto" }}
-      position="fixed"
-      
+    <Drawer
+      sx={{
+        width: "240px",
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width: "240px",
+          boxSizing: "border-box",
+          marginTop: "75px",
+        },
+        display: { xs: "none", sm: "block" },
+      }}
+      variant="permanent"
+      anchor="left"
     >
       <StyledList>
         <ListItem>
@@ -80,7 +82,7 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-     
+
         <ListItem>
           <ListItemButton
             selected={selectedIndex === 4}
@@ -105,8 +107,7 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-       
       </StyledList>
-    </Box>
+    </Drawer>
   );
 }

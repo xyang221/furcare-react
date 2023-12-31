@@ -42,9 +42,7 @@ export default function MainLayout() {
         <Navbar />
         <Box display="flex" justifyContent="space-between">
           {sidebarComponent}
-          <Box flex={5} sx={{ marginLeft: "220px" }}>
-            {/* main layout sagol ang dashboard */}
-            {/* <QrCodeScanner /> */}
+          <Box flex={5} >
             <Outlet />
           </Box>
         </Box>

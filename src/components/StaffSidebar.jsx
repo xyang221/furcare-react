@@ -1,15 +1,7 @@
 import styled from "@emotion/styled";
+import { Home, ListAlt, Pets } from "@mui/icons-material";
 import {
-  Archive,
-  Home,
-  ListAlt,
-  People,
-  Person,
-  Person2,
-  Pets,
-} from "@mui/icons-material";
-import {
-  Box,
+  Drawer,
   List,
   ListItem,
   ListItemButton,
@@ -36,32 +28,41 @@ const StyledList = styled(List)({
 });
 
 export default function StaffSidebar() {
-    const [selectedIndex, setSelectedIndex] = useState(
-        parseInt(localStorage.getItem("selectedIndex")) || 0
-      );
-      
-      // Update selectedIndex and store it in localStorage
-      const handleListItemClick = (index) => {
-        setSelectedIndex(index);
-        localStorage.setItem("selectedIndex", index);
-      };
+  const [selectedIndex, setSelectedIndex] = useState(
+    parseInt(localStorage.getItem("selectedIndex")) || 0
+  );
+
+  // Update selectedIndex and store it in localStorage
+  const handleListItemClick = (index) => {
+    setSelectedIndex(index);
+    localStorage.setItem("selectedIndex", index);
+  };
 
   return (
-    <Box
-      flex={1}
-      sx={{ backgroundColor: "white", display: { xs: "none", sm: "block" } }}
+    <Drawer
+      sx={{
+        width: "240px",
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width: "240px",
+          boxSizing: "border-box",
+          marginTop: "75px",
+        },
+        display: { xs: "none", sm: "block" },
+      }}
+      variant="permanent"
+      anchor="left"
     >
-      {/* <Box position="fixed"> */}
       <StyledList>
         <ListItem>
           <ListItemButton
             selected={selectedIndex === 0}
             onClick={() => handleListItemClick(0)}
-            to="/"
+            to="/staffs"
           >
             <ListItemText primary="Dashboard"></ListItemText>
             <ListItemIcon>
-              <Home/>
+              <Home />
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
@@ -69,7 +70,7 @@ export default function StaffSidebar() {
           <ListItemButton
             selected={selectedIndex === 1}
             onClick={() => handleListItemClick(1)}
-            to="/pets"
+            to="/staffs/pets"
           >
             <ListItemText primary="Pets"></ListItemText>
             <ListItemIcon>
@@ -78,9 +79,11 @@ export default function StaffSidebar() {
           </ListItemButton>
         </ListItem>
         <ListItem>
-          <ListItemButton  selected={selectedIndex === 2}
-          onClick={() => handleListItemClick(2)}
-        to="/appointments">
+          <ListItemButton
+            selected={selectedIndex === 2}
+            onClick={() => handleListItemClick(2)}
+            to="/staffs/appointments"
+          >
             <ListItemText primary="Appointments"></ListItemText>
             <ListItemIcon>
               <ListAlt />
@@ -88,7 +91,6 @@ export default function StaffSidebar() {
           </ListItemButton>
         </ListItem>
       </StyledList>
-    </Box>
-    // </Box>
+    </Drawer>
   );
 }

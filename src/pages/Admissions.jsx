@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Alert,
   Box,
   Button,
   Paper,
@@ -20,16 +16,12 @@ import {
 } from "@mui/material";
 import {
   Add,
-  Archive,
-  Close,
-  Delete,
-  Edit,
-  ExpandMore,
   Visibility,
 } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import AdmissionModal from "../components/modals/AdmissionModal";
 import TreatmentModal from "../components/modals/TreatmentModal";
+import Swal from "sweetalert2";
 
 export default function Admissions({ sid }) {
   const { id } = useParams();
@@ -57,12 +49,11 @@ export default function Admissions({ sid }) {
 
   const [admissions, setAdmissions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
   const [petowner, setPetowner] = useState([]);
 
   const getAdmissions = () => {
-    setMessage("")
+    setMessage("");
     setLoading(true);
     axiosClient
       .get(`/admissions/petowner/${id}/service/${sid}`)
@@ -141,7 +132,7 @@ export default function Admissions({ sid }) {
   };
 
   const addConsent = () => {
-    getPetowner()
+    getPetowner();
     setClientservice({});
     setErrors(null);
     setOpenconsent(true);
@@ -149,101 +140,59 @@ export default function Admissions({ sid }) {
 
   const closeModal = () => {
     setOpenmodal(false);
-    setOpenconsent(false)
-  };
-
-  const onEdit = (r) => {
-    setErrors(null);
-    setModalloading(true);
-    axiosClient
-      .get(`/breeds/${r.id}`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setClientservice(data);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-    setOpenmodal(true);
-  };
-
-  const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this breed?")) {
-      return;
-    }
-
-    axiosClient.delete(`/breeds/${u.id}/archive`).then(() => {
-      setNotification("breed was archived");
-      getAdmissions();
-    });
+    setOpenconsent(false);
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (clientservice.id) {
-      axiosClient
-        .put(`/clientservices/${clientservice.id}`, clientservice)
-        .then(() => {
-          setNotification("clientservice was successfully updated");
-          setOpenmodal(false);
-          getAdmissions();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status == 422) {
-            setErrors(response.data.errors);
-          }
+    axiosClient
+      .post(`/treatments/petowner/${id}/service/${sid}`, treatment)
+      .then(() => {
+        setOpenmodal(false);
+        Swal.fire({
+          title: "Treatment saved!",
+          icon: "success",
         });
-    } else {
-      axiosClient
-        .post(`/treatments/petowner/${id}/service/${sid}`, treatment)
-        .then(() => {
-          setNotification("Breed was successfully added");
-          setOpenmodal(false);
-          getAdmissions();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status === 422) {
-            setErrors(response.data.errors);
-          }
-        });
-    }
+        getAdmissions();
+      })
+      .catch((err) => {
+        const response = err.response;
+        console.log(response);
+        if (response && response.status === 422) {
+          setErrors(response.data.errors);
+        }
+      });
   };
 
   const onSubmitConsent = (e) => {
     e.preventDefault();
 
-    if (clientservice.id) {
-      axiosClient
-        .put(`/clientservices/${clientservice.id}`, clientservice)
-        .then(() => {
-          setNotification("clientservice was successfully updated");
-          setOpenconsent(false);
-          getAdmissions();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status == 422) {
-            setErrors(response.data.errors);
-          }
+    axiosClient
+      .post(`/clientservices/petowner/${id}`, clientservice)
+      .then(() => {
+        setOpenconsent(false);
+        Swal.fire({
+          title: "Proceed to admission.",
+          icon: "success",
         });
-    } else {
-      axiosClient
-        .post(`/clientservices/petowner/${id}`, clientservice)
-        .then(() => {
-          setNotification("Breed was successfully added");
-          setOpenconsent(false);
-          getAdmissions();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status === 422) {
-            setErrors(response.data.errors);
-          }
-        });
-    }
+        getAdmissions();
+      })
+      .catch((err) => {
+        setOpenconsent(false);
+        const response = err.response;
+        if (response && response.status === 422) {
+          setErrors(response.data.errors);
+        }
+        if (response && response.status === 403) {
+          Swal.fire({
+            title: "Error",
+            text: response.data.message,
+            icon: "error",
+          });
+        }
+        getAdmissions();
+      });
   };
 
   useEffect(() => {
@@ -269,7 +218,8 @@ export default function Admissions({ sid }) {
             size="small"
             color="success"
           >
-            <Add />treatment
+            <Add />
+            treatment
           </Button>
           <Button
             onClick={addConsent}
@@ -277,7 +227,8 @@ export default function Admissions({ sid }) {
             size="small"
             color="success"
           >
-            <Add />consent for treatment
+            <Add />
+            consent for treatment
           </Button>
         </Box>
 
@@ -302,7 +253,6 @@ export default function Admissions({ sid }) {
           pets={pets}
         />
 
-        {notification && <Alert severity="success">{notification}</Alert>}
         <TableContainer sx={{ height: 340 }} maxwidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
@@ -358,7 +308,11 @@ export default function Admissions({ sid }) {
                               component={Link}
                               to={`/admin/treatment/` + r.treatment.id}
                             >
-                              <Visibility fontSize="small" /><Typography variant="subtitle2" ml={1}> View</Typography>
+                              <Visibility fontSize="small" />
+                              <Typography variant="subtitle2" ml={1}>
+                                {" "}
+                                View
+                              </Typography>
                             </Button>
                             {/* <Button
                               variant="contained"

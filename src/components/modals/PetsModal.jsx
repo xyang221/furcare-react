@@ -39,61 +39,13 @@ export default function PetsModal(props) {
     pet,
     setPet,
     errors,
-    setImageData,
     isUpdate,
-    petownerid,
-    addImage,
-    handleImage,
-    uploadImage,
-    specie,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
-    // Create a copy of the user object and update the specified field
     const updatedPet = { ...pet, [fieldName]: value };
-    // Update the user object with the updated value
     setPet(updatedPet);
   };
-
-  const [image, setImage] = useState({
-    name: null,
-  });
-
-  const [error, setError] = useState(null);
-
-  const submitImage = (e) => {
-    e.preventDefault();
-
-    if (!image.name) {
-      setError("Please select an image to upload.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("photo", image.name);
-
-    axiosClient
-      .post(`/pet/upload-image`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        // Clear the input after successful submission
-        setImage({ name: null });
-        setError(null);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
-  // const handleAddPhoto = (file) => {
-  //   if (file && file.length > 0) {
-  //     setImageData(file[0]);
-  //   }
-  // };
 
   const colors = [
     { id: "Black", color: "Black" },
@@ -143,43 +95,6 @@ export default function PetsModal(props) {
           <CircularProgress color="inherit" />
         </Backdrop> */}
 
-        {uploadImage && (
-          <>
-            <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-              <DialogTitle>
-                Upload Image
-                <IconButton onClick={onClick} style={{ float: "right" }}>
-                  <Close color="primary"></Close>
-                </IconButton>
-              </DialogTitle>
-              <DialogContent>
-                <Stack spacing={2} margin={2}>
-                  {/* <form onSubmit={submitImage} encType="multipart/form-data"> */}
-                  <TextField
-                    variant="outlined"
-                    id="photo"
-                    label="Photo"
-                    type="file"
-                    onChange={handleImage}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                  {error && <p style={{ color: "red" }}>{error}</p>}
-                  {/* <Button type="submit" variant="contained" color="primary">
-          Upload
-        </Button> */}
-                  {/* </form> */}
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    onClick={submitImage}
-                  >
-                    Save
-                  </Button>
-                </Stack>
-              </DialogContent>
-            </Dialog>
-          </>
-        )}
         {!loading && (
           <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle>

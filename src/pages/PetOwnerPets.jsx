@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Avatar,
   Backdrop,
   Box,
   Button,
@@ -17,7 +18,12 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Visibility } from "@mui/icons-material";
+import {
+  Add,
+  AddPhotoAlternate,
+  Archive,
+  Visibility,
+} from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
 import PetsModal from "../components/modals/PetsModal";
@@ -122,7 +128,7 @@ export default function PetOwnerPets() {
 
   const functionopenpopup = (ev) => {
     getSpecies();
-    setSelectedSpecie(null)
+    setSelectedSpecie(null);
     openchange(true);
     setPet({});
     setErrors(null);
@@ -292,10 +298,20 @@ export default function PetOwnerPets() {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>
-                          <img
-                            src={`http://localhost:8000/` + r.photo}
-                            height="50"
-                          />{" "}
+                          {r.photo ? (
+                            <Avatar
+                              alt="pet-photo"
+                              src={`http://localhost:8000/` + r.photo}
+                              sx={{ width: 50, height: 50 }}
+                              variant="rounded"
+                            />
+                          ) : (
+                            <Avatar sx={{ width: 50, height: 50 }} variant="rounded">
+                              <AddPhotoAlternate
+                                sx={{ width: 20, height: 20 }}
+                              />
+                            </Avatar>
+                          )}
                         </TableCell>
                         <TableCell>{r.name}</TableCell>
                         <TableCell>{r.birthdate}</TableCell>

@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import {
   Alert,
-  Box,
+  Avatar,
   Breadcrumbs,
   Button,
   Divider,
   IconButton,
-  Snackbar,
+  Paper,
   Stack,
   Typography,
 } from "@mui/material";
-import { Edit } from "@mui/icons-material";
+import { AddPhotoAlternate, Edit } from "@mui/icons-material";
 import PetsModal from "../components/modals/PetsModal";
 import PetTabs from "../components/PetTabs";
-import UploadImage from "../components/UploadImage";
 import QrCodeGenerator from "../components/QrCodeGenerator";
 import QRCode from "qrcode";
 import CryptoJS from "crypto-js";
 import { useStateContext } from "../contexts/ContextProvider";
+import PetImageModal from "../components/modals/PetImageModal";
 
 export default function ViewPet() {
   const { id } = useParams();
@@ -42,14 +42,17 @@ export default function ViewPet() {
   const [specie, setSpecie] = useState([]);
   const [breed, setBreed] = useState([]);
   const [petowner, setPetowner] = useState([]);
+  const [error, setError] = useState(null);
+  const [breeds, setBreeds] = useState([]);
+  const [species, setSpecies] = useState([]);
+  const [selectedSpecie, setSelectedSpecie] = useState(null);
 
   const [open, setOpen] = useState(false);
-  const [error, setError] = useState(null);
-  const [image, setImage] = useState(false);
-
-  const closepopup = () => {
-    setOpen(false);
-  };
+  const [upload, setUpload] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [petimage, setPetimage] = useState({
+    photo: null,
+  });
 
   const getPet = () => {
     setNotification(null);
@@ -68,10 +71,6 @@ export default function ViewPet() {
         setLoading(false);
       });
   };
-
-  const [breeds, setBreeds] = useState([]);
-  const [species, setSpecies] = useState([]);
-  const [selectedSpecie, setSelectedSpecie] = useState(null);
 
   const getSpecies = () => {
     axiosClient
@@ -98,7 +97,7 @@ export default function ViewPet() {
         .catch((error) => {
           const response = error.response;
           if (response && response.status === 404) {
-            console.log(response.data.message);
+            alert(response.data.message);
           }
         });
     } else {
@@ -162,6 +161,47 @@ export default function ViewPet() {
     }
   };
 
+  const uploadImage = () => {
+    setUpload(true);
+  };
+
+  const submitImage = (e) => {
+    e.preventDefault();
+
+    if (!petimage.photo) {
+      setUploadError("Please select an image attachment to upload.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("photo", petimage.photo);
+
+      axiosClient
+        .post(`/pets/${id}/upload-image`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          setNotification(response.data.success);
+          setUpload(false);
+          setPetimage({});
+          getPet();
+        })
+        .catch((response) => {
+          setUploadError(response.data.message);
+        });
+    } catch (error) {
+      setUploadError("Failed to upload the attachment.");
+    }
+  };
+
+  const closepopup = () => {
+    setOpen(false);
+    setUpload(false);
+  };
+
   const handleImage = (e) => {
     const selectedFile = e.currentTarget.files?.[0] || null;
 
@@ -178,22 +218,21 @@ export default function ViewPet() {
           ...prevImage,
           photo: selectedFile,
         }));
+        setPetimage((prevImage) => ({
+          ...prevImage,
+          photo: selectedFile,
+        }));
         setError(null);
+        setUploadError(null);
       } else {
         setError(
           "The selected file must be of type: jpg, png, jpeg, gif, svg."
         );
+        setUploadError(
+          "The selected file must be of type: jpg, png, jpeg, gif, svg."
+        );
       }
     }
-  };
-
-  const uploadImage = () => {
-    setError(null);
-    setImage(true);
-  };
-
-  const closeuploadImage = () => {
-    setImage(false);
   };
 
   const [qr, setQr] = useState("");
@@ -246,8 +285,7 @@ export default function ViewPet() {
 
   return (
     <div>
-      <br></br>
-      <div>
+      <Paper mt={1} sx={{ padding: "15px" }}>
         <Breadcrumbs color="primary">
           <Button
             component={Link}
@@ -263,16 +301,21 @@ export default function ViewPet() {
         <Divider />
         {notification && <Alert severity="success">{notification}</Alert>}
         <Stack flexDirection="row" padding={1}>
-          <IconButton variant="contained" color="info" onClick={uploadImage}>
-            <img src={`http://localhost:8000/` + pet.photo} height="100" />
-            <Edit fontSize="small" />
-          </IconButton>
+          <Button onClick={uploadImage}>
+            {pet.photo ? (
+              <Avatar
+                alt="pet-photo"
+                src={`http://localhost:8000/` + pet.photo}
+                sx={{ width: 100, height: 100 }}
+                variant="rounded"
+              />
+            ) : (
+              <Avatar sx={{ width: 100, height: 100 }} variant="rounded">
+                <AddPhotoAlternate sx={{ width: 40, height: 40 }} />
+              </Avatar>
+            )}
+          </Button>
 
-          <UploadImage
-            onClick={closeuploadImage}
-            onClose={closeuploadImage}
-            open={image}
-          />
           <Stack flexDirection="column" padding={1}>
             <Typography variant="h6">
               Pet Details
@@ -312,7 +355,6 @@ export default function ViewPet() {
           onClick={closepopup}
           onClose={closepopup}
           onSubmit={onSubmit}
-          loading={loading}
           breeds={breeds}
           pet={pet}
           setPet={setPet}
@@ -326,26 +368,18 @@ export default function ViewPet() {
           species={species}
           specie={breed.specie_id}
         />
-        {/* <PetsModal
-          open={image}
+
+        <PetImageModal
+          open={upload}
           onClick={closepopup}
           onClose={closepopup}
           handleImage={handleImage}
-              error={error}
-        /> */}
-        <Stack spacing={2} sx={{ width: "100%" }}>
-          <Snackbar
-            open={notification}
-            autoHideDuration={6000}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          >
-            <Alert severity="success" sx={{ width: "100%" }}>
-              {notification}
-            </Alert>
-          </Snackbar>
-        </Stack>
+          submitImage={submitImage}
+          uploadError={uploadError}
+        />
+
         <PetTabs />
-      </div>
+      </Paper>
     </div>
   );
 }

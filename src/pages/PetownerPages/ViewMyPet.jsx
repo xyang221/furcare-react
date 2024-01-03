@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../../axios-client";
 import {
   Alert,
+  Avatar,
   Box,
   Breadcrumbs,
   Button,
@@ -13,7 +14,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { Edit } from "@mui/icons-material";
+import { AddPhotoAlternate, Edit } from "@mui/icons-material";
 import PetsModal from "../../components/modals/PetsModal";
 import UploadImage from "../../components/UploadImage";
 import QrCodeGenerator from "../../components/QrCodeGenerator";
@@ -21,6 +22,7 @@ import QRCode from "qrcode";
 import CryptoJS from "crypto-js";
 import { useStateContext } from "../../contexts/ContextProvider";
 import PO_PetTabs from "./PO_PetTabs";
+import PetImageModal from "../../components/modals/PetImageModal";
 
 export default function ViewMyPet() {
   const { id } = useParams();
@@ -46,10 +48,10 @@ export default function ViewMyPet() {
 
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(null);
-  const [image, setImage] = useState(false);
 
   const closepopup = () => {
     setOpen(false);
+    setUpload(false);
   };
 
   const getPet = () => {
@@ -163,6 +165,49 @@ export default function ViewMyPet() {
     }
   };
 
+  const [uploadError, setUploadError] = useState(null);
+  const [petimage, setPetimage] = useState({
+    photo: null,
+  });
+  const [upload, setUpload] = useState(false);
+
+  const uploadImage = () => {
+    setError(null);
+    setUpload(true);
+  };
+
+  const submitImage = (e) => {
+    e.preventDefault();
+
+    if (!petimage.photo) {
+      setUploadError("Please select an image attachment to upload.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("photo", petimage.photo);
+
+      axiosClient
+        .post(`/pets/${id}/upload-image`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          setNotification(response.data.success);
+          setUpload(false);
+          setPetimage({});
+          getPet();
+        })
+        .catch((response) => {
+          setUploadError(response.data.message);
+        });
+    } catch (error) {
+      setUploadError("Failed to upload the attachment.");
+    }
+  };
+
   const handleImage = (e) => {
     const selectedFile = e.currentTarget.files?.[0] || null;
 
@@ -179,22 +224,21 @@ export default function ViewMyPet() {
           ...prevImage,
           photo: selectedFile,
         }));
+        setPetimage((prevImage) => ({
+          ...prevImage,
+          photo: selectedFile,
+        }));
         setError(null);
+        setUploadError(null);
       } else {
         setError(
           "The selected file must be of type: jpg, png, jpeg, gif, svg."
         );
+        setUploadError(
+          "The selected file must be of type: jpg, png, jpeg, gif, svg."
+        );
       }
     }
-  };
-
-  const uploadImage = () => {
-    setError(null);
-    setImage(true);
-  };
-
-  const closeuploadImage = () => {
-    setImage(false);
   };
 
   const [qr, setQr] = useState("");
@@ -250,16 +294,20 @@ export default function ViewMyPet() {
       <Paper mt={1} sx={{ padding: "15px" }}>
         {notification && <Alert severity="success">{notification}</Alert>}
         <Stack flexDirection="row">
-          <IconButton variant="contained" color="info" onClick={uploadImage}>
-            <img src={`http://localhost:8000/` + pet.photo} height="100" />
-            <Edit fontSize="small" />
-          </IconButton>
-
-          <UploadImage
-            onClick={closeuploadImage}
-            onClose={closeuploadImage}
-            open={image}
-          />
+          <Button onClick={uploadImage}>
+            {pet.photo ? (
+              <Avatar
+                alt="pet-photo"
+                src={`http://localhost:8000/` + pet.photo}
+                sx={{ width: 100, height: 100 }}
+                variant="rounded"
+              />
+            ) : (
+              <Avatar sx={{ width: 100, height: 100 }} variant="rounded">
+                <AddPhotoAlternate sx={{ width: 40, height: 40 }} />
+              </Avatar>
+            )}
+          </Button>
           <Stack flexDirection="column" padding={1}>
             <Typography variant="h6">Pet Details</Typography>
             <Typography>
@@ -304,24 +352,16 @@ export default function ViewMyPet() {
           species={species}
           specie={breed.specie_id}
         />
-        {/* <PetsModal
-          open={image}
+
+        <PetImageModal
+          open={upload}
           onClick={closepopup}
           onClose={closepopup}
           handleImage={handleImage}
-              error={error}
-        /> */}
-        <Stack spacing={2} sx={{ width: "100%" }}>
-          <Snackbar
-            open={notification}
-            autoHideDuration={6000}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          >
-            <Alert severity="success" sx={{ width: "100%" }}>
-              {notification}
-            </Alert>
-          </Snackbar>
-        </Stack>
+          submitImage={submitImage}
+          uploadError={uploadError}
+        />
+
         <PO_PetTabs />
       </Paper>
     </div>

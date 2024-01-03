@@ -83,6 +83,36 @@ export default function TreatmentForm() {
     getCurrentTreatment();
   };
 
+  const treatmentPDF = async () => {
+    try {
+      // Fetch PDF content
+      const response = await axiosClient.get(`/treatments/${id}/generatePDF`, {
+        responseType: "blob",
+        headers: {
+          "Content-Type": "application/pdf",
+        },
+      });
+
+      const pdfBlob = response.data;
+
+      const url = window.URL.createObjectURL(new Blob([pdfBlob]));
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `Treatment-${treatment.date}-${pet.name}.pdf`
+      );
+      document.body.appendChild(link);
+
+      // Trigger the download
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      alert("Error fetching PDF:", error);
+    }
+  };
+
   useEffect(() => {
     getCurrentTreatment();
   }, []);
@@ -115,7 +145,7 @@ export default function TreatmentForm() {
           </Button>
           <Button
             variant="contained"
-            // onClick={() => navigate(-1)}
+            onClick={treatmentPDF}
             sx={{ width: "10%" }}
             color="success"
           >
@@ -149,7 +179,7 @@ export default function TreatmentForm() {
               value={treatment.diagnosis}
               onChange={(ev) => handleFieldChange("diagnosis", ev.target.value)}
               label="Diagnosis/Findings"
-              variant="outlined"
+              variant="standard"
               size="small"
               required
               InputProps={{
@@ -157,6 +187,7 @@ export default function TreatmentForm() {
               }}
             />
             <TextField
+              variant="standard"
               sx={{ width: "48%" }}
               value={`${pet.name} (Breed: ${breed.breed})`}
               onChange={(ev) =>
@@ -171,7 +202,7 @@ export default function TreatmentForm() {
             />
           </Box>
 
-          <Stack flexDirection={"row"} justifyContent={"space-evenly"}>
+          <Stack flexDirection={"row"} justifyContent={"space-between"}>
             <Stack display={"flex"} flexDirection={"column"} padding={"10px"}>
               <TextField
                 value={treatment.body_weight}
@@ -298,10 +329,11 @@ export default function TreatmentForm() {
             </Stack>
           </Stack>
           <TextField
+          sx={{width:"98%"}}
             value={treatment.comments}
             onChange={(ev) => handleFieldChange("comments", ev.target.value)}
             label="Comments"
-            variant="outlined"
+            variant="standard"
             size="small"
             type="text"
             InputProps={{

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Avatar,
   Box,
   Button,
   Divider,
@@ -13,10 +14,13 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Typography,
 } from "@mui/material";
 import {
+  AddPhotoAlternate,
   Archive,
   OpenInNew,
+  Visibility,
 } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import axiosClient from "../axios-client";
@@ -52,10 +56,10 @@ export default function Pets() {
   //for table
   const columns = [
     { id: "Photo", name: "Photo" },
-    { id: "id", name: "ID" },
     { id: "name", name: "Pet Name" },
     { id: "email", name: "Gender" },
     { id: "breed", name: "Breed" },
+    { id: "Color", name: "Color" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -122,13 +126,10 @@ export default function Pets() {
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
+          alignItems={"center"}
         >
-          <DropDownButtons
-            title="Pets"
-            optionLink1="/admin/pets/archives"
-            optionLabel1="Archives"
-          />
-       
+          <Typography variant="h5">PETS</Typography>
+
           <SearchPetOwner
             query={query}
             setQuery={setQuery}
@@ -182,15 +183,28 @@ export default function Pets() {
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>
-                          <img
-                            src={`http://localhost:8000/` + r.photo}
-                            height="100"
-                          />{" "}
+                          {r.photo ? (
+                            <Avatar
+                              alt="pet-photo"
+                              src={`http://localhost:8000/` + r.photo}
+                              sx={{ width: 50, height: 50 }}
+                              variant="rounded"
+                            />
+                          ) : (
+                            <Avatar
+                              sx={{ width: 50, height: 50 }}
+                              variant="rounded"
+                            >
+                              <AddPhotoAlternate
+                                sx={{ width: 20, height: 20 }}
+                              />
+                            </Avatar>
+                          )}
                         </TableCell>
-                        <TableCell>{r.id}</TableCell>
                         <TableCell>{r.name}</TableCell>
                         <TableCell>{r.gender}</TableCell>
                         <TableCell>{r.breed.breed}</TableCell>
+                        <TableCell>{r.color}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
@@ -200,7 +214,7 @@ export default function Pets() {
                               component={Link}
                               to={`/admin/pets/` + r.id + `/view`}
                             >
-                              <OpenInNew fontSize="small" />
+                              <Visibility fontSize="small" />
                             </Button>
                             <Button
                               variant="contained"

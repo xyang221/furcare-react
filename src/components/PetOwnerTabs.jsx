@@ -5,7 +5,6 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { Tab } from '@mui/material';
 import PetOwnerPets from '../pages/PetOwnerPets';
-import Receipt from '../pages/Receipt';
 import PetOwnerAppointments from '../pages/PetOwnerAppointments';
 import PetOwnerPayments from '../pages/PetOwnerPayments';
 import ServiceCatBtns from './ServiceCatTabs';

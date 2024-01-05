@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
-import { Button, Tab, Typography } from "@mui/material";
+import { Button, Skeleton, Tab } from "@mui/material";
 import axiosClient from "../axios-client";
 import Consultation from "../pages/Services/Consultation";
 import ServiceAvail from "../pages/Services/ServiceAvail";
@@ -14,20 +14,15 @@ import {
   Block,
   ContentCut,
   ControlPointDuplicate,
-  Error,
   FolderCopy,
   Healing,
   Home,
-  Hotel,
   LocalHospital,
   MedicalServices,
   Medication,
-  Pets,
   Vaccines,
 } from "@mui/icons-material";
-import TreatmentForm from "../pages/TreatmentForm";
 import Vaccination from "../pages/Services/Vaccination";
-import AdmissionTabs from "./AdmissionTabs";
 import Admissions from "../pages/Admissions";
 
 export default function ServiceCatBtns() {
@@ -35,12 +30,14 @@ export default function ServiceCatBtns() {
   const [services, setServices] = useState([]);
   const [value, setValue] = useState("0");
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getServices();
   }, []);
 
   const getServices = () => {
+    setLoading(true);
     axiosClient
       .get("/services")
       .then(({ data }) => {
@@ -49,9 +46,11 @@ export default function ServiceCatBtns() {
           new Set(data.data.map((service) => service.category.category))
         );
         setServicesCat(uniqueCategories);
+        setLoading(false);
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
+        alert("Error fetching data:", error);
+        setLoading(false);
       });
   };
 
@@ -76,120 +75,221 @@ export default function ServiceCatBtns() {
   };
 
   return (
-    <Box sx={{ width: "100%", typography: "body1" }}>
-      {servicesCat.map((category, index) => (
-        <Button
-          key={index}
-          onClick={() => handleCategoryClick(category)}
-          variant="contained"
-          size="small"
-          startIcon={categoryIcons[category]}
-          sx={{ margin: 1, height: "35px", width: "225px" }}
+    <>
+      {loading && (
+        <Box
+          sx={{
+            width: "100%",
+            typography: "body1",
+            display: "flex",
+            flexDirection: "row",
+            ml: 1,
+            mt: 1,
+          }}
         >
-          {category}
-        </Button>
-      ))}
-      {selectedCategory && (
-        <Box sx={{ width: "100%", borderColor: "divider", marginTop: "10px" }}>
-          <TabContext value={value}>
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <TabList aria-label="lab API tabs">
+          <Box>
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />{" "}
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+          </Box>
+          <Box>
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+          </Box>
+          <Box>
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+          </Box>
+          <Box>
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+            <Skeleton
+              sx={{ bgcolor: "grey.300", mb: 2, mr: 2 }}
+              variant="rounded"
+              width={"225px"}
+              height={"35px"}
+            />
+          </Box>
+        </Box>
+      )}
+      {!loading && (
+        <Box sx={{ width: "100%", typography: "body1" }}>
+          {servicesCat.map((category, index) => (
+            <Button
+              key={index}
+              onClick={() => handleCategoryClick(category)}
+              variant="contained"
+              size="small"
+              startIcon={categoryIcons[category]}
+              sx={{ margin: 1, height: "35px", width: "225px" }}
+            >
+              {category}
+            </Button>
+          ))}
+
+          {selectedCategory && (
+            <Box
+              sx={{ width: "100%", borderColor: "divider", marginTop: "10px" }}
+            >
+              <TabContext value={value}>
+                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                  <TabList aria-label="lab API tabs">
+                    {services
+                      .filter(
+                        (service) =>
+                          service.category.category === selectedCategory
+                      )
+                      .map((service, idx) => (
+                        <Tab
+                          key={idx}
+                          label={service.service}
+                          value={idx.toString()}
+                          onClick={() => setValue(idx.toString())}
+                          icon={
+                            service.isAvailable === 0 ? (
+                              <Block color="error" fontSize="inherit" />
+                            ) : null
+                          }
+                        />
+                      ))}
+                  </TabList>
+                </Box>
                 {services
                   .filter(
                     (service) => service.category.category === selectedCategory
                   )
                   .map((service, idx) => (
-                    <Tab
-                      key={idx}
-                      label={service.service}
-                      value={idx.toString()}
-                      onClick={() => setValue(idx.toString())}
-                      icon={
-                        service.isAvailable === 0 ? (
-                          <Block color="error" fontSize="inherit" />
-                        ) : null
-                      }
-                    />
+                    <TabPanel key={idx} value={idx.toString()}>
+                      {service.service == "Consultation" && (
+                        <Consultation sid={service.id} />
+                      )}
+                      {service.service == "Home Service" && (
+                        <ServiceAvail title="Home Service" sid={service.id} />
+                      )}
+                      {service.service == "Boarding" && (
+                        <ServiceAvail title="Boarding" sid={service.id} />
+                      )}
+                      {service.service == "Grooming" && (
+                        <ServiceAvail title="Grooming" sid={service.id} />
+                      )}
+                      {service.service == "Surgery" && (
+                        <ServiceAvail title="Surgery" sid={service.id} />
+                      )}
+                      {service.service == "DHLPPI" && (
+                        <Vaccination sid={service.id} />
+                      )}
+                      {service.service == "BRONCHICINE" && (
+                        <Vaccination sid={service.id} />
+                      )}
+                      {service.service == "HEARTWORM" && (
+                        <Vaccination sid={service.id} />
+                      )}
+                      {service.service == "RABIES" && (
+                        <Vaccination sid={service.id} />
+                      )}
+                      {service.service == "TRICAT" && (
+                        <Vaccination sid={service.id} />
+                      )}
+                      {service.service == "Deworming" && (
+                        <Deworming sid={service.id} />
+                      )}
+                      {service.service == "CBC" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "BLOOD CHEM" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "PARVO TEST" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "DISTEMPER" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "EHRLICHIA" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "HEARTWORM" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "4DX" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Medicine" && (
+                        <ServiceAvail title="Medicines" sid={service.id} />
+                      )}
+                      {service.service == "Tick/Flea Treatment" && (
+                        <ServiceAvail
+                          title="Tick/Flea Treatment"
+                          sid={service.id}
+                        />
+                      )}
+                      {service.service == "Admission" && (
+                        <Admissions sid={service.id} />
+                      )}
+                    </TabPanel>
                   ))}
-              </TabList>
+              </TabContext>
             </Box>
-            {services
-              .filter(
-                (service) => service.category.category === selectedCategory
-              )
-              .map((service, idx) => (
-                <TabPanel key={idx} value={idx.toString()}>
-                  {service.service == "Consultation" && (
-                    <Consultation sid={service.id} />
-                  )}
-                  {service.service == "Home Service" && (
-                    <ServiceAvail title="Home Service" sid={service.id} />
-                  )}
-                  {service.service == "Boarding" && (
-                    <ServiceAvail title="Boarding" sid={service.id} />
-                  )}
-                  {service.service == "Grooming" && (
-                    <ServiceAvail title="Grooming" sid={service.id} />
-                  )}
-                  {service.service == "Surgery" && (
-                    <ServiceAvail title="Surgery" sid={service.id} />
-                  )}
-                  {service.service == "DHLPPI" && (
-                    <Vaccination sid={service.id} />
-                  )}
-                  {service.service == "BRONCHICINE" && (
-                    <Vaccination sid={service.id} />
-                  )}
-                  {service.service == "HEARTWORM" && (
-                    <Vaccination sid={service.id} />
-                  )}
-                  {service.service == "RABIES" && (
-                    <Vaccination sid={service.id} />
-                  )}
-                  {service.service == "TRICAT" && (
-                    <Vaccination sid={service.id} />
-                  )}
-                  {service.service == "Deworming" && (
-                    <Deworming sid={service.id} />
-                  )}
-                  {service.service == "CBC" && (
-                    <TestResults sid={service.id} sname={service.service} />
-                  )}
-                  {service.service == "BLOOD CHEM" && (
-                    <TestResults sid={service.id} sname={service.service} />
-                  )}
-                  {service.service == "PARVO TEST" && (
-                    <TestResults sid={service.id} sname={service.service} />
-                  )}
-                  {service.service == "DISTEMPER" && (
-                    <TestResults sid={service.id} sname={service.service} />
-                  )}
-                  {service.service == "EHRLICHIA" && (
-                    <TestResults sid={service.id} sname={service.service} />
-                  )}
-                  {service.service == "HEARTWORM" && (
-                    <TestResults sid={service.id} sname={service.service} />
-                  )}
-                  {service.service == "4DX" && (
-                    <TestResults sid={service.id} sname={service.service} />
-                  )}
-                  {service.service == "Medicine" && (
-                    <ServiceAvail title="Medicines" sid={service.id} />
-                  )}
-                  {service.service == "Tick/Flea Treatment" && (
-                    <ServiceAvail
-                      title="Tick/Flea Treatment"
-                      sid={service.id}
-                    />
-                  )}
-                  {service.service == "Admission" && (
-                    <Admissions sid={service.id} />
-                  )}
-                </TabPanel>
-              ))}
-          </TabContext>
+          )}
         </Box>
       )}
-    </Box>
+    </>
   );
 }

@@ -44,7 +44,7 @@ export default function PetOwnerPayments() {
     setMessage("");
     setLoading(true);
     axiosClient
-      .get(`/clientservices/petowner/${id}/all`)
+      .get(`/clientdeposits/petowner/${id}/all`)
       .then(({ data }) => {
         setLoading(false);
         setChargeSlip(data.data);
@@ -73,7 +73,7 @@ export default function PetOwnerPayments() {
     setOpenmodal(true);
     setNoservices("");
     axiosClient
-      .get(`/clientservices/${r.id}/services`)
+      .get(`/clientdeposits/${r.id}/services`)
       .then(({ data }) => {
         setServicesavailed(data.data);
         setPetowner(data.clientservice.petowner);

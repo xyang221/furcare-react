@@ -169,7 +169,7 @@ export default function Admissions({ sid }) {
     e.preventDefault();
 
     axiosClient
-      .post(`/clientservices/petowner/${id}`, clientservice)
+      .post(`/clientdeposits/petowner/${id}`, clientservice)
       .then(() => {
         setOpenconsent(false);
         Swal.fire({

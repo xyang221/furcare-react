@@ -69,7 +69,7 @@ export default function GenerateBilling() {
   const getClientService = () => {
     setMessage(null);
     axiosClient
-      .get(`/clientservices/petowner/${id}`)
+      .get(`/clientdeposits/petowner/${id}`)
       .then(({ data }) => {
         setClientservice(data);
         setPetowner(data.petowner);
@@ -164,7 +164,7 @@ export default function GenerateBilling() {
           };
 
           await axiosClient.put(
-            `/clientservices/${clientservice.id}`,
+            `/clientdeposits/${clientservice.id}`,
             updatedClientService
           );
           Swal.fire({

@@ -62,7 +62,7 @@ const ChargeSlipPrint = React.forwardRef((props, ref) => {
   const getClientService = () => {
     setMessage(null);
     axiosClient
-      .get(`/clientservices/petowner/${id}`)
+      .get(`/clientdeposits/petowner/${id}`)
       .then(({ data }) => {
         setClientservice(data);
         setPetowner(data.petowner);

@@ -122,13 +122,13 @@ export default function Pets() {
         }}
       >
         <Box
-          p={2}
+          p={1}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
           alignItems={"center"}
         >
-          <Typography variant="h5">PETS</Typography>
+          <Typography variant="h5">Pets</Typography>
 
           <SearchPetOwner
             query={query}

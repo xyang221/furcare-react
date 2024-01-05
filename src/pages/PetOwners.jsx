@@ -116,14 +116,14 @@ export default function PetOwners() {
         }}
       >
         <Box
-          p={2}
+          p={1}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
           <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
             <Typography variant="h5" pr={2}>
-              PET OWNERS
+              Pet Owners
             </Typography>
             <Button
               component={Link}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import CryptoJS from 'crypto-js';
+import { Box, Typography } from '@mui/material';
 
 const QrCodeScanner = () => {
   const navigate = useNavigate();
@@ -54,10 +55,10 @@ const QrCodeScanner = () => {
   }, [qrresult, navigate]);
 
   return (
-    <>
-      <h1>QR Scanner</h1>
-      <div id="reader" style={{ width: '250px', height: '250px' }}></div>
-    </>
+    <Box>
+      <Typography variant='h5' align='center' fontWeight={"bold"}>Scan QR Code</Typography>
+      <Box id="reader" style={{ width: '250px', height: '250px' }}/>
+    </Box>
   );
 };
 

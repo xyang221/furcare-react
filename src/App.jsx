@@ -16,15 +16,12 @@ import Appointments from "./pages/Appointments";
 
 import MainLayout from "./components/MainLayout";
 import Roles from "./pages/Roles";
-import AppointmentsPending from "./pages/AppointmentsPending";
-import AppointmentsDone from "./pages/AppointmentsDone";
 import PetOwnerAppointments from "./pages/PetOwnerAppointments";
 import PetOwnerArchives from "./pages/PetOwnersArchives";
 import Breeds from "./pages/Breeds";
 import Species from "./pages/Species";
 import StaffsArchives from "./pages/StaffsArchives";
 import PetsArchives from "./pages/PetsArchives";
-import AppointmentsConfirmed from "./pages/AppointmentsConfirmed";
 import ViewPet from "./pages/ViewPet";
 import Pets from "./pages/Pets";
 import TreatmentForm from "./pages/TreatmentForm";
@@ -33,7 +30,6 @@ import PrintComponent from "./pages/Billing/ChargeSlipPrint";
 import SettingsTabs from "./components/SettingsTabs";
 import UserArchives from "./pages/UserArchives";
 import Home from "./pages/Home";
-import AppointmentsCancelled from "./pages/AppointmentsCancelled";
 
 //petowner pages
 import MyAppointments from "./pages/PetownerPages/MyAppointments";
@@ -94,22 +90,6 @@ function App() {
               <Route path="pets/breeds" element={<Breeds />} />
 
               <Route path="appointments" element={<Appointments />} />
-              <Route
-                path="appointments/confirmed"
-                element={<AppointmentsConfirmed />}
-              />
-              <Route
-                path="appointments/pending"
-                element={<AppointmentsPending />}
-              />
-              <Route
-                path="appointments/completed"
-                element={<AppointmentsDone />}
-              />
-              <Route
-                path="appointments/cancelled"
-                element={<AppointmentsCancelled />}
-              />
 
               <Route path=":id/chargeslip" element={<PrintComponent />} />
 
@@ -144,18 +124,6 @@ function App() {
               <Route path="pets/breeds" element={<Breeds />} />
 
               <Route path="appointments" element={<Appointments />} />
-              <Route
-                path="appointments/confirmed"
-                element={<AppointmentsConfirmed />}
-              />
-              <Route
-                path="appointments/pending"
-                element={<AppointmentsPending />}
-              />
-              <Route
-                path="appointments/completed"
-                element={<AppointmentsDone />}
-              />
             </Route>
 
             {/* Pet Owner-Only Routes */}

@@ -15,7 +15,7 @@ import UserEdit from "./modals/UserEdit";
 import LogoutModal from "./modals/LogoutModal";
 
 export default function Profile() {
-  const { user, setToken, updateUser, staff } = useStateContext();
+  const { user, setToken, updateUser, staff, petowner } = useStateContext();
   const navigate = useNavigate();
 
   //for modal
@@ -155,9 +155,20 @@ export default function Profile() {
           onClick={handleToggle}
         >
           <Avatar sx={{ width: 30, height: 30, margin: "5px" }} />
-          <Typography variant="span" color="white">
-          {staff.firstname && staff.lastname !== "null" ? `${staff.firstname} ${staff.lastname}` : "ADMIN"}
-          </Typography>
+          {staff && (
+            <Typography variant="span" color="white">
+              {staff.firstname && staff.lastname !== "null"
+                ? `${staff.firstname} ${staff.lastname}`
+                : "ADMIN"}
+            </Typography>
+          )}
+          {/* {petowner && (
+            <Typography variant="span" color="white">
+              {petowner.firstname && petowner.lastname !== "null"
+                ? `${petowner.firstname} ${petowner.lastname}`
+                : "ADMIN"}
+            </Typography>
+          )} */}
         </Button>
         <Popper
           open={open}
@@ -183,9 +194,11 @@ export default function Profile() {
                     onKeyDown={handleListKeyDown}
                   >
                     <MenuItem onClick={() => onEdit()}>Edit Profile</MenuItem>
-                    <MenuItem onClick={() => navigate("/admin/settings")}>
-                      Settings
-                    </MenuItem>
+                    {user.role_id === "1"  && ( 
+                        <MenuItem onClick={() => navigate("/admin/settings")}>
+                          Settings
+                        </MenuItem>
+                      )}
 
                     <MenuItem onClick={logoutmodal}>Logout</MenuItem>
                   </MenuList>

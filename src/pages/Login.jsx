@@ -14,25 +14,9 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios-client";
 
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-    </Typography>
-  );
-}
 
 export default function Login() {
-  const { user, updateUser, setToken, updateStaff, token } = useStateContext();
+  const { user, updateUser, setToken, updateStaff, token,updatePetowner } = useStateContext();
 
   // if (token) {
   //   return <Navigate to="/" />;
@@ -59,6 +43,7 @@ export default function Login() {
       .post("/login", payload)
       .then(({ data }) => {
         updateStaff(data.staff);
+        updatePetowner(data.petowner);
         updateUser(data.user);
         setToken(data.token);
         navigate(from, { replace: true });
@@ -171,7 +156,6 @@ export default function Login() {
             </Grid>
           </Box>
         </Box>
-        {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
       </Container>
     </Background>
   );

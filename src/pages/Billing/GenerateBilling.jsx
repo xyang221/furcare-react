@@ -4,8 +4,12 @@ import { useParams } from "react-router-dom";
 import {
   Box,
   Button,
+  FormControl,
+  FormControlLabel,
   IconButton,
   Paper,
+  Radio,
+  RadioGroup,
   Table,
   TableBody,
   TableCell,
@@ -39,10 +43,18 @@ export default function GenerateBilling() {
   const [petowner, setPetowner] = useState([]);
 
   const [serviceAvailedPrices, setServiceAvailedPrices] = useState({});
-  const [cash, setCash] = useState(null);
+
+  const [paymentrecord, setPaymentRecord] = useState({
+    id: null,
+    ref_no: "",
+    type: "",
+    gcash_ref_no: "",
+    total: null,
+    amount: null,
+    change: null,
+  });
 
   const getServicesAvailed = () => {
-    setCash(null);
     setMessage(null);
     setLoading(true);
     setServicesavailed([]);
@@ -95,12 +107,16 @@ export default function GenerateBilling() {
     updateServicePrice(id, value);
   };
 
-  // Calculate the total for all selected items
   const calculateTotal = () => {
-    return servicesavailed.reduce((total, item) => {
+    const totalCost = servicesavailed.reduce((total, item) => {
       const price = serviceAvailedPrices[item.id] || 0;
       return total + price * item.quantity;
     }, 0);
+
+    // Assuming paymentrecord is accessible here
+    paymentrecord.total = totalCost; // Update paymentrecord.total with the calculated total
+
+    return totalCost; // Return the calculated total cost
   };
 
   const calculateBalance = () => {
@@ -109,36 +125,37 @@ export default function GenerateBilling() {
     if (balance === undefined || isNaN(balance)) {
       return 0;
     }
-    if (cash > balance) {
+    if (paymentrecord.amount > balance) {
       return 0;
     }
     return Math.max(balance, 0);
   };
 
-  const handleCash = (ev, id) => {
-    const { value } = ev.target;
-    setCash(parseFloat(value));
-  };
-
   const calculateChange = () => {
+    const total = calculateTotal();
+    const deposit = clientservice?.deposit;
+    const balance = clientservice?.balance;
+    const amountPaid = paymentrecord?.amount;
+
     if (
-      cash === undefined ||
-      isNaN(cash) ||
-      calculateTotal() === undefined ||
-      isNaN(calculateTotal()) ||
-      clientservice === undefined ||
-      clientservice.deposit === undefined ||
-      isNaN(clientservice.deposit) ||
-      clientservice.balance === undefined ||
-      isNaN(clientservice.balance)
+      isNaN(total) ||
+      isNaN(deposit) ||
+      isNaN(balance) ||
+      isNaN(amountPaid) ||
+      total === undefined ||
+      deposit === undefined ||
+      balance === undefined ||
+      amountPaid === undefined
     ) {
       return 0;
     }
-    if (calculateTotal() !== 0) {
-      const change = cash - (calculateTotal() - clientservice.deposit);
+
+    if (total !== 0) {
+      const change = amountPaid - (total - deposit);
+      paymentrecord.change = change >= 0 ? change : 0;
       return change >= 0 ? change : 0;
     } else {
-      return 0; 
+      return 0;
     }
   };
 
@@ -167,6 +184,10 @@ export default function GenerateBilling() {
             `/clientdeposits/${clientservice.id}`,
             updatedClientService
           );
+          await axiosClient.post(
+            `/paymentrecords/clientdeposits/${clientservice.id}`,
+            paymentrecord
+          );
           Swal.fire({
             title: "Success",
             icon: "success",
@@ -174,7 +195,7 @@ export default function GenerateBilling() {
             confirmButtonColor: "black",
           }).then((result) => {
             if (result.isConfirmed) {
-              setCash(0);
+              setPaymentRecord({});
               getServicesAvailed();
               windowOpenPDFforPrint();
             }
@@ -207,7 +228,7 @@ export default function GenerateBilling() {
     try {
       // Fetch PDF content
       const response = await axiosClient.get(
-        `/clientservice/${clientservice.id}/generate-chargeslip`,
+        `/clientdeposits/${clientservice.id}/generate-chargeslip`,
         {
           responseType: "blob",
           headers: {
@@ -238,6 +259,11 @@ export default function GenerateBilling() {
     }
   };
 
+  const handlePaymentFieldChange = (fieldName, value) => {
+    const updatedPaymentRecord = { ...paymentrecord, [fieldName]: value };
+    setPaymentRecord(updatedPaymentRecord);
+  };
+
   return (
     <>
       <Paper
@@ -253,19 +279,30 @@ export default function GenerateBilling() {
             <Refresh />
           </IconButton>
         </Typography>{" "}
-        <Box
-          p={1}
-          display="flex"
-          flexDirection="row"
-          justifyContent="space-between"
-        >
-          <Typography variant="subtitle">
-            Client: {petowner.firstname} {petowner.lastname}
-          </Typography>
-          <Typography variant="subtitle">Date: {clientservice.date}</Typography>
-        </Box>
         <TableContainer sx={{ height: 380 }}>
           <form onSubmit={(ev) => onSubmit(ev)}>
+            <TextField
+              size="small"
+              label="Ref #"
+              value={paymentrecord.ref_no || ""}
+              onChange={(ev) =>
+                handlePaymentFieldChange("ref_no", ev.target.value)
+              }
+              required
+            />
+            <Box
+              p={1}
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
+            >
+              <Typography variant="subtitle">
+                Client: {petowner.firstname} {petowner.lastname}
+              </Typography>
+              <Typography variant="subtitle">
+                Date: {clientservice.date}
+              </Typography>
+            </Box>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
@@ -342,14 +379,63 @@ export default function GenerateBilling() {
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={5} align="right">
-                      Cash:
+                      Type of Payment:
+                    </TableCell>
+                    <TableCell colSpan={6} align="right">
+                      <FormControl component="fieldset">
+                        <RadioGroup
+                          required
+                          aria-labelledby="demo-controlled-radio-buttons-group"
+                          name="controlled-radio-buttons-group"
+                          value={paymentrecord.type || ""}
+                          onChange={(ev) =>
+                            handlePaymentFieldChange("type", ev.target.value)
+                          }
+                          row
+                        >
+                          <FormControlLabel
+                            value="Cash"
+                            size="small"
+                            control={<Radio size="small" />}
+                            label="Cash"
+                          />
+                          <FormControlLabel
+                            value="Gcash"
+                            control={<Radio size="small" />}
+                            label="Gcash"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                      {paymentrecord.type === "Gcash" && (
+                        <TextField
+                          required
+                          label="Referrence #"
+                          size="small"
+                          value={paymentrecord.gcash_ref_no || ""}
+                          onChange={(ev) =>
+                            handlePaymentFieldChange(
+                              "gcash_ref_no",
+                              ev.target.value
+                            )
+                          }
+                          placeholder="Gcash ref number"
+                        />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={5} align="right">
+                      Amount:
                     </TableCell>
                     <TableCell sx={{ width: "30%" }}>
                       <TextField
-                        size="small"
+                        required
                         type="number"
-                        onChange={(ev) => handleCash(ev)}
-                        value={cash || ""}
+                        size="small"
+                        value={paymentrecord.amount || ""}
+                        onChange={(ev) =>
+                          handlePaymentFieldChange("amount", ev.target.value)
+                        }
                       />
                     </TableCell>
                   </TableRow>

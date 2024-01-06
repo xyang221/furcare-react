@@ -30,6 +30,7 @@ export default function ChargeSlipDetailsModal(props) {
     loading,
     printPDF,
     message,
+    payment
   } = props;
 
   const columns = [
@@ -66,6 +67,9 @@ export default function ChargeSlipDetailsModal(props) {
             <Typography align="center" variant="h5">
               Charge Slip{" "}
             </Typography>
+            <Typography variant="subtitle" p={1}>
+                Referrence No. {payment.ref_no}
+              </Typography>
             <Box
               p={1}
               display="flex"
@@ -130,6 +134,24 @@ export default function ChargeSlipDetailsModal(props) {
                       Balance:
                     </TableCell>
                     <TableCell>{clientservice.balance}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={5} align="right">
+                      Payment:
+                    </TableCell>
+                    <TableCell>{payment.type}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={5} align="right">
+                      Amount:
+                    </TableCell>
+                    <TableCell>{payment.amount}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={5} align="right">
+                      Change:
+                    </TableCell>
+                    <TableCell>{payment.change}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

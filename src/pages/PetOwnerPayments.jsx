@@ -37,6 +37,7 @@ export default function PetOwnerPayments() {
   const [servicesavailed, setServicesavailed] = useState([]);
   const [petowner, setPetowner] = useState([]);
   const [clientservice, setClientservice] = useState([]);
+  const [payment, setPayment] = useState([]);
   const [openmodal, setOpenmodal] = useState(false);
   const [noservices, setNoservices] = useState("");
 
@@ -87,6 +88,21 @@ export default function PetOwnerPayments() {
         }
         setModalloading(false);
       });
+    getPaymentRecord(r);
+  };
+
+  const getPaymentRecord = (r) => {
+    axiosClient
+      .get(`/paymentrecords/clientdeposits/${r.id}`)
+      .then(({ data }) => {
+        setPayment(data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setNoservices(response.data.message);
+        }
+      });
   };
 
   const closeModal = () => {
@@ -106,7 +122,7 @@ export default function PetOwnerPayments() {
     try {
       // Fetch PDF content
       const response = await axiosClient.get(
-        `/clientservice/${clientservice.id}/generate-chargeslip`,
+        `/clientdeposits/${clientservice.id}/generate-chargeslip`,
         {
           responseType: "blob",
           headers: {
@@ -159,6 +175,7 @@ export default function PetOwnerPayments() {
           loading={modalloading}
           printPDF={windowOpenPDFforPrint}
           message={noservices}
+          payment={payment}
         />
 
         <Divider />

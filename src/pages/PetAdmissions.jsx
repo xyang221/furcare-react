@@ -20,18 +20,14 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Archive, NavigateNext, Visibility } from "@mui/icons-material";
-import { SearchPetOwner } from "../components/SearchPetOwner";
-import DropDownButtons from "../components/DropDownButtons";
 
 export default function PetAdmissions() {
   const { id } = useParams();
   //for table
   const columns = [
-    { id: "id", name: "ID" },
     { id: "Date", name: "Date" },
     { id: "Day", name: "Day" },
     { id: "diagnosis", name: "Diagnosis" },
-    { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -50,9 +46,8 @@ export default function PetAdmissions() {
   const [notification, setNotification] = useState("");
   const [message, setMessage] = useState(null);
   const [petowners, setPetowners] = useState([]);
-  const [query, setQuery] = useState("");
 
-  const getPetowners = () => {
+  const getTreatments = () => {
     setMessage(null);
     setLoading(true);
     axiosClient
@@ -70,27 +65,6 @@ export default function PetAdmissions() {
       });
   };
 
-  const search = (query) => {
-    if (query) {
-      setMessage(null);
-      setPetowners([]);
-      setLoading(true);
-      axiosClient
-        .get(`/petowners-search/${query}`)
-        .then(({ data }) => {
-          setLoading(false);
-          setPetowners(data.data);
-        })
-        .catch((error) => {
-          const response = error.response;
-          if (response && response.status === 404) {
-            setMessage(response.data.message);
-          }
-          setLoading(false);
-        });
-    }
-  };
-
   const onArchive = (u) => {
     if (!window.confirm("Are you sure to archive this pet owner?")) {
       return;
@@ -98,14 +72,12 @@ export default function PetAdmissions() {
 
     axiosClient.delete(`/petowners/${u.id}/archive`).then(() => {
       setNotification("Pet Owner was archived");
-      getPetowners();
+      getTreatments();
     });
   };
 
   useEffect(() => {
-    if (!query) {
-      getPetowners();
-    }
+    getTreatments();
   }, []);
 
   return (
@@ -160,22 +132,19 @@ export default function PetAdmissions() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
-                        <TableCell>{r.id}</TableCell>
                         <TableCell>{r.date}</TableCell>
-                        <TableCell>{r.date}</TableCell>
+                        <TableCell>{r.day}</TableCell>
                         <TableCell>{r.diagnosis}</TableCell>
-                        <TableCell>{r.serviceavailed.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
                               component={Link}
-                              to={`/admin/petowners/` + r.id + `/view`}
+                              to={`/admin/treatment/` + r.id}
                               variant="contained"
                               color="info"
                               size="small"
                             >
-                              {/* <Visibility fontSize="small" /> */}
-                              <NavigateNext fontSize="small" />
+                              <Visibility fontSize="small" />
                             </Button>
 
                             <Button

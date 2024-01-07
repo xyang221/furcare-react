@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { useParams } from "react-router-dom";
 import {
   Alert,
+  Box,
   Button,
   Paper,
   Stack,
@@ -14,23 +14,55 @@ import {
   TablePagination,
   TableRow,
 } from "@mui/material";
-import { Archive, Edit } from "@mui/icons-material";
-import DewormingLogsModal from "../components/modals/DewormingLogsModal";
-import { useStateContext } from "../contexts/ContextProvider";
+import { useParams } from "react-router-dom";
+import DiagnosisModal from "../components/modals/DiagnosisModal";
+import { Add, Archive, Edit } from "@mui/icons-material";
 
-export default function PetDeworming() {
-  const { notification, setNotification } = useStateContext();
+export default function PetConsultations({ sid }) {
   const { id } = useParams();
 
-  //for table
   const columns = [
-    { id: "date", name: "Date" },
-    { id: "weight", name: "Weight" },
-    { id: "Description", name: "Description" },
-    { id: "Administered", name: "Administered" },
-    { id: "Return", name: "Return" },
+    { id: "Date", name: "Date" },
+    { id: "Diagnosis", name: "Diagnosis" },
     { id: "Actions", name: "Actions" },
   ];
+
+  const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [consultations, setConsultations] = useState([]);
+  const [pets, setPets] = useState([]);
+
+  const getConsultations = () => {
+    setConsultations([]);
+    setMessage("");
+    setLoading(true);
+    axiosClient
+      .get(`/diagnosis/pet/${id}`)
+      .then(({ data }) => {
+        setLoading(false);
+        setConsultations(data.data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+      });
+  };
+
+  const getPets = () => {
+    axiosClient
+      .get(`/petowners/${id}/pets`)
+      .then(({ data }) => {
+        setPets(data.data);
+      })
+      .catch(() => {});
+  };
+
+  //for table
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
@@ -42,93 +74,66 @@ export default function PetDeworming() {
     pagechange(0);
   };
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  //for modal
   const [errors, setErrors] = useState(null);
-  const [deworminglog, setDeworminglog] = useState({
+  const [modalloading, setModalloading] = useState(false);
+  const [consultation, setConsultation] = useState({
     id: null,
-    weight: null,
-    description: "",
-    administered: "",
-    return: "",
+    remarks: "",
+    unit_price: null,
     pet_id: null,
   });
-  const [pet, setPet] = useState([]);
-  const [vets, setVets] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [deworminglogs, setDeworminglogs] = useState([]);
-  const [modalloading, setModalloading] = useState(false);
 
-  const getDeworming = () => {
-    setDeworminglogs([]);
-    setMessage(null);
-    setLoading(true);
-    axiosClient
-      .get(`/deworminglogs/pet/${id}`)
-      .then(({ data }) => {
-        setLoading(false);
-        setDeworminglogs(data.data);
-      })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
-          setMessage(response.data.message);
-        }
-        setLoading(false);
-      });
+  const [open, openConsultation] = useState(false);
+
+  const addModal = (ev) => {
+    openConsultation(true);
+    getPets();
+    setConsultation({});
+    setErrors(null);
   };
 
-  const getVets = () => {
-    axiosClient
-      .get(`/vets`)
-      .then(({ data }) => {
-        setVets(data.data);
-      })
-      .catch(() => {});
-  };
-
-  const closepopup = () => {
-    setOpen(false);
+  const closeModal = () => {
+    openConsultation(false);
   };
 
   const onEdit = (r) => {
-    getVets();
+    getPets();
     setErrors(null);
     setModalloading(true);
     axiosClient
-      .get(`/deworminglogs/${r.id}`)
+      .get(`/diagnosis/${r.id}`)
       .then(({ data }) => {
+        setConsultation(data);
         setModalloading(false);
-        setDeworminglog(data);
-        setPet(data.pet);
       })
       .catch(() => {
         setModalloading(false);
       });
-    setOpen(true);
+    openConsultation(true);
   };
 
-  const onArchive = (r) => {
+  const onArchive = (u) => {
     if (!window.confirm("Are you sure to archive this?")) {
       return;
     }
 
-    axiosClient.delete(`/deworminglogs/${r.id}/archive`).then(() => {
-      setNotification("Deworming was archived");
-      getDeworming();
+    axiosClient.delete(`/diagnosis/${u.id}/archive`).then(() => {
+      setNotification("This consultation diagnosis record was archived.");
+      getConsultations();
     });
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (deworminglog.id) {
+    if (consultation.id) {
       axiosClient
-        .put(`/deworminglogs/${deworminglog.id}`, deworminglog)
+        .put(`/diagnosis/${consultation.id}`, consultation)
         .then(() => {
-          setNotification("Deworming was successfully updated.");
-          setOpen(false);
-          getDeworming();
+          setNotification("Consultation diagnosis was successfully updated.");
+          openConsultation(false);
+          getConsultations();
         })
         .catch((err) => {
           const response = err.response;
@@ -136,11 +141,27 @@ export default function PetDeworming() {
             setErrors(response.data.errors);
           }
         });
+    } else {
+      axiosClient
+        .post(`/diagnosis/petowner/${id}/avail/${sid}`, consultation)
+        .then(() => {
+          setNotification("Consultation diagnosis was successfully saved.");
+          openConsultation(false);
+          getConsultations();
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status === 422) {
+            setErrors(response.data.errors);
+          } else if (response && response.status === 404) {
+            console.log(response.data.message);
+          }
+        });
     }
   };
 
   useEffect(() => {
-    getDeworming();
+    getConsultations();
   }, []);
 
   return (
@@ -151,29 +172,18 @@ export default function PetDeworming() {
           padding: "10px",
         }}
       >
-        <DewormingLogsModal
+        <DiagnosisModal
           open={open}
-          onClose={closepopup}
-          onClick={closepopup}
+          onClose={closeModal}
+          onClick={closeModal}
           onSubmit={onSubmit}
           loading={modalloading}
-          deworminglog={deworminglog}
-          setDeworminglog={setDeworminglog}
+          pets={pets}
+          diagnosis={consultation}
+          setDiagnosis={setConsultation}
           errors={errors}
-          pet={pet}
-          vets={vets}
-          isUpdate={true}
+          isUpdate={consultation.id}
         />
-
-        {/* <Button
-            component={Link}
-            to={`/admin/deworminglogs/archives`}
-            variant="contained"
-            color="success"
-            size="small"
-          >
-            <Typography>Archives</Typography>
-          </Button> */}
 
         {notification && <Alert severity="success">{notification}</Alert>}
 
@@ -194,10 +204,7 @@ export default function PetDeworming() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    style={{ textAlign: "center" }}
-                  >
+                  <TableCell colSpan={5} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -207,10 +214,7 @@ export default function PetDeworming() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    style={{ textAlign: "center" }}
-                  >
+                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -219,16 +223,13 @@ export default function PetDeworming() {
 
             {!loading && (
               <TableBody>
-                {deworminglogs &&
-                  deworminglogs
+                {consultations &&
+                  consultations
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
-                        <TableCell>{`${r.weight} kg`}</TableCell>
-                        <TableCell>{r.description}</TableCell>
-                        <TableCell>{r.vet.fullname}</TableCell>
-                        <TableCell>{r.return}</TableCell>
+                        <TableCell>{r.remarks}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
@@ -260,7 +261,7 @@ export default function PetDeworming() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={deworminglogs.length}
+          count={consultations.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}

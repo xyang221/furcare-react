@@ -31,7 +31,6 @@ export default function PetVaccination() {
     { id: "Description", name: "Description" },
     { id: "Administered", name: "Administered" },
     { id: "Return", name: "Return" },
-    { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -242,7 +241,6 @@ export default function PetVaccination() {
                           <TableCell>{record.description}</TableCell>
                           <TableCell>{record.vet.fullname}</TableCell>
                           <TableCell>{record.return}</TableCell>
-                          <TableCell>{record.servicesavailed.status}</TableCell>
                           <TableCell>
                             <Stack direction="row" spacing={2}>
                               <Button

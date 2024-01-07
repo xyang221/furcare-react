@@ -4,12 +4,11 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { Tab } from "@mui/material";
-import PetVaccination from "../pages/PetVaccination";
-import PetDeworming from "../pages/PetDeworming";
-import MedicalRecordTabs from "./MedicalRecordTabs";
-import PetServiceAvail from "../pages/PetServiceAvail";
+import PetAdmissions from "../pages/PetAdmissions";
+import PetConsultations from "../pages/PetConsultations";
+import PetTestResults from "../pages/PetTestResults";
 
-export default function PetTabs() {
+export default function MedicalRecordTabs() {
   const [value, setValue] = useState("1");
 
   const handleChange = (event, newValue) => {
@@ -21,24 +20,19 @@ export default function PetTabs() {
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="pet tabs">
-            <Tab label="Vaccination Logs" value="1" />
-            <Tab label="Deworming Logs" value="2" />
-            <Tab label="Medical Records" value="3" />
-            <Tab label="Other Services" value="4" />
+            <Tab label="Treatments" value="1" />
+            <Tab label="Consultations" value="2" />
+            <Tab label="Tests" value="3" />
           </TabList>
         </Box>
         <TabPanel value="1">
-          <PetVaccination />
+        <PetAdmissions />
         </TabPanel>
         <TabPanel value="2">
-          <PetDeworming />
+         <PetConsultations/>
         </TabPanel>
         <TabPanel value="3">
-        <MedicalRecordTabs/>
-        </TabPanel>
-        <TabPanel value="4">
-          {/* <OtherServicesTabs/> */}
-          <PetServiceAvail/>
+          <PetTestResults/>
         </TabPanel>
       </TabContext>
     </Box>

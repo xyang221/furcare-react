@@ -15,6 +15,7 @@ import {
   InputAdornment,
   Paper,
 } from "@mui/material";
+import Swal from "sweetalert2";
 
 export default function PetOwnerForm() {
   const navigate = useNavigate();
@@ -43,9 +44,15 @@ export default function PetOwnerForm() {
     axiosClient
       .post(`/petowners`, petowner)
       .then((response) => {
-        setNotification("Pet Owner successfully created");
-        const createdPetownerId = response.data.id;
-        navigate(`/admin/petowners/${createdPetownerId}/view`);
+        Swal.fire({
+          text: "Petowner registration has been saved!",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const createdPetownerId = response.data.id;
+            navigate(`/admin/petowners/${createdPetownerId}/view`);
+          }
+        });
       })
       .catch((err) => {
         handleErrors(err);
@@ -87,7 +94,7 @@ export default function PetOwnerForm() {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  const steps = ["Create a User Account", "Register Pet Owner"];
+  const steps = ["Create a User Account", "Pet Owner Registration"];
 
   const getStepContent = (step) => {
     switch (step) {
@@ -116,6 +123,13 @@ export default function PetOwnerForm() {
                 setPetowner({ ...petowner, email: ev.target.value })
               }
               required
+              error={errors && errors.email ? true : false}
+              helperText={
+                errors && errors.email
+                  ? errors && errors.email
+                  : "Please input a valid email address."
+              }
+              autoFocus
             />
             <TextField
               variant="outlined"
@@ -128,6 +142,12 @@ export default function PetOwnerForm() {
               value={petowner.password}
               onChange={(ev) =>
                 setPetowner({ ...petowner, password: ev.target.value })
+              }
+              error={errors && errors.password ? true : false}
+              helperText={
+                errors && errors.password
+                  ? errors && errors.password
+                  : "Your password must be at least 8 characters long and contain numbers and letters."
               }
             />
             <TextField
@@ -145,6 +165,7 @@ export default function PetOwnerForm() {
                   password_confirmation: ev.target.value,
                 })
               }
+              error={errors && errors.password ? true : false}
             />
           </Box>
         );
@@ -174,6 +195,8 @@ export default function PetOwnerForm() {
               }
               fullWidth
               required
+              error={errors && errors.firstname ? true : false}
+              helperText={errors && errors.firstname}
             />
             <TextField
               variant="outlined"
@@ -186,6 +209,8 @@ export default function PetOwnerForm() {
                 setPetowner({ ...petowner, lastname: ev.target.value })
               }
               required
+              error={errors && errors.lastname ? true : false}
+              helperText={errors && errors.lastname}
             />
             <TextField
               variant="outlined"
@@ -208,6 +233,8 @@ export default function PetOwnerForm() {
                 setPetowner({ ...petowner, contact_num: input });
               }}
               required
+              error={errors && errors.contact_num ? true : false}
+              helperText={errors && errors.contact_num}
             />
 
             <TextField
@@ -220,6 +247,8 @@ export default function PetOwnerForm() {
                 setPetowner({ ...petowner, zone: ev.target.value })
               }
               required
+              error={errors && errors.zone ? true : false}
+              helperText={errors && errors.zone}
             />
             <TextField
               id="Barangay"
@@ -231,6 +260,8 @@ export default function PetOwnerForm() {
                 setPetowner({ ...petowner, barangay: ev.target.value })
               }
               required
+              error={errors && errors.barangay ? true : false}
+              helperText={errors && errors.barangay}
             />
 
             <Autocomplete
@@ -262,6 +293,8 @@ export default function PetOwnerForm() {
               }}
               value={value}
               required
+              error={errors && errors.zipcode_id ? true : false}
+              helperText={errors && errors.zipcode_id}
             />
           </Box>
         );
@@ -274,7 +307,7 @@ export default function PetOwnerForm() {
   return (
     <Paper
       sx={{
-        width: "50%",
+        width: "60%",
         margin: "auto",
         marginTop: "50px",
         padding: "20px",
@@ -288,15 +321,6 @@ export default function PetOwnerForm() {
           </Step>
         ))}
       </Stepper>
-      {errors && (
-        <Box p={2}>
-          {Object.keys(errors).map((key) => (
-            <Alert severity="error" key={key}>
-              {errors[key][0]}
-            </Alert>
-          ))}
-        </Box>
-      )}
       <div margin="auto">
         {activeStep === steps.length ? (
           <div>

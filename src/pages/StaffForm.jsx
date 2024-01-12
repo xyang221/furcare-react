@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { useStateContext } from "../contexts/ContextProvider";
 import {
   Autocomplete,
   TextField,
@@ -14,11 +13,11 @@ import {
   InputAdornment,
   Paper,
 } from "@mui/material";
+import Swal from "sweetalert2";
 
 export default function StaffForm() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState(null);
-  const { setNotification } = useStateContext();
 
   const [address, setAddress] = useState([]);
   const [value, setValue] = useState(null);
@@ -42,9 +41,15 @@ export default function StaffForm() {
     axiosClient
       .post(`/staffs`, staff)
       .then((response) => {
-        setNotification("Staff successfully created");
-        const createdStaffId = response.data.id;
-        navigate(`/admin/staffs/${createdStaffId}/view`);
+        Swal.fire({
+          text: "Staff registration has been saved!",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const createdStaffId = response.data.id;
+            navigate(`/admin/staffs/${createdStaffId}/view`);
+          }
+        });
       })
       .catch((err) => {
         handleErrors(err);
@@ -57,8 +62,7 @@ export default function StaffForm() {
       .then(({ data }) => {
         setAddress(data.data);
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -69,6 +73,7 @@ export default function StaffForm() {
     const response = err.response;
     if (response && response.status === 422) {
       setErrors(response.data.errors);
+      if (errors.email || errors.password) setActiveStep(0);
     }
   };
 
@@ -87,11 +92,83 @@ export default function StaffForm() {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  const steps = ["Register Staff", "Create an Account"];
+  const steps = ["Create a User Account", "Staff Registration"];
 
   const getStepContent = (step) => {
     switch (step) {
       case 0:
+        return (
+          <Box
+            sx={{
+              width: "70%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              "& > :not(style)": { m: 1 },
+              margin: "auto",
+            }}
+          >
+            <Typography variant="h5" padding={1}>
+              Create an Account
+            </Typography>
+
+            <TextField
+              id="Email"
+              label="Email"
+              size="small"
+              type="email"
+              value={staff.email}
+              onChange={(ev) => setStaff({ ...staff, email: ev.target.value })}
+              fullWidth
+              required
+              error={errors && errors.email ? true : false}
+              helperText={
+                errors && errors.email
+                  ? errors && errors.email
+                  : "Please input a valid email address."
+              }
+              autoFocus
+            />
+            <TextField
+              variant="outlined"
+              id="Password"
+              size="small"
+              label="Password"
+              type="password"
+              required
+              fullWidth
+              value={staff.password}
+              onChange={(ev) =>
+                setStaff({ ...staff, password: ev.target.value })
+              }
+              error={errors && errors.password ? true : false}
+              helperText={
+                errors && errors.password
+                  ? errors && errors.password
+                  : "Your password must be at least 8 characters long and contain numbers and letters."
+              }
+            />
+            <TextField
+              variant="outlined"
+              id="Password Confirmation"
+              label="Password Confirmation"
+              size="small"
+              fullWidth
+              required
+              type="password"
+              value={staff.password_confirmation}
+              onChange={(ev) =>
+                setStaff({
+                  ...staff,
+                  password_confirmation: ev.target.value,
+                })
+              }
+              error={errors && errors.password ? true : false}
+            />
+          </Box>
+        );
+
+      case 1:
         return (
           <Box
             sx={{
@@ -118,6 +195,8 @@ export default function StaffForm() {
               }
               fullWidth
               required
+              error={errors && errors.firstname ? true : false}
+              helperText={errors && errors.firstname}
             />
             <TextField
               variant="outlined"
@@ -130,6 +209,8 @@ export default function StaffForm() {
               }
               fullWidth
               required
+              error={errors && errors.lastname ? true : false}
+              helperText={errors && errors.lastname}
             />
             <TextField
               variant="outlined"
@@ -152,6 +233,8 @@ export default function StaffForm() {
               }}
               fullWidth
               required
+              error={errors && errors.contact_num ? true : false}
+              helperText={errors && errors.contact_num}
             />
             <TextField
               id="Zone"
@@ -161,6 +244,8 @@ export default function StaffForm() {
               onChange={(ev) => setStaff({ ...staff, zone: ev.target.value })}
               fullWidth
               required
+              error={errors && errors.zone ? true : false}
+              helperText={errors && errors.zone}
             />
             <TextField
               id="Barangay"
@@ -172,6 +257,8 @@ export default function StaffForm() {
               }
               fullWidth
               required
+              error={errors && errors.barangay ? true : false}
+              helperText={errors && errors.barangay}
             />
 
             <Autocomplete
@@ -203,63 +290,8 @@ export default function StaffForm() {
               value={value}
               fullWidth
               required
-            />
-          </Box>
-        );
-      case 1:
-        return (
-          <Box
-            sx={{
-              width: "70%",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              "& > :not(style)": { m: 1 },
-              margin: "auto",
-            }}
-          >
-            <Typography variant="h5" padding={1}>
-              Create an Account
-            </Typography>
-
-            <TextField
-              id="Email"
-              label="Email"
-              size="small"
-              type="email"
-              value={staff.email}
-              onChange={(ev) => setStaff({ ...staff, email: ev.target.value })}
-              fullWidth
-              required
-            />
-            <TextField
-              variant="outlined"
-              id="Password"
-              size="small"
-              label="Password"
-              type="password"
-              required
-              fullWidth
-              value={staff.password}
-              onChange={(ev) =>
-                setStaff({ ...staff, password: ev.target.value })
-              }
-            />
-            <TextField
-              variant="outlined"
-              id="Password Confirmation"
-              label="Password Confirmation"
-              size="small"
-              fullWidth
-              required
-              type="password"
-              value={staff.password_confirmation}
-              onChange={(ev) =>
-                setStaff({
-                  ...staff,
-                  password_confirmation: ev.target.value,
-                })
-              }
+              error={errors && errors.zipcode_id ? true : false}
+              helperText={errors && errors.zipcode_id}
             />
           </Box>
         );
@@ -271,7 +303,7 @@ export default function StaffForm() {
   return (
     <Paper
       sx={{
-        width: "50%",
+        width: "60%",
         margin: "auto",
         marginTop: "3%",
         padding: "20px",
@@ -285,13 +317,6 @@ export default function StaffForm() {
           </Step>
         ))}
       </Stepper>
-      {errors && (
-        <div className="alert">
-          {Object.keys(errors).map((key) => (
-            <p key={key}>{errors[key][0]}</p>
-          ))}
-        </div>
-      )}
       <div>
         {activeStep === steps.length ? (
           <div>

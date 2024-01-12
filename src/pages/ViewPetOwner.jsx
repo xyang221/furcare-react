@@ -1,26 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  IconButton,
-  Paper,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { IconButton, Paper, Stack, Typography } from "@mui/material";
 import { Edit } from "@mui/icons-material";
 import PetOwnerEdit from "../components/modals/PetOwnerEdit";
 import UserEdit from "../components/modals/UserEdit";
 import PetOwnerTabs from "../components/PetOwnerTabs";
+import Swal from "sweetalert2";
 
 export default function ViewPetOwner() {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
-  const [notification, setNotification] = useState(null);
 
   const [petownerdata, setPetownerdata] = useState({
     id: null,
@@ -53,18 +44,20 @@ export default function ViewPetOwner() {
     zipcode: "",
   });
 
+  const [selectedZipcode, setSelectedZipcode] = useState(null);
+  const [zipcodeerror, setZipcodeerror] = useState(null);
+
   const [openuser, openuserchange] = useState(false);
   const [openPetowner, openPetownerchange] = useState(false);
 
-  const closepopup = () => {
-    openuserchange(false);
-    openPetownerchange(false);
-  };
-
   const getPetowner = () => {
-    setNotification(null);
     setErrors(null);
     setLoading(true);
+    setSelectedZipcode(null);
+    setPetownerdata({});
+    setAddressdata({});
+    setZipcode({});
+
     axiosClient
       .get(`/petowners/${id}`)
       .then(({ data }) => {
@@ -73,79 +66,60 @@ export default function ViewPetOwner() {
         setAddressdata(data.address);
         setZipcode(data.address.zipcode);
         setUserdata(data.user);
+        selectedZipcode(data.address.zipcode.zipcode);
       })
       .catch(() => {
         setLoading(false);
       });
   };
-
-  const [roles, setRoles] = useState([]);
-
-  const getRoles = () => {
-    setLoading(true);
-    axiosClient
-      .get("/roles")
-      .then(({ data }) => {
-        setLoading(false);
-        setRoles(data.data);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
-  const [zipcodes, setZipcodes] = useState([]);
-
-  const getZipcodes = () => {
-    setLoading(true);
-    axiosClient
-      .get("/zipcodes")
-      .then(({ data }) => {
-        setLoading(false);
-        setZipcodes(data.data);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
-  const [value, setValue] = useState(null);
 
   const onEdit = () => {
     getPetowner();
     setErrors(null);
-    getZipcodes();
     openPetownerchange(true);
+    getZipcodeDetails(zipcode.zipcode);
   };
 
   const onEditUSer = () => {
     getPetowner();
     setErrors(null);
-    getRoles();
     openuserchange(true);
+  };
+
+  const closepopup = () => {
+    openuserchange(false);
+    openPetownerchange(false);
+    getPetowner();
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-
     setErrors(null);
     setLoading(true);
-    axiosClient
-      .put(`/petowners/${petownerdata.id}`, petownerdata)
-      .then(() => {
-        setNotification("Petowner was successfully updated");
 
-        return axiosClient.put(
-          `/addresses/${petownerdata.address_id}`,
-          addressdata
-        );
-      })
-      .then(() => {
-        setLoading(false);
-        openPetownerchange(false);
-        getPetowner();
-      })
+    const updatePetowner = axiosClient.put(
+      `/petowners/${petownerdata.id}`,
+      petownerdata
+    );
+    const updateAddressPromise = axiosClient.put(
+      `/addresses/${petownerdata.address_id}`,
+      addressdata
+    );
 
+    Promise.all([updatePetowner, updateAddressPromise])
+      .then(() => {
+        Swal.fire({
+          title: "Success",
+          text: "Petowner information was successfully updated.",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            setLoading(false);
+            openPetownerchange(false);
+            getPetowner();
+          }
+        });
+      })
       .catch((err) => {
         const response = err.response;
         if (response && response.status == 422) {
@@ -161,9 +135,16 @@ export default function ViewPetOwner() {
     axiosClient
       .put(`/users/${petownerdata.user_id}`, userdata)
       .then(() => {
-        setNotification("User was successfully updated");
         openuserchange(false);
-        getPetowner();
+        Swal.fire({
+          title: "Success",
+          text: "User account was successfully updated.",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            getPetowner();
+          }
+        });
       })
       .catch((err) => {
         const response = err.response;
@@ -176,6 +157,46 @@ export default function ViewPetOwner() {
   useEffect(() => {
     getPetowner();
   }, []);
+
+  useEffect(() => {
+    let timerId;
+
+    clearTimeout(timerId);
+
+    timerId = setTimeout(() => {
+      getZipcodeDetails(selectedZipcode);
+    }, 4000);
+
+    return () => clearTimeout(timerId);
+  }, [selectedZipcode]);
+
+  const getZipcodeDetails = (query) => {
+    if (query) {
+      setZipcodeerror(null);
+
+      axiosClient
+        .get(`/zipcodedetails/${query}`)
+        .then(({ data }) => {
+          setZipcode(data.data);
+          selectedZipcode(data.data.zipcode);
+          setAddressdata((prevPetowner) => ({
+            ...prevPetowner,
+            zipcode_id: data.data.id,
+          }));
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            setZipcodeerror(response.data.message);
+          }
+        });
+    }
+  };
+
+  const handleZipcodeChange = (event) => {
+    setSelectedZipcode(zipcode.zipcode);
+    setSelectedZipcode(event.target.value);
+  };
 
   return (
     <Paper
@@ -224,7 +245,6 @@ export default function ViewPetOwner() {
             <Typography>Email: {userdata.email} </Typography>
           </Stack>
         </Stack>
-        {notification && <Alert severity="success">{notification}</Alert>}
         {errors && (
           <div className="alert">
             {Object.keys(errors).map((key) => (
@@ -238,17 +258,17 @@ export default function ViewPetOwner() {
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
-          loading={loading}
           petowner={petownerdata}
           setPetowner={setPetownerdata}
           address={addressdata}
           setAddress={setAddressdata}
-          zipcode={zipcodes}
           errors={errors}
+          loading={loading}
           isUpdate={id}
-          zipcodeid={zipcode.id}
-          value={value}
-          setValue={setValue}
+          zipcode={zipcode}
+          selectedZipcode={selectedZipcode}
+          handleZipcodeChange={handleZipcodeChange}
+          zipcodeerror={zipcodeerror}
         />
         <UserEdit
           open={openuser}
@@ -256,7 +276,7 @@ export default function ViewPetOwner() {
           onClose={closepopup}
           onSubmit={onSubmitUser}
           loading={loading}
-          roles={roles}
+          roles={[]}
           user={userdata}
           setUser={setUserdata}
           errors={errors}

@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { useStateContext } from "../contexts/ContextProvider";
-import { Alert, Backdrop, Button, CircularProgress, Typography } from "@mui/material";
-import { ArrowBackIos, Edit } from "@mui/icons-material";
+import { IconButton, Paper, Stack, Typography } from "@mui/material";
+import { Edit } from "@mui/icons-material";
 import PetOwnerEdit from "../components/modals/PetOwnerEdit";
 import UserEdit from "../components/modals/UserEdit";
+import Swal from "sweetalert2";
 
 export default function ViewStaff() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
-  const [notification, setNotification] = useState(null);
 
   const [staff, setStaff] = useState({
     id: null,
@@ -20,7 +18,7 @@ export default function ViewStaff() {
     lastname: "",
     contact_num: "",
     address_id: null,
-    user_id: null
+    user_id: null,
   });
 
   const [addressdata, setAddressdata] = useState({
@@ -38,10 +36,15 @@ export default function ViewStaff() {
     role_id: null,
   });
 
-  // const [staffid, setStaffid] = useState(null);
-  // const [addressid, setAddressid] = useState(null);
-  // const [userid, setUserid] = useState(null);
-  const [zipcode, setZipcode] = useState([]);
+  const [zipcode, setZipcode] = useState({
+    id: null,
+    area: "",
+    province: "",
+    zipcode: "",
+  });
+
+  const [selectedZipcode, setSelectedZipcode] = useState(null);
+  const [zipcodeerror, setZipcodeerror] = useState(null);
 
   const [openuser, openuserchange] = useState(false);
   const [openStaff, openStaffchange] = useState(false);
@@ -49,37 +52,26 @@ export default function ViewStaff() {
   const closepopup = () => {
     openuserchange(false);
     openStaffchange(false);
+    getStaff();
   };
 
   const getStaff = () => {
+    setStaff({});
+    setAddressdata({});
+    setZipcode({});
     setErrors(null);
     setLoading(true);
+    setSelectedZipcode(null);
+
     axiosClient
       .get(`/staffs/${id}`)
       .then(({ data }) => {
         setLoading(false);
         setStaff(data);
-        // setStaffid(data.id)
         setAddressdata(data.address);
-        // setAddressid(data.address_id);
         setZipcode(data.address.zipcode);
         setUserdata(data.user);
-        // setUserid(data.user.id);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-
-  const [roles, setRoles] = useState([]);
-
-  const getRoles = () => {
-    setLoading(true);
-    axiosClient
-      .get("/roles")
-      .then(({ data }) => {
-        setLoading(false);
-        setRoles(data.data);
+        selectedZipcode(data.address.zipcode.zipcode);
       })
       .catch(() => {
         setLoading(false);
@@ -87,39 +79,46 @@ export default function ViewStaff() {
   };
 
   const onEdit = () => {
-    getStaff()
-    setErrors(null)
+    getStaff();
+    setErrors(null);
     openStaffchange(true);
+    getZipcodeDetails(zipcode.zipcode);
   };
 
   const onEditUSer = () => {
     getStaff();
     setErrors(null);
-    getRoles();
     openuserchange(true);
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-
     setErrors(null);
     setLoading(true);
-    axiosClient
-      .put(`/staffs/${staff.id}`, staff)
-      .then(() => {
-          setNotification("Staff was successfully updated");
 
-        return axiosClient.put(`/addresses/${staff.address_id}`, addressdata);
-      })
-      .then(() => {
-        setNotification("Staff was successfully updated");
-        openStaffchange(false);
-        getStaff();
-      })
+    const updateStaffPromise = axiosClient.put(`/staffs/${staff.id}`, staff);
+    const updateAddressPromise = axiosClient.put(
+      `/addresses/${staff.address_id}`,
+      addressdata
+    );
 
+    Promise.all([updateStaffPromise, updateAddressPromise])
+      .then(() => {
+        Swal.fire({
+          title: "Success",
+          text: "Staff information was successfully updated.",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            setLoading(false);
+            openStaffchange(false);
+            getStaff();
+          }
+        });
+      })
       .catch((err) => {
         const response = err.response;
-        if (response && response.status == 422) {
+        if (response && response.status === 422) {
           setErrors(response.data.errors);
         }
       });
@@ -132,9 +131,16 @@ export default function ViewStaff() {
     axiosClient
       .put(`/users/${staff.user_id}`, userdata)
       .then(() => {
-        setNotification("User was successfully updated");
-        openuserchange(false);
-        getStaff();
+        Swal.fire({
+          title: "Success",
+          text: "User account was successfully updated.",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            getStaff();
+            openuserchange(false);
+          }
+        });
       })
       .catch((err) => {
         const response = err.response;
@@ -148,82 +154,130 @@ export default function ViewStaff() {
     getStaff();
   }, []);
 
+  const getZipcodeDetails = (query) => {
+    if (query) {
+      setZipcodeerror(null);
+
+      axiosClient
+        .get(`/zipcodedetails/${query}`)
+        .then(({ data }) => {
+          setSelectedZipcode(data.data.zipcode);
+          setZipcode(data.data);
+          setAddressdata((prevStaff) => ({
+            ...prevStaff,
+            zipcode_id: data.data.id,
+          }));
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            setZipcodeerror(response.data.message);
+          }
+        });
+    }
+  };
+
+  const handleZipcodeChange = (event) => {
+    setSelectedZipcode(zipcode.zipcode);
+    setSelectedZipcode(event.target.value);
+  };
+
+  useEffect(() => {
+    let timerId;
+
+    clearTimeout(timerId);
+
+    timerId = setTimeout(() => {
+      setZipcodeerror(null);
+      getZipcodeDetails(selectedZipcode);
+    }, 3000);
+
+    return () => clearTimeout(timerId);
+  }, [selectedZipcode]);
+
   return (
-    <div>
+    <Paper
+      sx={{
+        minWidth: "90%",
+        padding: "10px",
+        margin: "10px",
+      }}
+    >
       <div className="card animate fadeInDown">
-        <h1 className="title">Staff Information</h1>
-        {notification && <Alert severity="success">{notification}</Alert>}
-        <p>
-          Name: {staff.firstname} {staff.lastname}{" "}
-        </p>
-        <p>
-          Address: {addressdata.zone}, {addressdata.barangay}, {zipcode.area}, {zipcode.province}, {zipcode.zipcode}{" "}
-        </p>
-        <p>Contact Number: {staff.contact_num}</p>
+        <Stack flexDirection="row">
+          <Stack p={2}>
+            <Typography variant="h5">
+              Staff Details{" "}
+              <IconButton
+                variant="contained"
+                color="info"
+                onClick={() => onEdit()}
+              >
+                <Edit fontSize="small" />
+              </IconButton>
+            </Typography>
+            <Typography>
+              Name: {staff.firstname} {staff.lastname}
+            </Typography>
+            <Typography>
+              Address: {addressdata.zone}, {addressdata.barangay},{" "}
+              {zipcode.area}, {zipcode.province}, {zipcode.zipcode}
+            </Typography>
+            <Typography>Contact Number: +63{staff.contact_num}</Typography>
+          </Stack>
 
-        <h2>User Account</h2>
-        <p>Email: {userdata.email} </p>
-
-        <Button
-          variant="contained"
-          size="small"
-          color="info"
-          onClick={() => onEdit()}
-        >
-          <Typography>Update Staff</Typography> <Edit fontSize="small" />
-        </Button>
+          <Stack p={2}>
+            <Typography variant="h5">
+              Mobile Account{" "}
+              <IconButton
+                variant="contained"
+                color="info"
+                onClick={() => onEditUSer()}
+              >
+                <Edit fontSize="small" />
+              </IconButton>
+            </Typography>
+            <Typography>Email: {userdata.email} </Typography>
+          </Stack>
+        </Stack>
+        {errors && (
+          <div className="alert">
+            {Object.keys(errors).map((key) => (
+              <p key={key}>{errors[key][0]}</p>
+            ))}
+          </div>
+        )}
 
         <PetOwnerEdit
           open={openStaff}
           onClose={closepopup}
           onClick={closepopup}
-          // id={id}
           onSubmit={onSubmit}
           loading={loading}
           petowner={staff}
           setPetowner={setStaff}
           address={addressdata}
           setAddress={setAddressdata}
-          zipcode={zipcode}
           errors={errors}
-          isUpdate={staff.id}
+          isUpdate={id}
+          zipcode={zipcode}
+          selectedZipcode={selectedZipcode}
+          handleZipcodeChange={handleZipcodeChange}
+          zipcodeerror={zipcodeerror}
         />
-
-        <Button
-          variant="contained"
-          size="small"
-          color="info"
-          onClick={() => onEditUSer()}
-        >
-          <Typography>Update User Account</Typography> <Edit fontSize="small" />
-        </Button>
-
         <UserEdit
           open={openuser}
           onClick={closepopup}
           onClose={closepopup}
-          // id={userdata.id}
           onSubmit={onSubmitUser}
           loading={loading}
-          roles={roles}
+          roles={[]}
           user={userdata}
           setUser={setUserdata}
           errors={errors}
           isUpdate={userdata.id}
         />
-
-        <Button
-          variant="contained"
-          size="small"
-          color="error"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowBackIos fontSize="small" />
-          <Typography>Back</Typography>
-        </Button>
-
-     
       </div>
-    </div>
+    </Paper>
   );
 }

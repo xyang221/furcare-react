@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../axios-client";
-import { useStateContext } from "../contexts/ContextProvider";
 import {
-  Autocomplete,
   TextField,
   Box,
   Button,
@@ -20,10 +18,9 @@ import Swal from "sweetalert2";
 export default function PetOwnerForm() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState(null);
-  const { setNotification } = useStateContext();
 
-  const [address, setAddress] = useState([]);
-  const [value, setValue] = useState(null);
+  const [selectedZipcode, setSelectedZipcode] = useState(null);
+  const [zipcodeerror, setZipcodeerror] = useState(null);
 
   const [petowner, setPetowner] = useState({
     id: null,
@@ -37,6 +34,15 @@ export default function PetOwnerForm() {
     password: "",
     password_confirmation: "",
   });
+
+  const [zipcode, setZipcode] = useState({
+    id: null,
+    area: "",
+    province: "",
+    zipcode: "",
+  });
+
+  const [activeStep, setActiveStep] = useState(0);
 
   const onSubmit = (ev) => {
     ev.preventDefault();
@@ -59,27 +65,12 @@ export default function PetOwnerForm() {
       });
   };
 
-  const getZipcodes = () => {
-    axiosClient
-      .get("/zipcodes")
-      .then(({ data }) => {
-        setAddress(data.data);
-      })
-      .catch(() => {});
-  };
-
-  useEffect(() => {
-    getZipcodes();
-  }, []);
-
   const handleErrors = (err) => {
     const response = err.response;
     if (response && response.status === 422) {
       setErrors(response.data.errors);
     }
   };
-
-  const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = (e) => {
     e.preventDefault();
@@ -95,6 +86,47 @@ export default function PetOwnerForm() {
   };
 
   const steps = ["Create a User Account", "Pet Owner Registration"];
+
+  useEffect(() => {
+    let timerId;
+
+    clearTimeout(timerId);
+
+    timerId = setTimeout(() => {
+      setZipcode({});
+      setZipcodeerror(null);
+      getZipcodeDetails(selectedZipcode);
+    }, 4000);
+
+    return () => clearTimeout(timerId);
+  }, [selectedZipcode]);
+
+  const getZipcodeDetails = (query) => {
+    if (query) {
+      setZipcode({});
+      setZipcodeerror(null);
+
+      axiosClient
+        .get(`/zipcodedetails/${query}`)
+        .then(({ data }) => {
+          setZipcode(data.data);
+          setPetowner((prevStaff) => ({
+            ...prevStaff,
+            zipcode_id: data.data.id,
+          }));
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            setZipcodeerror(response.data.message);
+          }
+        });
+    }
+  };
+
+  const handleZipcodeChange = (event) => {
+    setSelectedZipcode(event.target.value);
+  };
 
   const getStepContent = (step) => {
     switch (step) {
@@ -264,38 +296,43 @@ export default function PetOwnerForm() {
               helperText={errors && errors.barangay}
             />
 
-            <Autocomplete
-              sx={{ width: "100%" }}
+            <TextField
+              id="Zipcode"
+              label="Zipcode"
               size="small"
+              type="number"
+              value={selectedZipcode}
+              onChange={handleZipcodeChange}
               fullWidth
-              getOptionLabel={(address) =>
-                `${address.area}, ${address.province}, ${address.zipcode}`
-              }
-              options={address}
-              isOptionEqualToValue={(option, value) =>
-                option.area === value.area
-              }
-              noOptionsText="Not Found"
-              renderOption={(props, address) => (
-                <Box component="li" {...props} key={address.id}>
-                  {address.area}, {address.province}, {address.zipcode}
-                </Box>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} label="City, Province, Zipcode" />
-              )}
-              onChange={(event, newValue) => {
-                setValue(newValue);
-                setPetowner({
-                  ...petowner,
-                  zipcode_id: newValue ? newValue.id : "",
-                });
-              }}
-              value={value}
               required
-              error={errors && errors.zipcode_id ? true : false}
-              helperText={errors && errors.zipcode_id}
+              error={
+                (errors && errors.zipcode_id) || zipcodeerror ? true : false
+              }
+              helperText={(errors && errors.zipcode_id) || zipcodeerror}
             />
+
+            {zipcode.area && (
+              <>
+                <TextField
+                  id="Area"
+                  label="Area"
+                  size="small"
+                  value={zipcode.area || ""}
+                  fullWidth
+                  required
+                  error={errors && errors.zipcode_id ? true : false}
+                />
+                <TextField
+                  id="Province"
+                  label="Province"
+                  size="small"
+                  value={zipcode.province || ""}
+                  fullWidth
+                  required
+                  error={errors && errors.zipcode_id ? true : false}
+                />
+              </>
+            )}
           </Box>
         );
 

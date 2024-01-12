@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import {
-  Autocomplete,
   TextField,
   Box,
   Button,
@@ -19,8 +18,8 @@ export default function StaffForm() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState(null);
 
-  const [address, setAddress] = useState([]);
-  const [value, setValue] = useState(null);
+  const [selectedZipcode, setSelectedZipcode] = useState(null);
+  const [zipcodeerror, setZipcodeerror] = useState(null);
 
   const [staff, setStaff] = useState({
     id: null,
@@ -34,6 +33,15 @@ export default function StaffForm() {
     password: "",
     password_confirmation: "",
   });
+
+  const [zipcode, setZipcode] = useState({
+    id: null,
+    area: "",
+    province: "",
+    zipcode: "",
+  });
+
+  const [activeStep, setActiveStep] = useState(0);
 
   const onSubmit = (ev) => {
     ev.preventDefault();
@@ -56,19 +64,6 @@ export default function StaffForm() {
       });
   };
 
-  const getZipcodes = () => {
-    axiosClient
-      .get("/zipcodes")
-      .then(({ data }) => {
-        setAddress(data.data);
-      })
-      .catch(() => {});
-  };
-
-  useEffect(() => {
-    getZipcodes();
-  }, []);
-
   const handleErrors = (err) => {
     const response = err.response;
     if (response && response.status === 422) {
@@ -76,8 +71,6 @@ export default function StaffForm() {
       if (errors.email || errors.password) setActiveStep(0);
     }
   };
-
-  const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = (e) => {
     e.preventDefault();
@@ -93,6 +86,44 @@ export default function StaffForm() {
   };
 
   const steps = ["Create a User Account", "Staff Registration"];
+
+  useEffect(() => {
+    let timerId;
+
+    clearTimeout(timerId);
+
+    timerId = setTimeout(() => {
+      setZipcode({});
+      setZipcodeerror(null);
+      getZipcodeDetails(selectedZipcode);
+    }, 4000);
+
+    return () => clearTimeout(timerId);
+  }, [selectedZipcode]);
+
+  const getZipcodeDetails = (query) => {
+    if (query) {
+      setZipcode({});
+      setZipcodeerror(null);
+
+      axiosClient
+        .get(`/zipcodedetails/${query}`)
+        .then(({ data }) => {
+          setZipcode(data.data);
+          setStaff((prevStaff) => ({ ...prevStaff, zipcode_id: data.data.id }));
+        })
+        .catch((error) => {
+          const response = error.response;
+          if (response && response.status === 404) {
+            setZipcodeerror(response.data.message);
+          }
+        });
+    }
+  };
+
+  const handleZipcodeChange = (event) => {
+    setSelectedZipcode(event.target.value);
+  };
 
   const getStepContent = (step) => {
     switch (step) {
@@ -261,38 +292,43 @@ export default function StaffForm() {
               helperText={errors && errors.barangay}
             />
 
-            <Autocomplete
+            <TextField
+              id="Zipcode"
+              label="Zipcode"
               size="small"
-              sx={{ width: "100%" }}
-              getOptionLabel={(address) =>
-                `${address.area}, ${address.province}, ${address.zipcode}`
-              }
-              options={address}
-              isOptionEqualToValue={(option, value) =>
-                option.area === value.area
-              }
-              noOptionsText="Not Found"
-              renderOption={(props, address) => (
-                <Box component="li" {...props} key={address.id}>
-                  {address.area}, {address.province}, {address.zipcode}
-                </Box>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} label="City, Province, Zipcode" />
-              )}
-              onChange={(event, newValue) => {
-                setValue(newValue);
-                setStaff({
-                  ...staff,
-                  zipcode_id: newValue ? newValue.id : null,
-                });
-              }}
-              value={value}
+              type="number"
+              value={selectedZipcode}
+              onChange={handleZipcodeChange}
               fullWidth
               required
-              error={errors && errors.zipcode_id ? true : false}
-              helperText={errors && errors.zipcode_id}
+              error={
+                (errors && errors.zipcode_id) || zipcodeerror ? true : false
+              }
+              helperText={(errors && errors.zipcode_id) || zipcodeerror}
             />
+
+            {zipcode.area && (
+              <>
+                <TextField
+                  id="Area"
+                  label="Area"
+                  size="small"
+                  value={zipcode.area || ""}
+                  fullWidth
+                  required
+                  error={errors && errors.zipcode_id ? true : false}
+                />
+                <TextField
+                  id="Province"
+                  label="Province"
+                  size="small"
+                  value={zipcode.province || ""}
+                  fullWidth
+                  required
+                  error={errors && errors.zipcode_id ? true : false}
+                />
+              </>
+            )}
           </Box>
         );
       default:

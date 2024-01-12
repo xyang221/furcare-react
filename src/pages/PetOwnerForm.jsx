@@ -46,6 +46,7 @@ export default function PetOwnerForm() {
 
   const onSubmit = (ev) => {
     ev.preventDefault();
+    setErrors(null);
 
     axiosClient
       .post(`/petowners`, petowner)
@@ -69,6 +70,9 @@ export default function PetOwnerForm() {
     const response = err.response;
     if (response && response.status === 422) {
       setErrors(response.data.errors);
+      if (response.data.errors.email || response.data.errors.password) {
+        handlePrev();
+      }
     }
   };
 
@@ -205,7 +209,7 @@ export default function PetOwnerForm() {
         return (
           <Box
             sx={{
-              width: "70%",
+              width: "90%",
               display: "flex",
               flexDirection: "column",
               "& > :not(style)": { m: 1 },
@@ -296,43 +300,54 @@ export default function PetOwnerForm() {
               helperText={errors && errors.barangay}
             />
 
-            <TextField
-              id="Zipcode"
-              label="Zipcode"
-              size="small"
-              type="number"
-              value={selectedZipcode}
-              onChange={handleZipcodeChange}
-              fullWidth
-              required
-              error={
-                (errors && errors.zipcode_id) || zipcodeerror ? true : false
-              }
-              helperText={(errors && errors.zipcode_id) || zipcodeerror}
-            />
+            <Box display={"flex"} flexDirection={"row"} sx={{ width: "100%" }}>
+              <TextField
+                id="Zipcode"
+                label="Zipcode"
+                size="small"
+                type="number"
+                value={selectedZipcode}
+                onChange={handleZipcodeChange}
+                fullWidth={!zipcode.area}
+                required
+                error={
+                  (errors && errors.zipcode_id) || zipcodeerror ? true : false
+                }
+                helperText={(errors && errors.zipcode_id) || zipcodeerror}
+              />
 
-            {zipcode.area && (
-              <>
-                <TextField
-                  id="Area"
-                  label="Area"
-                  size="small"
-                  value={zipcode.area || ""}
-                  fullWidth
-                  required
-                  error={errors && errors.zipcode_id ? true : false}
-                />
-                <TextField
-                  id="Province"
-                  label="Province"
-                  size="small"
-                  value={zipcode.province || ""}
-                  fullWidth
-                  required
-                  error={errors && errors.zipcode_id ? true : false}
-                />
-              </>
-            )}
+              {zipcode.area && (
+                <>
+                  <Box>
+                    <TextField
+                      id="Area"
+                      label="Area"
+                      size="small"
+                      value={zipcode.area || ""}
+                      required
+                      InputProps={{
+                        readOnly: true,
+                        "aria-readonly": true,
+                      }}
+                    />
+                  </Box>
+                  <Box>
+                    <TextField
+                      id="Province"
+                      label="Province"
+                      size="small"
+                      value={zipcode.province || ""}
+                      fullWidth
+                      required
+                      InputProps={{
+                        readOnly: true,
+                        "aria-readonly": true,
+                      }}
+                    />
+                  </Box>
+                </>
+              )}
+            </Box>
           </Box>
         );
 

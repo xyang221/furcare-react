@@ -40,12 +40,11 @@ export default function VaccinationLogsModal(props) {
     errors,
     pet,
     isUpdate,
+    servicename
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
-    // Create a copy of the vaccination object and update the specified field
     const updatedLogs = { ...vaccination, [fieldName]: value };
-    // Update the vaccination object with the updated value
     setVaccination(updatedLogs);
   };
   const [date, setDate] = useState(new Date());
@@ -76,6 +75,22 @@ export default function VaccinationLogsModal(props) {
             )}
             <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
+              {!isUpdate && (
+                    <TextField
+                      label={`${servicename} Price`}
+                      type="number"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">₱</InputAdornment>
+                        ),
+                      }}
+                      value={vaccination.unit_price || ""}
+                      onChange={(ev) =>
+                        handleFieldChange("unit_price", ev.target.value)
+                      }
+                      required
+                    />
+                  )}
                 {isUpdate ? (
                   <TextField
                     variant="outlined"

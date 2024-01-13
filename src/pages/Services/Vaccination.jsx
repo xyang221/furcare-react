@@ -19,7 +19,7 @@ import { Add, Archive, Edit } from "@mui/icons-material";
 import VaccinationLogsModal from "../../components/modals/VaccinationLogsModal";
 import { useStateContext } from "../../contexts/ContextProvider";
 
-export default function Vaccination({ sid }) {
+export default function Vaccination({ sid, sname }) {
   const { notification, setNotification } = useStateContext();
 
   const columns = [
@@ -27,7 +27,7 @@ export default function Vaccination({ sid }) {
     { id: "weight", name: "Weight" },
     { id: "Against", name: "Against" },
     { id: "Description", name: "Description" },
-    { id: "Administered", name: "Administered" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Return", name: "Return" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
@@ -49,6 +49,8 @@ export default function Vaccination({ sid }) {
     return: null,
     pet_id: null,
     vet_id: null,
+    unit_price: null,
+
   });
   const [vets, setVets] = useState([]);
   const [pet, setPet] = useState([]);
@@ -242,6 +244,8 @@ export default function Vaccination({ sid }) {
             setVaccination={setVaccinationlog}
             errors={errors}
             isUpdate={vaccinationlog.id}
+            servicename={sname}
+
           />
 
           {notification && <Alert severity="success">{notification}</Alert>}

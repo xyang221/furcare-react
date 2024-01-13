@@ -26,10 +26,11 @@ export default function PetVaccination() {
 
   const columns = [
     { id: "date", name: "Date" },
+    { id: "Type", name: "Type" },
     { id: "weight", name: "Weight" },
     { id: "Against", name: "Against" },
     { id: "Description", name: "Description" },
-    { id: "Administered", name: "Administered" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Return", name: "Return" },
     { id: "Actions", name: "Actions" },
   ];
@@ -49,6 +50,8 @@ export default function PetVaccination() {
     return: null,
     pet_id: null,
     vet_id: null,
+    unit_price: null,
+
   });
   const [pet, setPet] = useState([]);
   const [vets, setVets] = useState([]);
@@ -236,6 +239,7 @@ export default function PetVaccination() {
                       .map((record) => (
                         <TableRow hover role="checkbox" key={record.id}>
                           <TableCell>{record.date}</TableCell>
+                          <TableCell>{record.servicesavailed.service.service}</TableCell>
                           <TableCell>{`${record.weight} kg`}</TableCell>
                           <TableCell>{record.va_againsts}</TableCell>
                           <TableCell>{record.description}</TableCell>

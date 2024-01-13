@@ -29,7 +29,7 @@ export default function PO_PetVaccination() {
     { id: "weight", name: "Weight" },
     { id: "Against", name: "Against" },
     { id: "Description", name: "Description" },
-    { id: "Administered", name: "Administered" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Return", name: "Return" },
   ];
 

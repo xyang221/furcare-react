@@ -28,7 +28,7 @@ export default function Deworming({ sid }) {
     { id: "Pet", name: "Pet" },
     { id: "weight", name: "Weight" },
     { id: "Description", name: "Description" },
-    { id: "Administered", name: "Administered" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Return", name: "Return" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
@@ -56,6 +56,8 @@ export default function Deworming({ sid }) {
     return: "",
     pet_id: null,
     vet_id: null,
+    unit_price: null,
+
   });
   const [pets, setPets] = useState([]);
   const [vets, setVets] = useState([]);

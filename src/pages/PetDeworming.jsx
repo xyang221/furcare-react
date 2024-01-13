@@ -27,7 +27,7 @@ export default function PetDeworming() {
     { id: "date", name: "Date" },
     { id: "weight", name: "Weight" },
     { id: "Description", name: "Description" },
-    { id: "Administered", name: "Administered" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Return", name: "Return" },
     { id: "Actions", name: "Actions" },
   ];

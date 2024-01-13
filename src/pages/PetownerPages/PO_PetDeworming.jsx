@@ -27,7 +27,7 @@ export default function PO_PetDeworming() {
     { id: "date", name: "Date" },
     { id: "weight", name: "Weight" },
     { id: "Description", name: "Description" },
-    { id: "Administered", name: "Administered" },
+    { id: "Veterinarian", name: "Veterinarian" },
     { id: "Return", name: "Return" },
   ];
   const [page, pagechange] = useState(0);

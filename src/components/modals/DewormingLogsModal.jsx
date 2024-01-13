@@ -36,9 +36,7 @@ export default function DewormingLogsModal(props) {
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
-    // Create a copy of the deworminglog object and update the specified field
     const updatedLogs = { ...deworminglog, [fieldName]: value };
-    // Update the deworminglog object with the updated value
     setDeworminglog(updatedLogs);
   };
 
@@ -70,6 +68,22 @@ export default function DewormingLogsModal(props) {
             )}
             <form onSubmit={(e) => onSubmit(e)}>
               <Stack spacing={2} margin={2}>
+              {!isUpdate && (
+                    <TextField
+                      label={`Deworming Price`}
+                      type="number"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">₱</InputAdornment>
+                        ),
+                      }}
+                      value={deworminglog.unit_price || ""}
+                      onChange={(ev) =>
+                        handleFieldChange("unit_price", ev.target.value)
+                      }
+                      required
+                    />
+                  )}
                 {isUpdate ? (
                   <TextField
                     variant="outlined"

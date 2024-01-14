@@ -16,7 +16,6 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link } from "react-router-dom";
 import { DeleteForever, RestoreFromTrash } from "@mui/icons-material";
 import DropDownButtons from "../components/DropDownButtons";
 
@@ -44,8 +43,11 @@ export default function StaffsArchives() {
   const [staffs, setStaffs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState(null);
 
   const getStaffsArchives = () => {
+    setMessage(null);
+    setStaffs([]);
     setLoading(true);
     axiosClient
       .get("/archives/staffs")
@@ -53,7 +55,11 @@ export default function StaffsArchives() {
         setLoading(false);
         setStaffs(data.data);
       })
-      .catch(() => {
+      .catch((error) => {
+        const response = error.response;
+        if (response && response.status === 404) {
+          setMessage(response.data.message);
+        }
         setLoading(false);
       });
   };
@@ -86,32 +92,18 @@ export default function StaffsArchives() {
 
   return (
     <>
-      <CssBaseline />
-      {/* <Navbar/> */}
       <Stack direction="row" justifyContent="space-between">
-        {/* <Sidebar /> */}
         <Box flex={5}>
           <Paper
             sx={{
               minWidth: "90%",
               padding: "10px",
-              margin: "10px",
             }}
           >
-            <Box
-              p={2}
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
-            >
-              <DropDownButtons
-                title="Archived Staffs"
-                optionLink1="/admin/settings"
-                optionLabel1="Current"
-              />
-            </Box>
+            <Typography p={1} variant="h5">
+              Archived Staffs
+            </Typography>
             {notification && <Alert severity="success">{notification}</Alert>}
-
             <TableContainer sx={{ height: 380 }}>
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
@@ -131,6 +123,18 @@ export default function StaffsArchives() {
                     <TableRow>
                       <TableCell colSpan={5} style={{ textAlign: "center" }}>
                         Loading...
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
+                {!loading && message && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        style={{ textAlign: "center" }}
+                      >
+                        {message}
                       </TableCell>
                     </TableRow>
                   </TableBody>

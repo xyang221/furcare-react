@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Button,
-  CssBaseline,
   Paper,
   Stack,
   Table,
@@ -16,17 +15,13 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link, useNavigate } from "react-router-dom";
 import { DeleteForever, RestoreFromTrash } from "@mui/icons-material";
 
-export default function PetsArchives() {
-  const navigate = useNavigate();
+export default function VetArchives() {
   const columns = [
     { id: "id", name: "ID" },
-    { id: "name", name: "Pet Name" },
-    { id: "gender", name: "Gender" },
-    { id: "breed", name: "Breed" },
-    { id: "Deleted Date", name: "Deleted Date" },
+    { id: "Full Name", name: "Full Name" },
+    { id: "deleteddate", name: "Deleted Date" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -41,24 +36,24 @@ export default function PetsArchives() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [pets, setPets] = useState([]);
+  const [vets, setVets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(null);
 
-  const getPetsArchive = () => {
+  const getVetArchives = () => {
     setMessage(null);
-    setPets([]);
+    setVets([]);
     setLoading(true);
     axiosClient
-      .get("/archives/pets")
+      .get("/archives/vets")
       .then(({ data }) => {
         setLoading(false);
-        setPets(data.data);
+        setVets(data.data);
       })
-      .catch((mes) => {
-        const response = mes.response;
-        if (response && response.status == 404) {
+      .catch((error) => {
+        const response = error.response;
+        if (response && response.status === 404) {
           setMessage(response.data.message);
         }
         setLoading(false);
@@ -66,29 +61,29 @@ export default function PetsArchives() {
   };
 
   const onRestore = (po) => {
-    if (!window.confirm("Are you sure to restore this pet?")) {
+    if (!window.confirm("Are you sure to restore this staff?")) {
       return;
     }
 
-    axiosClient.put(`/pets/${po.id}/restore`).then(() => {
-      setNotification("Pet was successfully restored");
-      getPetsArchive();
+    axiosClient.put(`/vets/${po.id}/restore`).then(() => {
+      setNotification("Vet was successfully restored");
+      getVetArchives();
     });
   };
 
   const onDelete = (po) => {
-    if (!window.confirm("Are you sure permanently delete this pet?")) {
+    if (!window.confirm("Are you sure permanently delete this client?")) {
       return;
     }
 
     axiosClient.delete(`/archives/${po.id}/forcedelete`).then(() => {
-      setNotification("Pet was permanently deleted");
-      getPetsArchive();
+      setNotification("Vet was permanently deleted");
+      getVetArchives();
     });
   };
 
   useEffect(() => {
-    getPetsArchive();
+    getVetArchives();
   }, []);
 
   return (
@@ -101,7 +96,9 @@ export default function PetsArchives() {
               padding: "10px",
             }}
           >
-            <Typography variant="h5" p={1}>Archived Pets</Typography>{" "}
+            <Typography p={1} variant="h5">
+              Archived Veterinarians
+            </Typography>
             {notification && <Alert severity="success">{notification}</Alert>}
             <TableContainer sx={{ height: 380 }}>
               <Table stickyHeader aria-label="sticky table">
@@ -120,17 +117,19 @@ export default function PetsArchives() {
                 {loading && (
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                      <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                         Loading...
                       </TableCell>
                     </TableRow>
                   </TableBody>
                 )}
-
                 {!loading && message && (
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                      <TableCell
+                        colSpan={columns.length}
+                        style={{ textAlign: "center" }}
+                      >
                         {message}
                       </TableCell>
                     </TableRow>
@@ -139,8 +138,8 @@ export default function PetsArchives() {
 
                 {!loading && (
                   <TableBody>
-                    {pets &&
-                      pets
+                    {vets &&
+                      vets
                         .slice(
                           page * rowperpage,
                           page * rowperpage + rowperpage
@@ -148,9 +147,7 @@ export default function PetsArchives() {
                         .map((po) => (
                           <TableRow hover role="checkbox" key={po.id}>
                             <TableCell>{po.id}</TableCell>
-                            <TableCell>{po.name}</TableCell>
-                            <TableCell>{po.gender}</TableCell>
-                            <TableCell>{po.breed.breed}</TableCell>
+                            <TableCell>{po.fullname}</TableCell>
                             <TableCell>{po.deleted_at}</TableCell>
                             <TableCell>
                               <Stack direction="row" spacing={2}>
@@ -182,7 +179,7 @@ export default function PetsArchives() {
               rowsPerPageOptions={[10, 15, 25]}
               rowsPerPage={rowperpage}
               page={page}
-              count={pets.length}
+              count={vets.length}
               component="div"
               onPageChange={handlechangepage}
               onRowsPerPageChange={handleRowsPerPage}

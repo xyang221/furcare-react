@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Button,
-  CssBaseline,
   Paper,
   Stack,
   Table,
@@ -16,14 +15,11 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
-import { Link } from "react-router-dom";
 import { DeleteForever, RestoreFromTrash } from "@mui/icons-material";
-import DropDownButtons from "../components/DropDownButtons";
 
 export default function UserArchives() {
   const columns = [
     { id: "id", name: "ID" },
-    { id: "name", name: "Username" },
     { id: "email", name: "Email" },
     { id: "deleteddate", name: "Deleted Date" },
     { id: "Actions", name: "Actions" },
@@ -43,8 +39,11 @@ export default function UserArchives() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
+  const [message, setMessage] = useState(null);
 
   const getArchivedUsers = () => {
+    setMessage(null)
+    setUsers([])
     setLoading(true);
     axiosClient
       .get(`/archives/users`)
@@ -52,7 +51,11 @@ export default function UserArchives() {
         setLoading(false);
         setUsers(data.data);
       })
-      .catch(() => {
+      .catch((error) => {
+        const response = error.response;
+        if (response && response.status === 404) {
+          setMessage(response.data.message);
+        }
         setLoading(false);
       });
   };
@@ -85,30 +88,17 @@ export default function UserArchives() {
 
   return (
     <>
-      <CssBaseline />
-      {/* <Navbar/> */}
       <Stack direction="row" justifyContent="space-between">
-        {/* <Sidebar /> */}
         <Box flex={5}>
           <Paper
             sx={{
               minWidth: "90%",
               padding: "10px",
-              margin: "10px",
             }}
           >
-            <Box
-              p={2}
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
-            >
-              <DropDownButtons
-                title="Archived Users"
-                optionLink1="/admin/settings"
-                optionLabel1="Current"
-              />
-            </Box>
+            <Typography p={1} variant="h5">
+              Archived Users
+            </Typography>
             {notification && <Alert severity="success">{notification}</Alert>}
             <TableContainer sx={{ height: 380 }}>
               <Table stickyHeader aria-label="sticky table">
@@ -127,8 +117,20 @@ export default function UserArchives() {
                 {loading && (
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                      <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
                         Loading...
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
+                {!loading && message && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        style={{ textAlign: "center" }}
+                      >
+                        {message}
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -145,7 +147,6 @@ export default function UserArchives() {
                         .map((r) => (
                           <TableRow hover role="checkbox" key={r.id}>
                             <TableCell>{r.id}</TableCell>
-                            <TableCell>{r.username}</TableCell>
                             <TableCell>{r.email}</TableCell>
                             <TableCell>{r.deleted_at}</TableCell>
                             <TableCell>

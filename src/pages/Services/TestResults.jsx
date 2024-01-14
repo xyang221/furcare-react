@@ -31,6 +31,7 @@ export default function TestResults({ sid,sname }) {
   const [errors, setErrors] = useState(null);
   const [notification, setNotification] = useState("");
   const [message, setMessage] = useState(null);
+  const [errormessage, setErrorMessage] = useState(null);
 
   const [testresults, setTestresults] = useState([]);
   const [pets, setPets] = useState([]);
@@ -73,7 +74,7 @@ export default function TestResults({ sid,sname }) {
       .catch((mes) => {
         const response = mes.response;
         if (response && response.status == 404) {
-          setErrors(response.data.message);
+          setErrorMessage(response.data.message);
         }
       });
   };
@@ -83,6 +84,7 @@ export default function TestResults({ sid,sname }) {
     { id: "Attachment", name: "Attachment" },
     { id: "Pet", name: "Pet" },
     { id: "Description", name: "Description" },
+    { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -326,6 +328,7 @@ export default function TestResults({ sid,sname }) {
             handleImage={handleImage}
             error={error}
             servicename={sname}
+            errormessage={errormessage}
           />
           <AttachmentModal
             open={upload}
@@ -400,6 +403,7 @@ export default function TestResults({ sid,sname }) {
                           </TableCell>
                           <TableCell>{r.pet.name}</TableCell>
                           <TableCell>{r.description}</TableCell>
+                          <TableCell>{r.servicesavailed.status}</TableCell>
                           <TableCell>
                             <Stack direction="row" spacing={2}>
                               <Button

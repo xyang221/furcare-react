@@ -3,7 +3,7 @@ import { Stack, Typography, Box, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 
 export default function TotalGraph(props) {
-  const { total, totaltype, color, icon, link } = props;
+  const { total, totaltype, color, icon, link, width } = props;
 
   const IconComponent = icon || Pets;
   return (
@@ -12,8 +12,8 @@ export default function TotalGraph(props) {
         padding={2}
         mr={2}
         sx={{
-          width: "230px",
-          height: "125px",
+          width: width,
+          height: "90px",
           backgroundColor: color,
           borderRadius: "5px",
         }}
@@ -25,37 +25,43 @@ export default function TotalGraph(props) {
           }}
         >
           <Box>
+            <Typography variant="h6" color={"white"} fontFamily={"sans-serif"}>
+              {totaltype}
+            </Typography>
             <Typography
-              variant="h4"
+              variant="h5"
               color={"white"}
               fontWeight={"bold"}
               fontFamily={"monospace"}
             >
               {total ? total : 0}
             </Typography>
-            <Typography variant="h6" color={"white"} fontFamily={"sans-serif"}>
-              Total {totaltype}
-            </Typography>
           </Box>
-          <IconComponent
-            color="disabled"
-            sx={{ width: "50px", height: "50px" }}
-          />
+          <Box
+            sx={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+            }}
+          >
+            <IconComponent
+              color="disabled"
+              sx={{ width: "30px", height: "30px" }}
+            />
+            <Typography
+              color={"white"}
+              fontSize={"15px"}
+              component={Link}
+              to={link}
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
+            >
+              More info
+            </Typography>{" "}
+          </Box>
         </Stack>
-        {/* <Button size="small" sx={{ height: "20px", mt: 1 }}> */}
-        <Typography
-          color={"white"}
-          fontSize={"15px"}
-          component={Link}
-          to={link}
-          display={"flex"}
-          alignItems={"center"}
-          justifyContent={"center"}
-        >
-          More info
-          <ArrowCircleRight fontSize="small" color="action" />{" "}
-        </Typography>{" "}
-        {/* </Button> */}
       </Stack>
     </>
   );

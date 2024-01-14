@@ -3,26 +3,20 @@ import QrCodeScanner from "../components/QrCodeScanner";
 import {
   Box,
   Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  IconButton,
   Paper,
   Stack,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { Html5QrcodeScanner } from "html5-qrcode";
-import CryptoJS from "crypto-js";
-import { Close, People } from "@mui/icons-material";
+import { Close, Money, Paid, People } from "@mui/icons-material";
 import TotalGraph from "../components/TotalGraph";
 import axiosClient from "../axios-client";
-import Appointments from "./Appointments";
+import AppointmentsToday from "./AppointmentsToday";
+import { HomeSearchBar } from "../components/HomeSearchBar";
 
 export default function Home() {
   const [petowners, setPetowners] = useState([]);
   const [pets, setPets] = useState([]);
+  const [income, setIncome] = useState([]);
   const [message, setMessage] = useState("");
 
   const getPetownersTotal = () => {
@@ -53,11 +47,36 @@ export default function Home() {
       });
   };
 
+  const getDailyIncome = () => {
+    axiosClient
+      .get(`/paymentrecords/daily`)
+      .then(({ data }) => {
+        setIncome(data.data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(0);
+        }
+      });
+  };
+
   const [openscan, setOpenscan] = useState(false);
+
+  const openQR = () => {
+    setOpenscan(true);
+    location.reload();
+  };
+
+  const closeQR = () => {
+    setOpenscan(false);
+    location.reload();
+  };
 
   useEffect(() => {
     getPetownersTotal();
     getPetsTotal();
+    getDailyIncome()
   }, []);
 
   return (
@@ -66,58 +85,75 @@ export default function Home() {
         <Typography variant="h5" mb={1}>
           Home
         </Typography>
-        <Stack
-          flexDirection={"row"}
-          sx={{ width: "500px", height: "150px" }}
-        >
-          <TotalGraph
-            total={pets}
-            totaltype="Pets"
-            color={"#1769aa"}
-            link={"/admin/pets"}
-          />
-          <TotalGraph
-            total={petowners}
-            totaltype="Petowners"
-            color={"#357a38"}
-            icon={People}
-            link={"/admin/petowners"}
-          />
-        </Stack>
         <Stack flexDirection={"row"}>
-          <Stack width={"650px"}>
-            <Appointments />
-          </Stack>
-          <Box
-            sx={{
-              width: "350px",
-              height: "350px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px black solid",
-            }}
+          <Stack
+            flexDirection={"column"}
+            sx={{ width: "710px", height: "100px", alignItems: "center" }}
           >
-            {openscan ? (
-              <>
-                <QrCodeScanner />
-                <Button
-                  onClick={() => setOpenscan(false)}
+            <Stack flexDirection={"row"}>
+              <TotalGraph
+                total={pets}
+                totaltype="Pets"
+                color={"#1769aa"}
+                link={"/admin/pets"}
+                width="200px"
+              />
+              <TotalGraph
+                total={petowners}
+                totaltype="Petowners"
+                color={"#357a38"}
+                icon={People}
+                link={"/admin/petowners"}
+                width="200px"
+
+              />
+               <TotalGraph
+                total={parseFloat(income)}
+                totaltype="Daily Income"
+                color={"#ffc107"}
+                icon={Paid}
+                link={"/admin/paymentrecords"}
+                width="250px"
+              />
+            </Stack>
+            <Stack width={"710px"}>
+              <AppointmentsToday />
+            </Stack>
+          </Stack>
+          <Stack flexDirection={"column"} height={"480px"}>
+            <HomeSearchBar />
+            <Box
+              sx={{
+                mt: 4,
+                width: "300px",
+                height: "300px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px black solid",
+              }}
+            >
+              {openscan ? (
+                <>
+                  <QrCodeScanner />
+                  {/* <Button
+                  onClick={closeQR}
                   variant="contained"
                   sx={{ mt: 1 }}
                 >
                   close
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button onClick={() => setOpenscan(true)} variant="contained">
-                  scan qr code
-                </Button>
-              </>
-            )}
-          </Box>
+                </Button> */}
+                </>
+              ) : (
+                <>
+                  <Button onClick={() => setOpenscan(true)} variant="contained">
+                    scan qr code
+                  </Button>
+                </>
+              )}
+            </Box>
+          </Stack>
         </Stack>
       </Paper>
     </>

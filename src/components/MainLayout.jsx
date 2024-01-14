@@ -7,6 +7,7 @@ import Sidebar from "./Sidebar";
 import StaffSidebar from "./StaffSidebar";
 import PetOwnerSidebar from "./PetOwnerSidebar";
 import Dashboard from "../pages/Home";
+import Home from "../pages/Home";
 
 export default function MainLayout() {
   const { user, token } = useStateContext();
@@ -39,10 +40,10 @@ export default function MainLayout() {
     <>
       <CssBaseline />
       <Box>
-        <Navbar />
+        {token && <Navbar />}
         <Box display="flex" justifyContent="space-between">
           {sidebarComponent}
-          <Box flex={5} >
+          <Box flex={5}>
             <Outlet />
           </Box>
         </Box>

@@ -16,7 +16,14 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, DoneAll, ArrowBackIos, Edit } from "@mui/icons-material";
+import {
+  Add,
+  DoneAll,
+  ArrowBackIos,
+  Edit,
+  Cancel,
+  Close,
+} from "@mui/icons-material";
 import EditAppointment from "../../components/modals/EditAppointment";
 import Swal from "sweetalert2";
 import { useStateContext } from "../../contexts/ContextProvider";
@@ -137,9 +144,9 @@ export default function MyAppointments() {
     setOpen(true);
   };
 
-  const onDone = (r) => {
+  const onCancel = (r) => {
     Swal.fire({
-      title: "Are you sure the pet owner has shown up?",
+      title: "Are you sure to cancel this appointment?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -147,13 +154,13 @@ export default function MyAppointments() {
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosClient.put(`/appointments/${r.id}/completed`).then(() => {
+        axiosClient.put(`/appointments/${r.id}/cancel`).then(() => {
           Swal.fire({
-            title: "Completed!",
-            icon: "success",
+            title: "Appointment cancelled!",
+            icon: "error",
+          }).then(() => {
+            getAppointments();
           });
-          navigate(`/admin/petowners/${r.petowner.id}/view`);
-          getAppointments();
         });
       }
     });
@@ -166,9 +173,15 @@ export default function MyAppointments() {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
-          setNotification("Appointment was successfully updated.");
           setOpen(false);
-          getAppointments();
+          Swal.fire({
+            text: "Appointment updated!",
+            icon: "success",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              getAppointments();
+            }
+          });
         })
         .catch((err) => {
           const response = err.response;
@@ -180,9 +193,15 @@ export default function MyAppointments() {
       axiosClient
         .post(`/appointments/petowner/${staff.id}`, appointment)
         .then(() => {
-          setNotification("Appointment was successfully saved.");
           setOpen(false);
-          getAppointments();
+          Swal.fire({
+            text: "Appointment saved!",
+            icon: "success",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              getAppointments();
+            }
+          });
         })
         .catch((err) => {
           const response = err.response;
@@ -225,7 +244,6 @@ export default function MyAppointments() {
             create appointment
           </Button>
         </Box>
-        {notification && <Alert severity="success">{notification}</Alert>}
 
         <PetownerAppointmentModal
           open={open}
@@ -244,7 +262,7 @@ export default function MyAppointments() {
           setSelectedServices={setSelectedServices}
         />
 
-        <TableContainer sx={{ height: 390 }}>
+        <TableContainer sx={{ height: "100%" }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -319,6 +337,14 @@ export default function MyAppointments() {
                                 onClick={() => onEdit(r)}
                               >
                                 <Edit fontSize="small" />
+                              </Button>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="error"
+                                onClick={() => onCancel(r)}
+                              >
+                                <Close fontSize="small" />
                               </Button>
                             </Stack>
                           )}

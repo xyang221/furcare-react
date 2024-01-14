@@ -22,6 +22,7 @@ import Notif from "../components/Notif";
 import { useStateContext } from "../contexts/ContextProvider";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { HomeSearchBar } from "../components/HomeSearchBar";
 
 export default function Appointments() {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ export default function Appointments() {
   const [open, openchange] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorElVets, setAnchorElVets] = useState(null);
 
   const handleAppointments = (searchValue) => {
     setMessage(null);
@@ -127,6 +129,40 @@ export default function Appointments() {
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
+  };
+
+  const handleVetAppointments = (searchValue) => {
+    setMessage(null);
+    setAppointments([]);
+    setLoading(true);
+    axiosClient
+      .get(`/appointments/vet/${searchValue}`)
+      .then(({ data }) => {
+        setAppointments(data.data);
+        setLoading(false);
+        setAnchorElVets(null);
+        console.log(searchValue)
+      })
+      .catch((error) => {
+        const response = error.response;
+        if (response && response.status === 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+        setAnchorElVets(null);
+      });
+  };
+
+  const handleMenuItemClickVets = (searchValue) => {
+    handleVetAppointments(searchValue);
+  };
+
+  const handleOpenMenuVets = (event) => {
+    setAnchorElVets(event.currentTarget);
+  };
+
+  const handleCloseMenuVets = () => {
+    setAnchorElVets(null);
   };
 
   const getAppointments = () => {
@@ -358,6 +394,7 @@ export default function Appointments() {
   useEffect(() => {
     handleAppointments("current");
     getServices();
+    getVets()
   }, []);
 
   return (
@@ -381,7 +418,8 @@ export default function Appointments() {
               Appointments
             </Typography>
             <DropDownButtons
-              title="filter"
+              title="status"
+              status={true}
               anchorEl={anchorEl}
               handleMenuItemClick={handleMenuItemClick}
               handleOpenMenu={handleOpenMenu}
@@ -391,6 +429,14 @@ export default function Appointments() {
               optionLabel3="confirmed"
               optionLabel4="completed"
               optionLabel5="cancelled"
+            />
+             <DropDownButtons
+              title="veterinarians"
+              anchorEl={anchorElVets}
+              vets={doctors}
+              handleMenuItemClick={handleMenuItemClickVets}
+              handleOpenMenu={handleOpenMenuVets}
+              handleCloseMenu={handleCloseMenuVets  }
             />
           </Box>
           <SearchPetOwner
@@ -420,7 +466,7 @@ export default function Appointments() {
           setSelectedServices={setSelectedServices}
         />
 
-        <TableContainer sx={{ height: 380 }}>
+        <TableContainer sx={{ height: "100%" }} >
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               {!query ? (

@@ -119,11 +119,10 @@ export default function PetownerAppointmentModal(props) {
                   required
                 />
 
-                <FormControl sx={{ m: 1, width: 500 }}>
+                <FormControl sx={{ m: 1, width: "100%" }}>
                   <InputLabel>Select Services</InputLabel>
                   <Select
                     fullWidth
-                    readOnly={isUpdate ? true : false}
                     required
                     multiple
                     value={selectedServices}
@@ -161,7 +160,7 @@ export default function PetownerAppointmentModal(props) {
                         value={name.id}
                         sx={{ justifyContent: "space-between" }}
                       >
-                        {name.service}
+                        {`${name.service} (${name.category.category})`}
                         {selectedServices.includes(name) ? (
                           <Check color="info" />
                         ) : null}

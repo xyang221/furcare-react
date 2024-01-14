@@ -129,8 +129,8 @@ export default function EditAppointment(props) {
                   required
                 />
 
-                <FormControl sx={{ m: 1, width: 500 }}>
-                  <InputLabel>Multiple Select</InputLabel>
+                <FormControl sx={{ m: 1, width: "100%" }}>
+                  <InputLabel>Select Services</InputLabel>
                   <Select
                     required
                     multiple
@@ -169,7 +169,7 @@ export default function EditAppointment(props) {
                         value={name.id}
                         sx={{ justifyContent: "space-between" }}
                       >
-                        {name.service}
+                       {`${name.service} (${name.category.category})`}
                         {selectedServices.includes(name) ? (
                           <Check color="info" />
                         ) : null}

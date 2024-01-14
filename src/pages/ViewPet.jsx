@@ -4,6 +4,7 @@ import axiosClient from "../axios-client";
 import {
   Alert,
   Avatar,
+  Box,
   Breadcrumbs,
   Button,
   Divider,
@@ -92,7 +93,7 @@ export default function ViewPet() {
       axiosClient
         .get(`/breeds-specie/${query}`)
         .then(({ data }) => {
-          setBreeds(data.data || []); // Use an empty array as default if data is falsy
+          setBreeds(data.data || []);
         })
         .catch((error) => {
           const response = error.response;
@@ -101,7 +102,7 @@ export default function ViewPet() {
           }
         });
     } else {
-      setBreeds([]); // Clear breeds when no query (selected species) is provided
+      setBreeds([]);
     }
   };
 
@@ -112,6 +113,7 @@ export default function ViewPet() {
     setOpen(true);
     if (specie.id) {
       setSelectedSpecie(specie.id);
+      getBreeds(specie.id)
     }
   };
 
@@ -253,7 +255,7 @@ export default function ViewPet() {
     QRCode.toDataURL(
       qrval,
       {
-        width: 150,
+        width: 120,
         margin: 2,
         color: {
           dark: "#000000",
@@ -263,7 +265,6 @@ export default function ViewPet() {
       (err, qrval) => {
         if (err) return console.error(err);
 
-        console.log(qrval);
         setQr(qrval);
       }
     );
@@ -274,7 +275,6 @@ export default function ViewPet() {
     encryptData();
   }, []);
 
-  // Fetch breeds when selectedSpecie changes
   useEffect(() => {
     if (selectedSpecie) {
       getBreeds(selectedSpecie);
@@ -285,7 +285,7 @@ export default function ViewPet() {
 
   return (
     <div>
-      <Paper mt={1} sx={{ padding: "15px" }}>
+      <Paper mt={1} sx={{ padding: "15px", margin:"10px" }}>
         <Breadcrumbs color="primary">
           <Button
             component={Link}
@@ -318,16 +318,17 @@ export default function ViewPet() {
 
           <Stack flexDirection="column" padding={1}>
             <Typography variant="h6">
-              Pet Details
+              Pet Information
               <IconButton
                 variant="contained"
                 color="info"
                 onClick={() => onEdit()}
+
               >
                 <Edit fontSize="small" />
               </IconButton>
             </Typography>
-            <Typography>
+            <Typography >
               Pet Owner: {petowner.firstname} {petowner.lastname}
             </Typography>
             <Stack flexDirection="row">
@@ -344,11 +345,26 @@ export default function ViewPet() {
             </Stack>
           </Stack>
           {/* qrcode */}
-          <QrCodeGenerator
-            qr={qr}
-            GenerateQRCode={GenerateQRCode}
-            petname={pet.name}
-          />
+          <Stack>
+            <Box
+              sx={{
+                ml: 10,
+                width: "170px",
+                height: "170px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor:"whitesmoke"
+              }}
+            >
+              <QrCodeGenerator
+                qr={qr}
+                GenerateQRCode={GenerateQRCode}
+                petname={pet.name}
+              />
+            </Box>
+          </Stack>
         </Stack>
         <PetsModal
           open={open}

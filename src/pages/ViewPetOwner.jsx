@@ -50,13 +50,19 @@ export default function ViewPetOwner() {
   const [openuser, openuserchange] = useState(false);
   const [openPetowner, openPetownerchange] = useState(false);
 
+  const closepopup = () => {
+    openuserchange(false);
+    openPetownerchange(false);
+    getPetowner();
+  };
+
   const getPetowner = () => {
-    setErrors(null);
-    setLoading(true);
-    setSelectedZipcode(null);
     setPetownerdata({});
     setAddressdata({});
     setZipcode({});
+    setErrors(null);
+    setLoading(true);
+    setSelectedZipcode(null);
 
     axiosClient
       .get(`/petowners/${id}`)
@@ -66,7 +72,7 @@ export default function ViewPetOwner() {
         setAddressdata(data.address);
         setZipcode(data.address.zipcode);
         setUserdata(data.user);
-        selectedZipcode(data.address.zipcode.zipcode);
+        setSelectedZipcode(data.address.zipcode.zipcode);
       })
       .catch(() => {
         setLoading(false);
@@ -84,12 +90,6 @@ export default function ViewPetOwner() {
     getPetowner();
     setErrors(null);
     openuserchange(true);
-  };
-
-  const closepopup = () => {
-    openuserchange(false);
-    openPetownerchange(false);
-    getPetowner();
   };
 
   const onSubmit = (e) => {
@@ -158,18 +158,6 @@ export default function ViewPetOwner() {
     getPetowner();
   }, []);
 
-  useEffect(() => {
-    let timerId;
-
-    clearTimeout(timerId);
-
-    timerId = setTimeout(() => {
-      getZipcodeDetails(selectedZipcode);
-    }, 4000);
-
-    return () => clearTimeout(timerId);
-  }, [selectedZipcode]);
-
   const getZipcodeDetails = (query) => {
     if (query) {
       setZipcodeerror(null);
@@ -177,8 +165,8 @@ export default function ViewPetOwner() {
       axiosClient
         .get(`/zipcodedetails/${query}`)
         .then(({ data }) => {
-          setZipcode(data.data);
           selectedZipcode(data.data.zipcode);
+          setZipcode(data.data);
           setAddressdata((prevPetowner) => ({
             ...prevPetowner,
             zipcode_id: data.data.id,
@@ -198,6 +186,19 @@ export default function ViewPetOwner() {
     setSelectedZipcode(event.target.value);
   };
 
+  useEffect(() => {
+    let timerId;
+
+    clearTimeout(timerId);
+
+    timerId = setTimeout(() => {
+      setZipcodeerror(null);
+      getZipcodeDetails(selectedZipcode);
+    }, 3000);
+
+    return () => clearTimeout(timerId);
+  }, [selectedZipcode]);
+
   return (
     <Paper
       sx={{
@@ -206,85 +207,73 @@ export default function ViewPetOwner() {
         margin: "10px",
       }}
     >
-      <div className="card animate fadeInDown">
-        <Stack flexDirection="row">
-          <Stack p={2}>
-            <Typography variant="h5">
-              Pet Owner Details{" "}
-              <IconButton
-                variant="contained"
-                color="info"
-                onClick={() => onEdit()}
-              >
-                <Edit fontSize="small" />
-              </IconButton>
-            </Typography>
-            <Typography>
-              Name: {petownerdata.firstname} {petownerdata.lastname}
-            </Typography>
-            <Typography>
-              Address: {addressdata.zone}, {addressdata.barangay},{" "}
-              {zipcode.area}, {zipcode.province}, {zipcode.zipcode}
-            </Typography>
-            <Typography>
-              Contact Number: +63{petownerdata.contact_num}
-            </Typography>
-          </Stack>
-
-          <Stack p={2}>
-            <Typography variant="h5">
-              Mobile Account{" "}
-              <IconButton
-                variant="contained"
-                color="info"
-                onClick={() => onEditUSer()}
-              >
-                <Edit fontSize="small" />
-              </IconButton>
-            </Typography>
-            <Typography>Email: {userdata.email} </Typography>
-          </Stack>
+      <Stack flexDirection="row">
+        <Stack p={2}>
+          <Typography variant="h5">
+            Pet Owner Information{" "}
+            <IconButton
+              variant="contained"
+              color="info"
+              onClick={() => onEdit()}
+            >
+              <Edit fontSize="small" />
+            </IconButton>
+          </Typography>
+          <Typography>
+            Name: {petownerdata.firstname} {petownerdata.lastname}
+          </Typography>
+          <Typography>
+            Address: {addressdata.zone}, {addressdata.barangay}, {zipcode.area},{" "}
+            {zipcode.province}, {zipcode.zipcode}
+          </Typography>
+          <Typography>Contact Number: +63{petownerdata.contact_num}</Typography>
         </Stack>
-        {errors && (
-          <div className="alert">
-            {Object.keys(errors).map((key) => (
-              <p key={key}>{errors[key][0]}</p>
-            ))}
-          </div>
-        )}
 
-        <PetOwnerEdit
-          open={openPetowner}
-          onClose={closepopup}
-          onClick={closepopup}
-          onSubmit={onSubmit}
-          petowner={petownerdata}
-          setPetowner={setPetownerdata}
-          address={addressdata}
-          setAddress={setAddressdata}
-          errors={errors}
-          loading={loading}
-          isUpdate={id}
-          zipcode={zipcode}
-          selectedZipcode={selectedZipcode}
-          handleZipcodeChange={handleZipcodeChange}
-          zipcodeerror={zipcodeerror}
-        />
-        <UserEdit
-          open={openuser}
-          onClick={closepopup}
-          onClose={closepopup}
-          onSubmit={onSubmitUser}
-          loading={loading}
-          roles={[]}
-          user={userdata}
-          setUser={setUserdata}
-          errors={errors}
-          isUpdate={userdata.id}
-        />
+        <Stack p={2}>
+          <Typography variant="h5">
+            Mobile Account{" "}
+            <IconButton
+              variant="contained"
+              color="info"
+              onClick={() => onEditUSer()}
+            >
+              <Edit fontSize="small" />
+            </IconButton>
+          </Typography>
+          <Typography>Email: {userdata.email} </Typography>
+        </Stack>
+      </Stack>
+      <PetOwnerEdit
+        open={openPetowner}
+        onClose={closepopup}
+        onClick={closepopup}
+        onSubmit={onSubmit}
+        petowner={petownerdata}
+        setPetowner={setPetownerdata}
+        address={addressdata}
+        setAddress={setAddressdata}
+        errors={errors}
+        loading={loading}
+        isUpdate={id}
+        zipcode={zipcode}
+        selectedZipcode={selectedZipcode}
+        handleZipcodeChange={handleZipcodeChange}
+        zipcodeerror={zipcodeerror}
+      />
+      <UserEdit
+        open={openuser}
+        onClick={closepopup}
+        onClose={closepopup}
+        onSubmit={onSubmitUser}
+        loading={loading}
+        roles={[]}
+        user={userdata}
+        setUser={setUserdata}
+        errors={errors}
+        isUpdate={userdata.id}
+      />
 
-        <PetOwnerTabs petowner={petownerdata} />
-      </div>
+      <PetOwnerTabs petowner={petownerdata} />
     </Paper>
   );
 }

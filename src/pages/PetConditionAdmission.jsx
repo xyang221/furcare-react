@@ -137,6 +137,10 @@ export default function PetConditionAdmission({ tid }) {
     getTreatmentPetCondition();
   };
 
+  useEffect(() => {
+    getTreatmentPetCondition();
+  }, []);
+
   return (
     <>
       <Stack sx={{ margin: "5px" }}>

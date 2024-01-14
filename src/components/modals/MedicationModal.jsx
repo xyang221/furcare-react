@@ -26,14 +26,12 @@ export default function MedicationModal(props) {
     onClick,
     onSubmit,
     loading,
-    medicines,
     medication,
     setMedication,
     errors,
-    selectedCat,
-    handleCategoryChange,
     category,
-    isUpdate
+    isUpdate,
+    medicine
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -41,11 +39,11 @@ export default function MedicationModal(props) {
     setMedication(updatedMedication);
   };
 
-  const handleFieldChangePrice = (fieldName, value, selectedMedicine) => {
+  const handleFieldChangeMedicine = (fieldName, value) => {
     const updatedMedication = {
       ...medication,
       [fieldName]: value,
-      unit_price: selectedMedicine.price,
+      unit_price: value,
     };
     setMedication(updatedMedication);
   };
@@ -78,8 +76,8 @@ export default function MedicationModal(props) {
                 <InputLabel>Medicine Category</InputLabel>
                 <Select
                   label="Medicine Category"
-                  value={selectedCat || ""}
-                  onChange={handleCategoryChange}
+                  value={medication.medcat_id || ""}
+                  onChange={(ev) => handleFieldChange("medcat_id", ev.target.value)}
                   required
                   fullWidth
                 >
@@ -91,43 +89,32 @@ export default function MedicationModal(props) {
                 </Select>
               </FormControl>
 
-              <FormControl>
-                <InputLabel>Medicine</InputLabel>
-                <Select
-                  label="Medicine"
-                  value={medication.medicine_id || ""}
-                  onChange={(ev) =>
-                    handleFieldChangePrice(
-                      "medicine_id",
-                      ev.target.value,
-                      medicines.find((item) => item.id === ev.target.value) // Get the selected medicine
-                    )
-                  }
-                  required
-                  fullWidth
-                >
-                  {medicines.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.name}
-                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ₱{item.price}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
+              <TextField
+                value={medication.name || ""}
+                onChange={(ev) => handleFieldChange("name", ev.target.value)}
+                label="Medicine Name"
+                required
+              />
+              <TextField
+                value={medication.price || ""}
+                onChange={(ev) => handleFieldChange("price", ev.target.value)}
+                label="Medicine Price"
+                type="number"
+                required
+              />
               <TextField
                 value={medication.quantity || ""}
                 onChange={(ev) =>
                   handleFieldChange("quantity", ev.target.value)
                 }
-                label="quantity"
+                label="Quantity"
                 type="number"
                 required
               />
               <TextField
                 value={medication.dosage || ""}
                 onChange={(ev) => handleFieldChange("dosage", ev.target.value)}
-                label="dosage"
+                label="Dosage"
                 required
               />
               <TextField
@@ -137,7 +124,7 @@ export default function MedicationModal(props) {
                 }
                 multiline
                 rows={2}
-                label="description"
+                label="Description"
               />
             </Stack>
           </DialogContent>

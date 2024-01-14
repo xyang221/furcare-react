@@ -14,10 +14,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import {
-  Add,
-  Visibility,
-} from "@mui/icons-material";
+import { Add, Visibility } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import AdmissionModal from "../components/modals/AdmissionModal";
 import TreatmentModal from "../components/modals/TreatmentModal";
@@ -127,6 +124,7 @@ export default function Admissions({ sid }) {
   const addModal = () => {
     getPetownerPets();
     setClientservice({});
+    setTreatment({});
     setErrors(null);
     setOpenmodal(true);
   };
@@ -155,13 +153,31 @@ export default function Admissions({ sid }) {
           icon: "success",
         });
         getAdmissions();
+
       })
+      
       .catch((err) => {
+        setOpenmodal(false);
         const response = err.response;
         console.log(response);
         if (response && response.status === 422) {
           setErrors(response.data.errors);
         }
+        if (response && response.status === 403) {
+          Swal.fire({
+            title: "Error",
+            text: response.data.message,
+            icon: "error",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              getPetowner();
+              setClientservice({});
+              setErrors(null);
+              setOpenconsent(true);
+            }
+          });
+        }
+        getAdmissions();
       });
   };
 
@@ -175,6 +191,14 @@ export default function Admissions({ sid }) {
         Swal.fire({
           title: "Proceed to admission.",
           icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            getPetownerPets();
+            setClientservice({});
+            setTreatment({});
+            setErrors(null);
+            setOpenmodal(true);
+          }
         });
         getAdmissions();
       })
@@ -228,7 +252,7 @@ export default function Admissions({ sid }) {
             color="success"
           >
             <Add />
-            consent for treatment
+            client deposit
           </Button>
         </Box>
 
@@ -307,6 +331,7 @@ export default function Admissions({ sid }) {
                               color="info"
                               component={Link}
                               to={`/admin/treatment/` + r.treatment.id}
+                              target="_blank"
                             >
                               <Visibility fontSize="small" />
                               <Typography variant="subtitle2" ml={1}>

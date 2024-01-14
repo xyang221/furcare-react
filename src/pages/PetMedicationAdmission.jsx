@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import {
-  Alert,
   Box,
   IconButton,
   Stack,
@@ -14,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Archive, Edit, Refresh } from "@mui/icons-material";
-import { useStateContext } from "../contexts/ContextProvider";
 import MedicationModal from "../components/modals/MedicationModal";
 
 export default function PetMedicationAdmission({ tid, pid }) {
@@ -33,7 +31,6 @@ export default function PetMedicationAdmission({ tid, pid }) {
 
   const [open, setOpen] = useState(false);
   const [modalloading, setModalloading] = useState(false);
-  const [medicines, setMedicines] = useState([]);
 
   const getTreatmentPetMedication = () => {
     setMessage("");
@@ -57,14 +54,14 @@ export default function PetMedicationAdmission({ tid, pid }) {
   const [errors, setErrors] = useState(null);
   const [medication, setMedication] = useState({
     id: null,
-    medicine_id: null,
+    medcat_id: null,
+    name: "",
+    unit_price: null,
     description: "",
     quantity: null,
     dosage: "",
-    unit_price: null,
   });
   const [category, setCategory] = useState([]);
-  const [selectedCat, setSelectedcat] = useState(null);
 
   const getCategory = () => {
     axiosClient
@@ -73,31 +70,6 @@ export default function PetMedicationAdmission({ tid, pid }) {
         setCategory(data.data);
       })
       .catch(() => {});
-  };
-
-  const handleCategoryChange = (event) => {
-    const selectedSpecietype = event.target.value;
-    setSelectedcat(selectedSpecietype);
-    getMedicines(selectedSpecietype);
-  };
-
-  const getMedicines = (query) => {
-    if (query) {
-      setMedicines([]);
-      axiosClient
-        .get(`/medicinesbycategory/${query}`)
-        .then(({ data }) => {
-          setMedicines(data.data);
-        })
-        .catch((error) => {
-          const response = error.response;
-          if (response && response.status === 404) {
-            console.log(response.data.message);
-          }
-        });
-    } else {
-      setMedicines([]); // Clear breeds when no query (selected species) is provided
-    }
   };
 
   const onEdit = (r) => {
@@ -109,7 +81,12 @@ export default function PetMedicationAdmission({ tid, pid }) {
       .get(`/medications/${r.id}`)
       .then(({ data }) => {
         setMedication(data);
-        setSelectedcat(data.medicine.category.id);
+        setMedication((prev) => ({
+          ...prev,
+          medcat_id: data.medicine.medcat_id,
+          name: data.medicine.name,
+          price: data.medicine.price,
+        }));
         setModalloading(false);
       })
       .catch(() => {
@@ -163,7 +140,6 @@ export default function PetMedicationAdmission({ tid, pid }) {
     setOpen(true);
     setErrors(null);
     getCategory();
-    setSelectedcat(null);
     setMedication({});
   };
 
@@ -175,12 +151,8 @@ export default function PetMedicationAdmission({ tid, pid }) {
   };
 
   useEffect(() => {
-    if (selectedCat) {
-      getMedicines(selectedCat);
-    } else {
-      getMedicines([]);
-    }
-  }, [selectedCat]);
+    getTreatmentPetMedication();
+  }, []);
 
   return (
     <>
@@ -212,12 +184,9 @@ export default function PetMedicationAdmission({ tid, pid }) {
           onClick={closeModal}
           onSubmit={onSubmit}
           loading={modalloading}
-          medicines={medicines}
           errors={errors}
           medication={medication}
           setMedication={setMedication}
-          selectedCat={selectedCat}
-          handleCategoryChange={handleCategoryChange}
           category={category}
           isUpdate={medication.id}
         />

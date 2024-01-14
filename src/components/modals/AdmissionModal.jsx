@@ -40,7 +40,7 @@ export default function AdmissionModal(props) {
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            Consent For Treatment
+            Client Deposit
             <IconButton onClick={onClose} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
@@ -96,7 +96,7 @@ export default function AdmissionModal(props) {
                 />
 
                 <Button color="primary" variant="contained" type="submit">
-                  Avail
+                  Save
                 </Button>
               </Stack>
             </form>

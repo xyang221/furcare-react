@@ -143,6 +143,7 @@ export default function PetAdmissions() {
                               variant="contained"
                               color="info"
                               size="small"
+                              target="_blank"
                             >
                               <Visibility fontSize="small" />
                             </Button>

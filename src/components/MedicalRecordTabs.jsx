@@ -26,13 +26,13 @@ export default function MedicalRecordTabs() {
           </TabList>
         </Box>
         <TabPanel value="1">
-        <PetAdmissions />
+          <PetAdmissions />
         </TabPanel>
         <TabPanel value="2">
-         <PetConsultations/>
+          <PetConsultations />
         </TabPanel>
         <TabPanel value="3">
-          <PetTestResults/>
+          <PetTestResults />
         </TabPanel>
       </TabContext>
     </Box>

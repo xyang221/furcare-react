@@ -18,6 +18,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const StyledList = styled(List)({
   // selected and (selected + hover) states
@@ -68,6 +69,7 @@ export default function PetOwnerSidebar() {
           <ListItemButton
             selected={selectedIndex === 0}
             onClick={() => handleListItemClick(0)}
+            component={Link}
             to="/petowner"
           >
             <ListItemText primary="Home"></ListItemText>
@@ -80,6 +82,7 @@ export default function PetOwnerSidebar() {
           <ListItemButton
             selected={selectedIndex === 2}
             onClick={() => handleListItemClick(2)}
+            component={Link}
             to="/petowner/appointments"
           >
             <ListItemText primary="Appointments"></ListItemText>
@@ -92,6 +95,7 @@ export default function PetOwnerSidebar() {
           <ListItemButton
             selected={selectedIndex === 1}
             onClick={() => handleListItemClick(1)}
+            component={Link}
             to="/petowner/pets"
           >
             <ListItemText primary="Pets"></ListItemText>

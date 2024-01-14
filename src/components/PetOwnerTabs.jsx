@@ -9,7 +9,8 @@ import PetOwnerAppointments from '../pages/PetOwnerAppointments';
 import PetOwnerPayments from '../pages/PetOwnerPayments';
 import ServiceCatBtns from './ServiceCatTabs';
 import GenerateBilling from '../pages/Billing/GenerateBilling';
-import ServicesAvailed from '../pages/ServicesAvailed';
+import AllServicesAvailed from '../pages/AllServicesAvailed';
+import ToPayServices from '../pages/ToPayServices';
 
 export default function PetOWnerTabs({petowner}) {
   const [value, setValue] = useState('1');
@@ -24,19 +25,21 @@ export default function PetOWnerTabs({petowner}) {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="Pets" value="1" />
+            <Tab label="Services" value="6" />
             <Tab label="Appointments" value="2" />
-            <Tab label="Availed Services" value="3" />
-            <Tab label="Payments" value="4" />
-            <Tab label="Services" value="5" />
-            <Tab label="Billing" value="6" />
+            <Tab label="Payments History" value="4" />
+            <Tab label="To Pay Services" value="3" />
+            {/* <Tab label="Charge Slip" value="7" /> */}
+            <Tab label="Availed Services" value="5" />
           </TabList>
         </Box>
         <TabPanel value="1"><PetOwnerPets/></TabPanel>
         <TabPanel value="2"><PetOwnerAppointments petowner={petowner}/></TabPanel>
-        <TabPanel value="3"><ServicesAvailed/></TabPanel>
+        <TabPanel value="3"><ToPayServices/></TabPanel>
         <TabPanel value="4"><PetOwnerPayments/></TabPanel>
-        <TabPanel value="5"><ServiceCatBtns/> </TabPanel>
-        <TabPanel value="6"><GenerateBilling/></TabPanel>
+        <TabPanel value="5"><AllServicesAvailed/> </TabPanel>
+        <TabPanel value="6"><ServiceCatBtns/> </TabPanel>
+        <TabPanel value="7"><GenerateBilling/></TabPanel>
       </TabContext>
     </Box>
   );

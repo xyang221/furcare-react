@@ -21,7 +21,6 @@ import {
 } from "@mui/material";
 import { Add, Archive, NavigateNext, Visibility } from "@mui/icons-material";
 import { SearchPetOwner } from "../components/SearchPetOwner";
-import DropDownButtons from "../components/DropDownButtons";
 
 export default function PetOwners() {
   //for table
@@ -145,7 +144,7 @@ export default function PetOwners() {
 
         {notification && <Alert severity="success">{notification}</Alert>}
 
-        <TableContainer sx={{ height: 380 }}>
+        <TableContainer sx={{ height: "100%" }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

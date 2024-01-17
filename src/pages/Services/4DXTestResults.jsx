@@ -25,7 +25,7 @@ import TestResultModal from "../../components/modals/TestResultModal";
 import EnlargeImageModal from "../../components/modals/EnlargeImageModal";
 import AttachmentModal from "../../components/modals/AttachmentModal";
 
-export default function TestResults({ sid,sname }) {
+export default function OtherTestResults({ sid,sname }) {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
@@ -35,6 +35,7 @@ export default function TestResults({ sid,sname }) {
 
   const [testresults, setTestresults] = useState([]);
   const [pets, setPets] = useState([]);
+  const [othertests, setOthertests] = useState([]);
 
   const [testresult, setTestresult] = useState({
     id: null,
@@ -42,6 +43,7 @@ export default function TestResults({ sid,sname }) {
     attachment: null,
     description: "",
     unit_price: null,
+    service_id:null
   });
 
   const [error, setError] = useState(null);
@@ -51,7 +53,7 @@ export default function TestResults({ sid,sname }) {
     setMessage(null);
     setLoading(true);
     axiosClient
-      .get(`/testresults/petowner/${id}/service/${sid}`)
+      .get(`/testresults/petowner/${id}/others`)
       .then(({ data }) => {
         setLoading(false);
         setTestresults(data.data);
@@ -79,9 +81,29 @@ export default function TestResults({ sid,sname }) {
       });
   };
 
+  const get4DXtests = () => {
+    setOthertests([]);
+    setMessage(null);
+    setLoading(true);
+    axiosClient
+      .get(`/services/4dx`)
+      .then(({ data }) => {
+        setLoading(false);
+        setOthertests(data.data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+      });
+  };
+
   //for table
   const columns = [
     { id: "Pet", name: "Pet" },
+    { id: "Type", name: "Type" },
     { id: "Attachment", name: "Attachment" },
     { id: "Description", name: "Description" },
     { id: "Status", name: "Status" },
@@ -108,6 +130,7 @@ export default function TestResults({ sid,sname }) {
   const openModal = () => {
     setTestresult({});
     getPets();
+    get4DXtests()
     openchange(true);
     setErrors(null);
     setError(null);
@@ -121,6 +144,7 @@ export default function TestResults({ sid,sname }) {
   // onClicks
   const onEdit = (r) => {
     getPets();
+    get4DXtests()
     setModalloading(true);
     axiosClient
       .get(`/testresults/${r.id}`)
@@ -178,7 +202,7 @@ export default function TestResults({ sid,sname }) {
       formData.append("attachment", testresult.attachment);
 
       axiosClient
-        .post(`/testresults/petowner/${id}/service/${sid}`, testresult, {
+        .post(`/testresults/petowner/${id}/service/${testresult.service_id}`, testresult, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -329,6 +353,7 @@ export default function TestResults({ sid,sname }) {
             error={error}
             servicename={sname}
             errormessage={errormessage}
+            othertests={othertests}
           />
           <AttachmentModal
             open={upload}
@@ -387,6 +412,7 @@ export default function TestResults({ sid,sname }) {
                       .map((r) => (
                         <TableRow hover role="checkbox" key={r.id}>
                           <TableCell>{r.pet.name}</TableCell>
+                          <TableCell>{r.servicesavailed.service.service}</TableCell>
                           <TableCell>
                             <img
                               src={`http://localhost:8000/` + r.attachment}

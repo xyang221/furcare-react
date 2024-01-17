@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Button,
   Backdrop,
-  Box,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -23,14 +22,11 @@ export default function ChargeSlipDetailsModal(props) {
   const {
     open,
     onClose,
-    petowner,
-    clientservice,
     servicesavailed,
-    calculateTotal,
     loading,
     printPDF,
     message,
-    payment
+    payment,
   } = props;
 
   const columns = [
@@ -50,39 +46,12 @@ export default function ChargeSlipDetailsModal(props) {
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            <Button
-              variant="contained"
-              size="small"
-              color="success"
-              onClick={printPDF}
-            >
-              <Print fontSize="small" />
-              <Typography variant="body1"> Print</Typography>
-            </Button>
+            Services
             <IconButton onClick={onClose} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
           </DialogTitle>
           <DialogContent>
-            <Typography align="center" variant="h5">
-              Charge Slip{" "}
-            </Typography>
-            <Typography variant="subtitle" p={1}>
-                Referrence No. {payment.ref_no}
-              </Typography>
-            <Box
-              p={1}
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
-            >
-              <Typography variant="subtitle">
-                Client: {petowner.firstname} {petowner.lastname}
-              </Typography>
-              <Typography variant="subtitle">
-                Date: {clientservice.date}
-              </Typography>
-            </Box>
             <TableContainer sx={{ height: 380 }}>
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
@@ -96,7 +65,10 @@ export default function ChargeSlipDetailsModal(props) {
                 {message && (
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                      <TableCell
+                        colSpan={columns.length}
+                        style={{ textAlign: "center" }}
+                      >
                         {message}
                       </TableCell>
                     </TableRow>
@@ -118,37 +90,31 @@ export default function ChargeSlipDetailsModal(props) {
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell colSpan={5} align="right">
+                    <TableCell
+                      colSpan={5}
+                      align="right"
+                      sx={{ fontWeight: "bold" }}
+                    >
                       Total:
                     </TableCell>
-                    <TableCell>{calculateTotal}</TableCell>
+                    <TableCell>{payment.total}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={5} align="right">
-                      Deposit:
-                    </TableCell>
-                    <TableCell>{clientservice.deposit}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={5} align="right">
-                      Balance:
-                    </TableCell>
-                    <TableCell>{clientservice.balance}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={5} align="right">
-                      Payment:
-                    </TableCell>
-                    <TableCell>{payment.type}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={5} align="right">
+                    <TableCell
+                      colSpan={5}
+                      align="right"
+                      sx={{ fontWeight: "bold" }}
+                    >
                       Amount:
                     </TableCell>
                     <TableCell>{payment.amount}</TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell colSpan={5} align="right">
+                    <TableCell
+                      colSpan={5}
+                      align="right"
+                      sx={{ fontWeight: "bold" }}
+                    >
                       Change:
                     </TableCell>
                     <TableCell>{payment.change}</TableCell>
@@ -157,7 +123,17 @@ export default function ChargeSlipDetailsModal(props) {
               </Table>
             </TableContainer>
           </DialogContent>
-          <DialogActions></DialogActions>
+          <DialogActions>
+            <Button
+              variant="contained"
+              size="small"
+              color="success"
+              onClick={printPDF}
+            >
+              <Print fontSize="small" />
+              <Typography variant="body1"> Print</Typography>
+            </Button>
+          </DialogActions>
         </Dialog>
       )}
     </>

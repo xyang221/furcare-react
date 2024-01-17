@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Divider,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -11,20 +12,26 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
 import ChargeSlipDetailsModal from "../components/modals/ChargeSlipDetailsModal";
+import Swal from "sweetalert2";
+import AdmissionModal from "../components/modals/AdmissionModal";
+import { useStateContext } from "../contexts/ContextProvider";
+import PaymentModal from "../components/modals/PaymentModal";
 
 export default function PetOwnerPayments() {
+  const { user } = useStateContext();
   //for table
   const columns = [
     { id: "Date", name: "Date" },
     { id: "Deposit", name: "Deposit" },
     { id: "Balance", name: "Balance" },
     { id: "Status", name: "Status" },
-    { id: "Actions", name: "Actions" },
-  ];
+    ...(user.role_id !== "3" ? [{ id: "Actions", name: "Actions" }] : []),
+];
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
@@ -36,10 +43,19 @@ export default function PetOwnerPayments() {
   const [modalloading, setModalloading] = useState(false);
   const [servicesavailed, setServicesavailed] = useState([]);
   const [petowner, setPetowner] = useState([]);
-  const [clientservice, setClientservice] = useState([]);
   const [payment, setPayment] = useState([]);
   const [openmodal, setOpenmodal] = useState(false);
   const [noservices, setNoservices] = useState("");
+  const [errors, setErrors] = useState(null);
+
+  const [clientservice, setClientservice] = useState({
+    id: null,
+    date: null,
+    deposit: null,
+    balance: null,
+    rendered_by: "",
+    status: "",
+  });
 
   const getPayments = () => {
     setMessage("");
@@ -73,12 +89,13 @@ export default function PetOwnerPayments() {
     setServicesavailed([]);
     setOpenmodal(true);
     setNoservices("");
+    getPaymentRecord(r);
     axiosClient
       .get(`/clientdeposits/${r.id}/services`)
       .then(({ data }) => {
         setServicesavailed(data.data);
-        setPetowner(data.clientservice.petowner);
         setClientservice(data.clientservice);
+        setPetowner(data.clientservice.petowner);
         setModalloading(false);
       })
       .catch((mes) => {
@@ -88,10 +105,10 @@ export default function PetOwnerPayments() {
         }
         setModalloading(false);
       });
-    getPaymentRecord(r);
   };
 
   const getPaymentRecord = (r) => {
+    setPayment([]);
     axiosClient
       .get(`/paymentrecords/clientdeposits/${r.id}`)
       .then(({ data }) => {
@@ -105,17 +122,143 @@ export default function PetOwnerPayments() {
       });
   };
 
-  const closeModal = () => {
-    setOpenmodal(false);
-  };
-
   const calculateTotal = () => {
-    const total = servicesavailed.reduce((accumulatedTotal, item) => {
+    const totalCost = servicesavailed.reduce((total, item) => {
       const price = item.unit_price || 0;
-      return accumulatedTotal + price * item.quantity;
+      return total + price * item.quantity;
     }, 0);
 
-    return total.toFixed(2);
+    payment.total = totalCost.toFixed(2);
+
+    return totalCost;
+  };
+
+  const [openconsent, setOpenconsent] = useState(false);
+
+  const openEdit = (r) => {
+    setOpenconsent(true);
+    setModalloading(true);
+    setNoservices("");
+    axiosClient
+      .get(`/clientdeposits/${r.id}`)
+      .then(({ data }) => {
+        setModalloading(false);
+        setPetowner(data.petowner);
+        setClientservice(data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setNoservices(response.data.message);
+        }
+        setModalloading(false);
+      });
+  };
+
+  const editDeposit = (ev) => {
+    ev.preventDefault();
+
+    axiosClient
+      .put(`/clientdeposits/${clientservice.id}/updatedeposit`, clientservice)
+      .then(() => {
+        setOpenconsent(false);
+        Swal.fire({
+          text: "Client deposit updated.",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            getPayments();
+            setClientservice({});
+          }
+        });
+      })
+      .catch((err) => {
+        setOpenconsent(false);
+        const response = err.response;
+        if (response && response.status === 422) {
+          setErrors(response.data.errors);
+        }
+      });
+  };
+
+  const closeModal = () => {
+    setOpenmodal(false);
+    setOpenconsent(false);
+    setOpenpayment(false);
+  };
+  const [openpayment, setOpenpayment] = useState(false);
+  const [paymentrecord, setPaymentRecord] = useState({
+    id: null,
+    chargeslip_ref_no: "",
+    type: "Cash",
+    type_ref_no: "",
+    total: 0,
+    amount: null,
+    change: 0,
+  });
+
+  const calculateBalance = () => {
+    const totalCost = paymentrecord.total || 0;
+    const balance = clientservice.balance || 0;
+    const deposit = clientservice.deposit || 0;
+    const amount = paymentrecord.amount || 0;
+    const currentbalance = totalCost + balance - deposit;
+
+    const final = currentbalance - amount;
+    if (final < 0) {
+      return 0;
+    }
+
+    return final;
+  };
+
+  const toPay = (r) => {
+    setOpenpayment(true);
+    setClientservice(r)
+  };
+
+  const payBalance = async (ev) => {
+    ev.preventDefault()
+    setOpenpayment(false);
+    try {
+      if (clientservice.status === "Pending") {
+         const updatedClientService = {
+          ...clientservice,
+          balance: calculateBalance() || 0,
+        };
+          await axiosClient.put(
+            `/clientdeposits/${clientservice.id}`,
+            updatedClientService)
+      }
+
+        await axiosClient.post(
+          `/paymentrecords/clientdeposits/${clientservice.id}`,
+          paymentrecord
+        );
+
+        Swal.fire({
+          title: "Success",
+          icon: "success",
+          confirmButtonText: "PRINT CHARGE SLIP",
+          confirmButtonColor: "black",
+          allowOutsideClick: false,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            windowOpenPDFforPrint();
+            getPayments();
+          }
+        });
+      }
+     catch (err) {
+      // setBackdrop(false);
+
+      Swal.fire({
+        title: "Error",
+        text: "An error occurred. Please try again.",
+        icon: "error",
+        confirmButtonColor: "black",
+      });
+    }
   };
 
   const windowOpenPDFforPrint = async () => {
@@ -163,19 +306,46 @@ export default function PetOwnerPayments() {
         flex={5}
         sx={{
           minWidth: "90%",
+          padding: "20px",
         }}
       >
+       {user.role_id === "3" && <Typography p={2} variant="h5">Payments History</Typography>}
         <ChargeSlipDetailsModal
           open={openmodal}
           onClose={closeModal}
           petowner={petowner}
           clientservice={clientservice}
           servicesavailed={servicesavailed}
-          calculateTotal={calculateTotal()}
+          calculateTotal={calculateTotal().toFixed(2)}
           loading={modalloading}
           printPDF={windowOpenPDFforPrint}
           message={noservices}
           payment={payment}
+        />
+
+        <AdmissionModal
+          open={openconsent}
+          onClose={closeModal}
+          onSubmit={editDeposit}
+          petowner={petowner}
+          clientservice={clientservice}
+          setClientservice={setClientservice}
+          // errors={errors}
+          loading={modalloading}
+        />
+
+        <PaymentModal
+          open={openpayment}
+          onClose={closeModal}
+          onClick={closeModal}
+          onSubmit={payBalance}
+          loading={loading}
+          payment={paymentrecord}
+          setPayment={setPaymentRecord}
+          clientservice={clientservice}
+          // pastbalance={pastbalance}
+          calculateBalance={calculateBalance}
+          //  errors={errors}
         />
 
         <Divider />
@@ -197,7 +367,10 @@ export default function PetOwnerPayments() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -207,7 +380,10 @@ export default function PetOwnerPayments() {
             {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -226,14 +402,36 @@ export default function PetOwnerPayments() {
                         <TableCell>{r.balance.toFixed(2)}</TableCell>
                         <TableCell>{r.status}</TableCell>
                         <TableCell>
-                          <Button
-                            variant="contained"
-                            size="small"
-                            color="info"
-                            onClick={() => getServicesAvailed(r)}
-                          >
-                            details
-                          </Button>
+                          <Stack direction="row" spacing={2}>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              color="info"
+                              onClick={() => getServicesAvailed(r)}
+                            >
+                              details
+                            </Button>
+                            {user.role_id !== "3" && r.status === "To Pay" && (
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="success"
+                                onClick={() => openEdit(r)}
+                              >
+                                EDIT{" "}
+                              </Button>
+                            )}
+                            {r.status === "Pending" && (
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="success"
+                                onClick={() => toPay(r)}
+                              >
+                                Pay balance
+                              </Button>
+                            )}
+                          </Stack>
                         </TableCell>
                       </TableRow>
                     ))}

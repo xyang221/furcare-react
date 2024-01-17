@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Button } from '@mui/material';
+import React from "react";
+import { Box, Button } from "@mui/material";
 
 function QrCodeGenerator(props) {
   const { GenerateQRCode, qr, petname } = props;
@@ -7,12 +7,27 @@ function QrCodeGenerator(props) {
   return (
     <div>
       {qr ? (
-        <Box sx={{ width: '50px' }}>
-          <img src={qr} alt="QR Code" />
-          <Button variant="contained" href={qr} download={`${petname}-qrcode.png`}>
-            Download
-          </Button>
-        </Box>
+        <>
+          <Box
+            sx={{
+              width: "180px",
+              height: "180px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <img src={qr} alt="QR Code" />
+            <Button
+              variant="contained"
+              href={qr}
+              download={`${petname}-qrcode.png`}
+            >
+              Download
+            </Button>
+          </Box>
+        </>
       ) : (
         <Button variant="contained" onClick={GenerateQRCode}>
           Generate QR

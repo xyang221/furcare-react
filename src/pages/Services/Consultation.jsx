@@ -25,6 +25,7 @@ export default function Consultation({ sid }) {
     { id: "Date", name: "Date" },
     { id: "Pet", name: "Pet" },
     { id: "Diagnosis", name: "Diagnosis" },
+    { id: "Follow Up", name: "Follow Up" },
     { id: "Status", name: "Status" },
     { id: "Actions", name: "Actions" },
   ];
@@ -84,6 +85,7 @@ export default function Consultation({ sid }) {
     remarks: "",
     unit_price: null,
     pet_id: null,
+    followup:null
   });
 
   const [open, openConsultation] = useState(false);
@@ -245,6 +247,7 @@ export default function Consultation({ sid }) {
                         <TableCell>{r.date}</TableCell>
                         <TableCell>{r.pet.name}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
+                        <TableCell>{r.followup}</TableCell>
                         <TableCell>{r.servicesavailed.status}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>

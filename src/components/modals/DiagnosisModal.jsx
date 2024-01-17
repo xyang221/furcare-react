@@ -141,7 +141,21 @@ export default function DiagnosisModal(props) {
                   autoFocus
                   required
                 />
-
+                <TextField
+                  label="Follow Up"
+                  variant="outlined"
+                  id="Follow Up"
+                  type="date"
+                  value={diagnosis.followup || ``}
+                  onChange={(ev) =>
+                    handleFieldChange("followup", ev.target.value)
+                  }
+                  InputLabelProps={{ shrink: true }}
+                  inputProps={{
+                    min: new Date().toISOString().split("T")[0] + "T00:00",
+                  }} // Set minimum date to today
+                  required
+                />
                 <Button color="primary" variant="contained" type="submit">
                   Save
                 </Button>

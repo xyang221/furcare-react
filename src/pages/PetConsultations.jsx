@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   Button,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -13,10 +14,12 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import DiagnosisModal from "../components/modals/DiagnosisModal";
-import { Add, Archive, Edit } from "@mui/icons-material";
+import { Add, Archive, Close, Edit } from "@mui/icons-material";
 
 export default function PetConsultations({ sid }) {
   const { id } = useParams();
@@ -24,6 +27,7 @@ export default function PetConsultations({ sid }) {
   const columns = [
     { id: "Date", name: "Date" },
     { id: "Diagnosis", name: "Diagnosis" },
+    { id: "Follow Up", name: "Follow Up" },
     { id: "Actions", name: "Actions" },
   ];
 
@@ -35,6 +39,7 @@ export default function PetConsultations({ sid }) {
   const [pets, setPets] = useState([]);
 
   const getConsultations = () => {
+    setFilterdate(null);
     setConsultations([]);
     setMessage("");
     setLoading(true);
@@ -85,13 +90,6 @@ export default function PetConsultations({ sid }) {
   });
 
   const [open, openConsultation] = useState(false);
-
-  const addModal = (ev) => {
-    openConsultation(true);
-    getPets();
-    setConsultation({});
-    setErrors(null);
-  };
 
   const closeModal = () => {
     openConsultation(false);
@@ -160,6 +158,28 @@ export default function PetConsultations({ sid }) {
     }
   };
 
+  //filter by date
+  const [filterdate, setFilterdate] = useState(null);
+
+  const filter = () => {
+    setConsultations([]);
+    setMessage(null);
+    setLoading(true);
+    axiosClient
+      .get(`/diagnosis/pet/${id}/${filterdate}`)
+      .then(({ data }) => {
+        setLoading(false);
+        setConsultations(data.data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     getConsultations();
   }, []);
@@ -172,6 +192,32 @@ export default function PetConsultations({ sid }) {
           padding: "10px",
         }}
       >
+        <Box p={1} sx={{ display: "flex", justifyContent: "right" }}>
+          <TextField
+            label="Date"
+            variant="outlined"
+            id="Date"
+            type="date"
+            size="small"
+            value={filterdate || ``}
+            onChange={(ev) => setFilterdate(ev.target.value)}
+            InputLabelProps={{ shrink: true }}
+            required
+          />
+          {filterdate && (
+            <IconButton variant="outlined" onClick={getConsultations}>
+              <Close />
+            </IconButton>
+          )}
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ ml: 1 }}
+            onClick={filter}
+          >
+            <Typography fontSize={"12px"}>Filter</Typography>
+          </Button>
+        </Box>
         <DiagnosisModal
           open={open}
           onClose={closeModal}
@@ -230,6 +276,7 @@ export default function PetConsultations({ sid }) {
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
                         <TableCell>{r.remarks}</TableCell>
+                        <TableCell>{r.followup}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button

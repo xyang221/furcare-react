@@ -172,9 +172,9 @@ export default function DewormingLogsModal(props) {
                 />
 
                 <FormControl>
-                  <InputLabel>Administered</InputLabel>
+                  <InputLabel>Veterinarian</InputLabel>
                   <Select
-                    label="Administered"
+                    label="Veterinarian"
                     value={deworminglog.vet_id || ""}
                     onChange={(ev) =>
                       handleFieldChange("vet_id", ev.target.value)

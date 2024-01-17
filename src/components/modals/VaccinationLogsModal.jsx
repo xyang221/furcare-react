@@ -205,9 +205,9 @@ export default function VaccinationLogsModal(props) {
                 />
 
                 <FormControl>
-                  <InputLabel>Administered</InputLabel>
+                  <InputLabel>Veterinarian</InputLabel>
                   <Select
-                    label="Administered"
+                    label="Veterinarian"
                     value={vaccination.vet_id || ""}
                     onChange={(ev) =>
                       handleFieldChange("vet_id", ev.target.value)

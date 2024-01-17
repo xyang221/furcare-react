@@ -2,12 +2,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const StateContext = createContext({
   user: null,
-  staff: null,
+  staffuser: null,
   petowner: null,
   token: null,
   notification: null,
   setUser: () => {},
-  setStaff: () => {},
+  setStaffuser: () => {},
   setPetowner: () => {},
   setToken: () => {},
   setNotification: () => {},
@@ -21,7 +21,7 @@ export const ContextProvider = ({ children }) => {
     email: localStorage.getItem("email"),
     role_id: localStorage.getItem("Role"),
   });
-  const [staff, setStaff] = useState({
+  const [staffuser, setStaffuser] = useState({
     id: localStorage.getItem("id"),
     firstname: localStorage.getItem("firstname"),
     lastname: localStorage.getItem("lastname"),
@@ -46,9 +46,9 @@ export const ContextProvider = ({ children }) => {
       localStorage.setItem("email", user.email);
       localStorage.setItem("Role", user.role_id);
       if (user.role_id === 2) {
-        localStorage.setItem("id", staff.id);
-        localStorage.setItem("firstname", staff.firstname);
-        localStorage.setItem("lastname", staff.lastname);
+        localStorage.setItem("id", staffuser.id);
+        localStorage.setItem("firstname", staffuser.firstname);
+        localStorage.setItem("lastname", staffuser.lastname);
       } else if (user.role_id === 3) {
         localStorage.setItem("id", petowner.id);
         localStorage.setItem("firstname", petowner.firstname);
@@ -62,13 +62,13 @@ export const ContextProvider = ({ children }) => {
       localStorage.removeItem("firstname");
       localStorage.removeItem("lastname");
     }
-  }, [user]);
+  }, [user, staffuser, petowner]);
 
   const updateUser = (newUser) => {
     setUser(newUser);
   };
-  const updateStaff = (newStaff) => {
-    setStaff(newStaff);
+  const updateStaff = (newStaffuser) => {
+    setStaffuser(newStaffuser);
   };
   const updatePetowner = (newPetowner) => {
     setPetowner(newPetowner);
@@ -92,7 +92,7 @@ export const ContextProvider = ({ children }) => {
         setNotification,
         user,
         updateUser,
-        staff,
+        staffuser,
         updateStaff,
         petowner,
         updatePetowner,

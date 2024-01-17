@@ -6,16 +6,15 @@ import { useStateContext } from "../contexts/ContextProvider";
 import Sidebar from "./Sidebar";
 import StaffSidebar from "./StaffSidebar";
 import PetOwnerSidebar from "./PetOwnerSidebar";
-import Dashboard from "../pages/Home";
-import Home from "../pages/Home";
 
 export default function MainLayout() {
   const { user, token } = useStateContext();
+  const navigate = useNavigate()
 
-  // Redirect to the login page if there's no token
   if (!token) {
     return <Navigate to="/login" />;
   }
+
 
   let sidebarComponent = null;
   let dashboardComponent = null;
@@ -23,14 +22,12 @@ export default function MainLayout() {
   switch (user.role_id) {
     case "1":
       sidebarComponent = <Sidebar />;
-      dashboardComponent = <Dashboard />;
       break;
     case "2":
-      sidebarComponent = <StaffSidebar />;
+      sidebarComponent = <Sidebar />;
       break;
     case "3":
       sidebarComponent = <PetOwnerSidebar />;
-      dashboardComponent = <>petowner dashboard</>;
       break;
     default:
       sidebarComponent = null;
@@ -44,6 +41,7 @@ export default function MainLayout() {
         <Box display="flex" justifyContent="space-between">
           {sidebarComponent}
           <Box flex={5}>
+
             <Outlet />
           </Box>
         </Box>

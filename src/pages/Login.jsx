@@ -6,25 +6,19 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import styled from "@emotion/styled";
-import { Alert, Link } from "@mui/material";
+import { Alert, Link, Paper } from "@mui/material";
 
 import { useEffect, useRef, useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import axiosClient from "../axios-client";
 
-
 export default function Login() {
-  const { user, updateUser, setToken, updateStaff, token,updatePetowner } = useStateContext();
+  const { user, updateUser, setToken, updateStaff, token, updatePetowner } =
+    useStateContext();
 
-  // if (token) {
-  //   return <Navigate to="/" />;
-  // }
-
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  const redirectToHome = () => {
+    window.location.href = "/home";
+  };
 
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -46,7 +40,7 @@ export default function Login() {
         updatePetowner(data.petowner);
         updateUser(data.user);
         setToken(data.token);
-        navigate(from, { replace: true });
+        redirectToHome();
       })
       .catch((err) => {
         const response = err.response;
@@ -64,22 +58,22 @@ export default function Login() {
 
   const imageURL = "../src/assets/furcarebg.jpg";
 
-  const Background = styled("div")({
-    width: "100%",
-    height: "100%",
-    justifyContent: "center",
-    backgroundImage: `url(${imageURL})`,
-    backgroundPosition: "center",
-    backgroundSize: "cover",
-    backgroundRepeat: "no-repeat",
-    backgroundBlendMode: "soft-light",
-    position: "fixed",
-    backdropFilter: "blur(10px)",
-    backgroundColor: "rgba(0,0,30,0.4)",
-  });
-
   return (
-    <Background>
+    <Paper
+      sx={{
+        width: "100%",
+        height: "100%",
+        justifyContent: "center",
+        backgroundImage: `url(${imageURL})`,
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundBlendMode: "soft-light",
+        position: "fixed",
+        backdropFilter: "blur(10px)",
+        backgroundColor: "rgba(0,0,30,0.4)",
+      }}
+    >
       <CssBaseline />
       <Container
         sx={{ backgroundColor: "white", borderRadius: "5%" }}
@@ -88,7 +82,7 @@ export default function Login() {
       >
         <Box
           sx={{
-            marginTop: "35%",
+            marginTop: 15,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -105,7 +99,7 @@ export default function Login() {
           </Typography>
           <Box component="form" onSubmit={onSubmit}>
             {errors && (
-              <Box>
+              <Box p={1}>
                 {Object.keys(errors).map((key) => (
                   <Alert severity="error" key={key}>
                     {errors[key][0]}
@@ -149,14 +143,17 @@ export default function Login() {
             >
               Login
             </Button>
-            <Grid item align="center">
-              <Link href="/signup" variant="body2">
-                {"Don't have an account? Sign Up"}
+          </Box>
+          <Box textAlign="center">
+            <Typography variant="body1">
+              Don't have an account?{" "}
+              <Link href="/signup" variant="body1">
+                Sign Up
               </Link>
-            </Grid>
+            </Typography>
           </Box>
         </Box>
       </Container>
-    </Background>
+    </Paper>
   );
 }

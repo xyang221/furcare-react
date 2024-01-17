@@ -11,35 +11,24 @@ import {
 import { Clear, Search } from "@mui/icons-material";
 import axiosClient from "../axios-client";
 import { useNavigate } from "react-router-dom";
+import { useStateContext } from "../contexts/ContextProvider";
 
-export const HomeSearchBar = () => {
+export const HomeSearchBar = (props) => {
+  const {
+    searchwhat,
+    placeholder,
+    navigatetype,
+    query,
+    setQuery,
+    data,
+    setData,
+    message,
+    setMessage,
+    loading,
+    setLoading,
+    search,
+  } = props;
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const [petowners, setPetowners] = useState([]);
-  const [pets, setPets] = useState([]);
-  const [message, setMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const search = (query) => {
-    if (query) {
-      setMessage(null);
-      setPetowners([]);
-      setLoading(true);
-      axiosClient
-        .get(`/petowners-search/${query}`)
-        .then(({ data }) => {
-          setLoading(false);
-          setPetowners(data.data);
-        })
-        .catch((error) => {
-          const response = error.response;
-          if (response && response.status === 404) {
-            setMessage(response.data.message);
-          }
-          setLoading(false);
-        });
-    }
-  };
 
   const handleInputChange = (event) => {
     event.preventDefault();
@@ -53,7 +42,7 @@ export const HomeSearchBar = () => {
   const handleClearClick = () => {
     setQuery("");
     setMessage(null);
-    setPetowners([]);
+    setData([]);
     setLoading(false);
   };
 
@@ -68,13 +57,12 @@ export const HomeSearchBar = () => {
       style={{
         alignItems: "center",
         height: "30%",
-        // width: "80%",
         flexDirection: "column",
       }}
     >
       <Box sx={{ display: "flex", flexDirection: "row" }}>
         <TextField
-          placeholder="Search petowners, pets here..."
+          placeholder={placeholder}
           value={query}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
@@ -119,13 +107,16 @@ export const HomeSearchBar = () => {
           overflow="auto"
         >
           {loading && <span>searching...</span>}
-          {petowners.map((item) => (
+          {data.map((item) => (
             <MenuItem
               key={item.id}
               value={item.id}
-              onClick={() => navigate(`/admin/petowners/` + item.id + `/view`)}
+              onClick={() => navigate(`${navigatetype}/${item.id}/view`)}
             >
-              {`${item.firstname} ${item.lastname}`}
+              {searchwhat === "petowners"
+                ? `${item.firstname} ${item.lastname}`
+                : null}
+              {searchwhat === "pets" ? item.name : null}
             </MenuItem>
           ))}
           {message && <span>{message}</span>}

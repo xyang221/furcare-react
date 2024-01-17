@@ -49,7 +49,7 @@ export default function TotalGraph(props) {
               color="disabled"
               sx={{ width: "30px", height: "30px" }}
             />
-            <Typography
+           {link && <Typography
               color={"white"}
               fontSize={"15px"}
               component={Link}
@@ -59,7 +59,7 @@ export default function TotalGraph(props) {
               justifyContent={"center"}
             >
               More info
-            </Typography>{" "}
+            </Typography>}
           </Box>
         </Stack>
       </Stack>

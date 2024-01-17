@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -19,7 +20,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Add, Archive, NavigateNext, Visibility } from "@mui/icons-material";
+import {
+  Add,
+  Archive,
+  Close,
+  NavigateNext,
+  Visibility,
+} from "@mui/icons-material";
 
 export default function PetAdmissions() {
   const { id } = useParams();
@@ -45,16 +52,17 @@ export default function PetAdmissions() {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState("");
   const [message, setMessage] = useState(null);
-  const [petowners, setPetowners] = useState([]);
+  const [treatments, setTreatments] = useState([]);
 
   const getTreatments = () => {
+    setFilterdate(null);
     setMessage(null);
     setLoading(true);
     axiosClient
       .get(`/treatments/pet/${id}`)
       .then(({ data }) => {
         setLoading(false);
-        setPetowners(data.data);
+        setTreatments(data.data);
       })
       .catch((error) => {
         const response = error.response;
@@ -70,10 +78,32 @@ export default function PetAdmissions() {
       return;
     }
 
-    axiosClient.delete(`/petowners/${u.id}/archive`).then(() => {
+    axiosClient.delete(`/treatments/${u.id}/archive`).then(() => {
       setNotification("Pet Owner was archived");
       getTreatments();
     });
+  };
+
+  //filter by date
+  const [filterdate, setFilterdate] = useState(null);
+
+  const filter = () => {
+    setTreatments([]);
+    setMessage(null);
+    setLoading(true);
+    axiosClient
+      .get(`/treatments/pet/${id}/${filterdate}`)
+      .then(({ data }) => {
+        setLoading(false);
+        setTreatments(data.data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -89,6 +119,32 @@ export default function PetAdmissions() {
           margin: "10px",
         }}
       >
+        <Box p={1} sx={{ display: "flex", justifyContent: "right" }}>
+          <TextField
+            label="Date"
+            variant="outlined"
+            id="Date"
+            type="date"
+            size="small"
+            value={filterdate || ``}
+            onChange={(ev) => setFilterdate(ev.target.value)}
+            InputLabelProps={{ shrink: true }}
+            required
+          />
+          {filterdate && (
+            <IconButton variant="outlined" onClick={getTreatments}>
+              <Close />
+            </IconButton>
+          )}
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ ml: 1 }}
+            onClick={filter}
+          >
+            <Typography fontSize={"12px"}>Filter</Typography>
+          </Button>
+        </Box>
         {notification && <Alert severity="success">{notification}</Alert>}
 
         <TableContainer sx={{ height: 380 }}>
@@ -127,8 +183,8 @@ export default function PetAdmissions() {
 
             {!loading && (
               <TableBody>
-                {petowners &&
-                  petowners
+                {treatments &&
+                  treatments
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
@@ -168,7 +224,7 @@ export default function PetAdmissions() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={petowners.length}
+          count={treatments.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}

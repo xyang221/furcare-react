@@ -16,16 +16,17 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Edit } from "@mui/icons-material";
+import { Add, Archive, Close, Edit } from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
 import TestResultModal from "../components/modals/TestResultModal";
 import EnlargeImageModal from "../components/modals/EnlargeImageModal";
 import AttachmentModal from "../components/modals/AttachmentModal";
 
-export default function PetTestResults({ sid,sname }) {
+export default function PetTestResults({ sid, sname }) {
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
@@ -46,6 +47,7 @@ export default function PetTestResults({ sid,sname }) {
   const [error, setError] = useState(null);
 
   const getTestresults = () => {
+    setFilterdate(null)
     setTestresults([]);
     setMessage(null);
     setLoading(true);
@@ -80,7 +82,9 @@ export default function PetTestResults({ sid,sname }) {
 
   //for table
   const columns = [
+    { id: "Date", name: "Date" },
     { id: "Attachment", name: "Attachment" },
+    { id: "Type", name: "Type" },
     { id: "Description", name: "Description" },
     { id: "Actions", name: "Actions" },
   ];
@@ -101,14 +105,6 @@ export default function PetTestResults({ sid,sname }) {
   const [upload, setUpload] = useState(false);
   const [trid, setTrid] = useState(null);
   const [modalloading, setModalloading] = useState(false);
-
-  const openModal = () => {
-    setTestresult({});
-    getPets();
-    openchange(true);
-    setErrors(null);
-    setError(null);
-  };
 
   const closeModal = () => {
     openchange(false);
@@ -275,6 +271,28 @@ export default function PetTestResults({ sid,sname }) {
     }
   };
 
+  //filter by date
+  const [filterdate, setFilterdate] = useState(null);
+
+  const filter = () => {
+    setTestresults([]);
+    setMessage(null);
+    setLoading(true);
+    axiosClient
+      .get(`/testresults/pet/${id}/${filterdate}`)
+      .then(({ data }) => {
+        setLoading(false);
+        setTestresults(data.data);
+      })
+      .catch((mes) => {
+        const response = mes.response;
+        if (response && response.status == 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     getTestresults();
   }, []);
@@ -288,6 +306,30 @@ export default function PetTestResults({ sid,sname }) {
           margin: "10px",
         }}
       >
+        <Box p={1} sx={{ display: "flex", justifyContent: "right" }}>
+          <TextField
+            label="Date"
+            variant="outlined"
+            id="Date"
+            type="date"
+            size="small"
+            value={filterdate || ``}
+            onChange={(ev) => setFilterdate(ev.target.value)}
+            InputLabelProps={{ shrink: true }}
+            required
+          />
+          {filterdate && <IconButton variant="outlined" onClick={getTestresults}>
+             <Close/>
+          </IconButton>}
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ ml: 1 }}
+            onClick={filter}
+          >
+            <Typography fontSize={"12px"}>Filter</Typography>
+          </Button>
+        </Box>
         <Box
           sx={{
             minWidth: "90%",
@@ -367,6 +409,7 @@ export default function PetTestResults({ sid,sname }) {
                       .slice(page * rowperpage, page * rowperpage + rowperpage)
                       .map((r) => (
                         <TableRow hover role="checkbox" key={r.id}>
+                          <TableCell>{r.date}</TableCell>
                           <TableCell>
                             <img
                               src={`http://localhost:8000/` + r.attachment}
@@ -381,6 +424,9 @@ export default function PetTestResults({ sid,sname }) {
                             >
                               <Edit fontSize="small" />{" "}
                             </IconButton>
+                          </TableCell>
+                          <TableCell>
+                            {r.servicesavailed.service.service}
                           </TableCell>
                           <TableCell>{r.description}</TableCell>
                           <TableCell>

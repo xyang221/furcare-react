@@ -44,6 +44,8 @@ export default function ViewPetOwner() {
     zipcode: "",
   });
 
+  const [appointment, setAppointment] = useState([]);
+
   const [selectedZipcode, setSelectedZipcode] = useState(null);
   const [zipcodeerror, setZipcodeerror] = useState(null);
 
@@ -133,7 +135,7 @@ export default function ViewPetOwner() {
 
     setErrors(null);
     axiosClient
-      .put(`/users/${petownerdata.user_id}`, userdata)
+      .patch(`/users/${petownerdata.user_id}`, userdata)
       .then(() => {
         openuserchange(false);
         Swal.fire({
@@ -153,9 +155,33 @@ export default function ViewPetOwner() {
         }
       });
   };
+  const [services, setServices] = useState([]);
+
+  const getServices = () => {
+    axiosClient
+      .get(`/services`)
+      .then(({ data }) => {
+        setServices(data.data);
+      })
+      .catch(() => {});
+  };
+
+  const getAppointment = () => {
+    setAppointment([]);
+    axiosClient
+      .get(`/appointments/petowner/${id}/today`)
+      .then(({ data }) => {
+        setAppointment(data.services);
+      })
+      .catch(() => {
+        setAppointment([]);
+      });
+  };
 
   useEffect(() => {
     getPetowner();
+    getServices();
+    getAppointment();
   }, []);
 
   const getZipcodeDetails = (query) => {
@@ -210,7 +236,7 @@ export default function ViewPetOwner() {
       <Stack flexDirection="row">
         <Stack p={2}>
           <Typography variant="h5">
-            Pet Owner Information{" "}
+            Pet Owner Information
             <IconButton
               variant="contained"
               color="info"
@@ -231,7 +257,7 @@ export default function ViewPetOwner() {
 
         <Stack p={2}>
           <Typography variant="h5">
-            Mobile Account{" "}
+            User Account{" "}
             <IconButton
               variant="contained"
               color="info"
@@ -243,6 +269,23 @@ export default function ViewPetOwner() {
           <Typography>Email: {userdata.email} </Typography>
         </Stack>
       </Stack>
+
+      {appointment && appointment.length > 0 && (
+        <Typography
+          p={1}
+          sx={{ backgroundColor: "whitesmoke" }}
+          variant="body1"
+          fontWeight="bold"
+        >
+          Appointment Services:
+          {services
+            .filter((service) => appointment.includes(service.id))
+            .map((filteredService) => (
+              <span key={filteredService.id}>{filteredService.service}, </span>
+            ))}
+        </Typography>
+      )}
+
       <PetOwnerEdit
         open={openPetowner}
         onClose={closepopup}

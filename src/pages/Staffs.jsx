@@ -149,6 +149,7 @@ export default function Staffs() {
                               variant="contained"
                               color="info"
                               size="small"
+                              target="_blank"
                             >
                               <Visibility fontSize="small" />
                             </Button>

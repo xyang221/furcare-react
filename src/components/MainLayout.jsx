@@ -4,7 +4,6 @@ import Navbar from "./Navbar";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
 import Sidebar from "./Sidebar";
-import StaffSidebar from "./StaffSidebar";
 import PetOwnerSidebar from "./PetOwnerSidebar";
 
 export default function MainLayout() {

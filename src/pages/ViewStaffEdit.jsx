@@ -6,9 +6,10 @@ import { Edit } from "@mui/icons-material";
 import PetOwnerEdit from "../components/modals/PetOwnerEdit";
 import UserEdit from "../components/modals/UserEdit";
 import Swal from "sweetalert2";
+import { useStateContext } from "../contexts/ContextProvider";
 
-export default function ViewStaff() {
-  const { id } = useParams();
+export default function ViewStaffEdit() {
+  const {staffuser}= useStateContext()
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
 
@@ -64,7 +65,7 @@ export default function ViewStaff() {
     setSelectedZipcode(null);
 
     axiosClient
-      .get(`/staffs/${id}`)
+      .get(`/staffs/${staffuser.id}`)
       .then(({ data }) => {
         setLoading(false);
         setStaff(data);
@@ -250,7 +251,7 @@ export default function ViewStaff() {
         address={addressdata}
         setAddress={setAddressdata}
         errors={errors}
-        isUpdate={id}
+        isUpdate={staffuser.id}
         zipcode={zipcode}
         selectedZipcode={selectedZipcode}
         handleZipcodeChange={handleZipcodeChange}

@@ -12,16 +12,15 @@ import { useStateContext } from "../contexts/ContextProvider";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axiosClient from "../axios-client";
 import UserEdit from "./modals/UserEdit";
-import LogoutModal from "./modals/LogoutModal";
+import Swal from "sweetalert2";
 
 export default function Profile() {
-  const { user, setToken, updateUser, staff, petowner } = useStateContext();
+  const { user, setToken, updateUser, staffuser } = useStateContext();
   const navigate = useNavigate();
 
   //for modal
   const [errors, setErrors] = useState(null);
   const [loading, setloading] = useState(false);
-  const [notification, setNotification] = useState(false);
 
   const [userprofile, setUserprofile] = useState({
     id: null,
@@ -37,26 +36,27 @@ export default function Profile() {
 
   //for menuitem
   const [open, setOpen] = useState(false);
-  const [openlogout, setOpenlogout] = useState(false);
   const anchorRef = useRef(null);
 
   const logoutmodal = () => {
-    setOpenlogout(true);
-  };
-
-  const onLogout = (ev) => {
-    ev.preventDefault();
-
-    axiosClient.post("/logout").then(() => {
-      setToken(null);
-      updateUser({});
-      navigate("/login");
+    Swal.fire({
+      icon: "question",
+      title: "Do you want to logout?",
+      showDenyButton: true,
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.post("/logout").then(() => {
+          setToken(null);
+          updateUser({});
+          navigate("/login");
+        });
+      }
     });
   };
 
   const closepopup = () => {
     setopenchange(false);
-    setOpenlogout(false);
   };
 
   const getUser = () => {
@@ -68,7 +68,6 @@ export default function Profile() {
         setloading(false);
       })
       .catch(() => {
-        setNotification("There is something wrong in the users api");
         setloading(false);
       });
   };
@@ -83,11 +82,11 @@ export default function Profile() {
     e.preventDefault();
     if (userprofile.id) {
       axiosClient
-        .put(`/users/${userprofile.id}`, userprofile)
+        .patch(`/users/${userprofile.id}`, userprofile)
         .then((response) => {
-          setNotification("User was successfully updated");
           setopenchange(false);
           updateUser(response.data);
+          window.location.reload(false);
         })
         .catch((err) => {
           const response = err.response;
@@ -133,7 +132,6 @@ export default function Profile() {
     }
   }
 
-  // return focus to the button when we transitioned from !open -> open
   const prevOpen = useRef(open);
   useEffect(() => {
     if (prevOpen.current === true && open === false) {
@@ -155,20 +153,13 @@ export default function Profile() {
           onClick={handleToggle}
         >
           <Avatar sx={{ width: 30, height: 30, margin: "5px" }} />
-          {staff && (
+          {staffuser && (
             <Typography variant="span" color="white">
-              {staff.firstname && staff.lastname !== "null"
-                ? `${staff.firstname} ${staff.lastname}`
+              {staffuser.firstname && staffuser.lastname !== "null"
+                ? `${staffuser.firstname} ${staffuser.lastname}`
                 : "ADMIN"}
             </Typography>
           )}
-          {/* {petowner && (
-            <Typography variant="span" color="white">
-              {petowner.firstname && petowner.lastname !== "null"
-                ? `${petowner.firstname} ${petowner.lastname}`
-                : "ADMIN"}
-            </Typography>
-          )} */}
         </Button>
         <Popper
           open={open}
@@ -193,14 +184,36 @@ export default function Profile() {
                     aria-labelledby="composition-button"
                     onKeyDown={handleListKeyDown}
                   >
-                    <MenuItem onClick={() => onEdit()}>Edit Profile</MenuItem>
-                    {user.role_id === "1"  && ( 
-                        <MenuItem onClick={() => navigate("/admin/settings")}>
-                          Settings
-                        </MenuItem>
-                      )}
-
-                    <MenuItem onClick={logoutmodal}>Logout</MenuItem>
+                    {user.role_id === "1" && [
+                      <MenuItem key="edit" onClick={onEdit}>
+                        Edit Account
+                      </MenuItem>,
+                      <MenuItem
+                        key="settings"
+                        onClick={() => navigate("/admin/settings")}
+                      >
+                        Settings
+                      </MenuItem>,
+                    ]}
+                    {user.role_id === "2" && [
+                      <MenuItem
+                        key="profile"
+                        onClick={() => navigate("/admin/myprofile")}
+                      >
+                        Profile
+                      </MenuItem>,
+                    ]}
+                    {user.role_id === "3" && [
+                      <MenuItem
+                        key="petProfile"
+                        onClick={() => navigate("/petowner/myprofile")}
+                      >
+                        Profile
+                      </MenuItem>,
+                    ]}
+                    <MenuItem onClick={logoutmodal} key="logout">
+                      Logout
+                    </MenuItem>
                   </MenuList>
                 </ClickAwayListener>
               </Paper>
@@ -219,14 +232,6 @@ export default function Profile() {
         setUser={setUserprofile}
         errors={errors}
         isUpdate={userprofile.id}
-      />
-      <LogoutModal
-        open={openlogout}
-        onClick={closepopup}
-        onClose={closepopup}
-        onSubmit={onLogout}
-        loading={loading}
-        errors={errors}
       />
     </Stack>
   );

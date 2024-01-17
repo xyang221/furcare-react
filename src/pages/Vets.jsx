@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import axiosClient from "../axios-client";
 import {
   Alert,
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -13,25 +18,25 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
-import UserEdit from "../components/modals/UserEdit";
-import DropDownButtons from "../components/DropDownButtons";
+import { useEffect, useState } from "react";
+import axiosClient from "../axios-client";
+import { Add, Archive, Close, Delete, Edit, Search } from "@mui/icons-material";
+import Swal from "sweetalert2";
 
-export default function Users() {
+export default function Vets() {
   //for table
   const columns = [
     { id: "id", name: "ID" },
-    { id: "email", name: "Email" },
-    { id: "Role", name: "Role" },
+    { id: "Full Name", name: "Full Name" },
     { id: "Actions", name: "Actions" },
   ];
 
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
-
   const handleRowsPerPage = (event) => {
     rowperpagechange(+event.target.value);
     pagechange(0);
@@ -40,19 +45,17 @@ export default function Users() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [users, setUsers] = useState([]);
+  const [vets, setVets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [notification, setNotification] = useState("");
 
-  const getUsers = () => {
-    setMessage(null);
+  const getVets = () => {
     setLoading(true);
     axiosClient
-      .get("/users")
+      .get("/vets")
       .then(({ data }) => {
         setLoading(false);
-        setUsers(data.data);
+        setVets(data.data);
       })
       .catch((error) => {
         const response = error.response;
@@ -63,21 +66,33 @@ export default function Users() {
       });
   };
 
+  const onDelete = (r) => {
+    Swal.fire({
+      title: "Are you sure to archive this vet?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.delete(`/vets/${r.id}/archive`).then(() => {
+          Swal.fire({
+            title: "Vet was archived!",
+            icon: "error",
+          }).then(() => {
+            getVets();
+          });
+        });
+      }
+    });
+  };
+
   //for modal
-  const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [user, setUser] = useState({
-    id: null,
-    username: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    role_id: null,
-  });
   const [open, openchange] = useState(false);
 
-  const addModal = (ev) => {
-    setUser({});
+  const functionopenpopup = (ev) => {
+    setVet({});
     setErrors(null);
     openchange(true);
   };
@@ -86,42 +101,36 @@ export default function Users() {
     openchange(false);
   };
 
+  const [errors, setErrors] = useState(null);
+  const [modalloading, setModalloading] = useState(false);
+  const [vet, setVet] = useState({
+    id: null,
+    role: "",
+    description: "",
+  });
+
   const onEdit = (r) => {
-    setErrors(null);
     setModalloading(true);
     axiosClient
-      .get(`/users/${r.id}`)
+      .get(`/vets/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
-        setUser(data);
+        setVet(data);
       })
       .catch(() => {
         setModalloading(false);
       });
+
     openchange(true);
   };
 
-  const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this user?")) {
-      return;
-    }
-
-    axiosClient.delete(`/users/${u.id}/archive`).then(() => {
-      setNotification("User was archived");
-      getUsers();
-    });
-  };
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-
-    if (user.id) {
+  const onSubmit = () => {
+    if (vet.id) {
       axiosClient
-        .put(`/users/${user.id}`, user)
+        .put(`/vets/${vet.id}`, vet)
         .then(() => {
-          setNotification("User was successfully updated");
           openchange(false);
-          getUsers();
+          getVets();
         })
         .catch((err) => {
           const response = err.response;
@@ -131,11 +140,10 @@ export default function Users() {
         });
     } else {
       axiosClient
-        .post(`/users`, user)
+        .post(`/vets`, vet)
         .then(() => {
-          setNotification("User was successfully created");
           openchange(false);
-          getUsers();
+          getVets();
         })
         .catch((err) => {
           const response = err.response;
@@ -147,7 +155,7 @@ export default function Users() {
   };
 
   useEffect(() => {
-    getUsers();
+    getVets();
   }, []);
 
   return (
@@ -163,33 +171,75 @@ export default function Users() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <DropDownButtons
-            title="Users"
-            optionLink1="/admin/users/archives"
-            optionLabel1="Archives"
-          />
-
-          <Button onClick={addModal} variant="contained" size="small">
+          <Typography variant="h5">Veterinarians</Typography>
+          <Button
+            variant="contained"
+            size="small"
+            color="success"
+            onClick={functionopenpopup}
+          >
             <Add />
           </Button>
         </Box>
 
-        {notification && <Alert severity="success">{notification}</Alert>}
+        <Backdrop open={modalloading} style={{ zIndex: 999 }}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
 
-        <UserEdit
-          open={open}
-          onClick={closepopup}
-          onClose={closepopup}
-          onSubmit={onSubmit}
-          loading={modalloading}
-          roles={[]}
-          user={user}
-          setUser={setUser}
-          errors={errors}
-          isUpdate={user.id}
-        />
+        {!modalloading && (
+          <Dialog open={open} onClose={closepopup} fullWidth maxWidth="sm">
+            {vet.id && (
+              <DialogTitle>
+                Update Vet
+                <IconButton onClick={closepopup} style={{ float: "right" }}>
+                  <Close color="primary"></Close>
+                </IconButton>{" "}
+              </DialogTitle>
+            )}
 
-        <TableContainer sx={{ height: 340 }} maxwidth="sm">
+            {!vet.id && (
+              <DialogTitle>
+                New Vet
+                <IconButton onClick={closepopup} style={{ float: "right" }}>
+                  <Close color="primary"></Close>
+                </IconButton>{" "}
+              </DialogTitle>
+            )}
+
+            <DialogContent>
+              {errors && (
+                <Box>
+                  {Object.keys(errors).map((key) => (
+                    <Alert severity="error" key={key}>
+                      {errors[key][0]}
+                    </Alert>
+                  ))}
+                </Box>
+              )}
+              <Stack spacing={2} margin={2}>
+                <TextField
+                  variant="outlined"
+                  id="Full Name"
+                  label="Full Name"
+                  value={vet.fullname}
+                  onChange={(ev) =>
+                    setVet({ ...vet, fullname: ev.target.value })
+                  }
+                />
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={() => onSubmit()}
+                >
+                  Save
+                </Button>
+              </Stack>
+            </DialogContent>
+            <DialogActions></DialogActions>
+          </Dialog>
+        )}
+
+        <TableContainer sx={{ height: 340 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -206,16 +256,17 @@ export default function Users() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={4} style={{ textAlign: "center" }}>
                     Loading...
                   </TableCell>
                 </TableRow>
               </TableBody>
             )}
-           {!loading && message && (
+
+            {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} style={{ textAlign: "center" }}>
                     {message}
                   </TableCell>
                 </TableRow>
@@ -224,14 +275,13 @@ export default function Users() {
 
             {!loading && (
               <TableBody>
-                {users &&
-                  users
+                {vets &&
+                  vets
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.id}</TableCell>
-                        <TableCell>{r.email}</TableCell>
-                        <TableCell>{r.role_id}</TableCell>
+                        <TableCell>{r.fullname}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
@@ -246,7 +296,7 @@ export default function Users() {
                               variant="contained"
                               color="error"
                               size="small"
-                              onClick={() => onArchive(r)}
+                              onClick={() => onDelete(r)}
                             >
                               <Archive fontSize="small" />
                             </Button>
@@ -262,7 +312,7 @@ export default function Users() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={users.length}
+          count={vets.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}

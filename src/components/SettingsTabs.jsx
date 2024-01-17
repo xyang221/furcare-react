@@ -9,6 +9,9 @@ import Users from '../pages/Users';
 import Staffs from '../pages/Staffs';
 import Species from '../pages/Species';
 import Breeds from '../pages/Breeds';
+import Vets from '../pages/Vets';
+import ArchiveTabs from './ArchiveTabs';
+import Payments from '../pages/Payments';
 
 export default function SettingsTabs() {
   const [value, setValue] = useState('1');
@@ -25,15 +28,21 @@ export default function SettingsTabs() {
             <Tab label="Roles" value="1" />
             <Tab label="Users" value="2" />
             <Tab label="Staffs" value="3" />
-            <Tab label="Species" value="4" />
-            <Tab label="Breeds" value="5" />
+            <Tab label="Veterinarians" value="4" />
+            <Tab label="Species" value="5" />
+            <Tab label="Breeds" value="6" />
+            <Tab label="Payment Records" value="7" />
+            <Tab label="Archives" value="10" />
           </TabList>
         </Box>
         <TabPanel value="1"><Roles/> </TabPanel>
         <TabPanel value="2"><Users/></TabPanel>
         <TabPanel value="3"><Staffs/></TabPanel>
-        <TabPanel value="4"><Species/></TabPanel>
-        <TabPanel value="5"><Breeds/></TabPanel>
+        <TabPanel value="4"><Vets/></TabPanel>
+        <TabPanel value="5"><Species/></TabPanel>
+        <TabPanel value="6"><Breeds/></TabPanel>
+        <TabPanel value="7"><Payments/></TabPanel>
+        <TabPanel value="10"><ArchiveTabs/></TabPanel>
       </TabContext>
     </Box>
   );

@@ -225,14 +225,6 @@ export default function Species() {
                             >
                               <Edit fontSize="small" />
                             </Button>
-                            <Button
-                              variant="contained"
-                              color="error"
-                              size="small"
-                              onClick={() => onArchive(r)}
-                            >
-                              <Archive fontSize="small" />
-                            </Button>
                           </Stack>
                         </TableCell>
                       </TableRow>

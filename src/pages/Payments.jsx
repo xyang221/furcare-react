@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import axiosClient from "../axios-client";
 import {
   Alert,
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -13,25 +18,31 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
-import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
-import UserEdit from "../components/modals/UserEdit";
-import DropDownButtons from "../components/DropDownButtons";
+import { useEffect, useState } from "react";
+import axiosClient from "../axios-client";
+import { Add, Archive, Close, Delete, Edit, Search } from "@mui/icons-material";
+import Swal from "sweetalert2";
+import PaymentModal from "../components/modals/PaymentModal";
 
-export default function Users() {
+export default function Payments() {
   //for table
   const columns = [
     { id: "id", name: "ID" },
-    { id: "email", name: "Email" },
-    { id: "Role", name: "Role" },
-    { id: "Actions", name: "Actions" },
+    { id: "Date", name: "Date" },
+    { id: "Ref #", name: "Ref #" },
+    { id: "Type", name: "Type" },
+    { id: "Total", name: "Total" },
+    { id: "Amount", name: "Amount" },
+    { id: "Change", name: "Change" },
+    // { id: "Actions", name: "Actions" },
   ];
 
   const handlechangepage = (event, newpage) => {
     pagechange(newpage);
   };
-
   const handleRowsPerPage = (event) => {
     rowperpagechange(+event.target.value);
     pagechange(0);
@@ -40,19 +51,28 @@ export default function Users() {
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
-  const [users, setUsers] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [notification, setNotification] = useState("");
+  const [paymentrecord, setPaymentRecord] = useState({
+    id: null,
+    chargeslip_ref_no: "",
+    type: "Cash",
+    type_ref_no: "",
+    total: null,
+    amount: null,
+    change: null,
+  });
 
-  const getUsers = () => {
+  const getPayments = () => {
     setMessage(null);
+    setPayments([]);
     setLoading(true);
     axiosClient
-      .get("/users")
+      .get("/paymentrecords")
       .then(({ data }) => {
         setLoading(false);
-        setUsers(data.data);
+        setPayments(data.data);
       })
       .catch((error) => {
         const response = error.response;
@@ -63,21 +83,33 @@ export default function Users() {
       });
   };
 
+  const onDelete = (r) => {
+    Swal.fire({
+      title: "Are you sure to archive this record?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.delete(`/payments/${r.id}/archive`).then(() => {
+          Swal.fire({
+            title: "Vet was archived!",
+            icon: "error",
+          }).then(() => {
+            getPayments();
+          });
+        });
+      }
+    });
+  };
+
   //for modal
-  const [errors, setErrors] = useState(null);
-  const [modalloading, setModalloading] = useState(false);
-  const [user, setUser] = useState({
-    id: null,
-    username: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    role_id: null,
-  });
   const [open, openchange] = useState(false);
 
-  const addModal = (ev) => {
-    setUser({});
+  const functionopenpopup = (ev) => {
+    setPaymentRecord({});
     setErrors(null);
     openchange(true);
   };
@@ -86,42 +118,31 @@ export default function Users() {
     openchange(false);
   };
 
+  const [errors, setErrors] = useState(null);
+  const [modalloading, setModalloading] = useState(false);
+
   const onEdit = (r) => {
-    setErrors(null);
     setModalloading(true);
     axiosClient
-      .get(`/users/${r.id}`)
+      .get(`/payments/${r.id}`)
       .then(({ data }) => {
         setModalloading(false);
-        setUser(data);
+        setPaymentRecord(data);
       })
       .catch(() => {
         setModalloading(false);
       });
+
     openchange(true);
   };
 
-  const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this user?")) {
-      return;
-    }
-
-    axiosClient.delete(`/users/${u.id}/archive`).then(() => {
-      setNotification("User was archived");
-      getUsers();
-    });
-  };
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-
-    if (user.id) {
+  const onSubmit = () => {
+    if (paymentrecord.id) {
       axiosClient
-        .put(`/users/${user.id}`, user)
+        .put(`/payments/${paymentrecord.id}`, paymentrecord)
         .then(() => {
-          setNotification("User was successfully updated");
           openchange(false);
-          getUsers();
+          getPayments();
         })
         .catch((err) => {
           const response = err.response;
@@ -131,11 +152,10 @@ export default function Users() {
         });
     } else {
       axiosClient
-        .post(`/users`, user)
+        .post(`/payments`, paymentrecord)
         .then(() => {
-          setNotification("User was successfully created");
           openchange(false);
-          getUsers();
+          getPayments();
         })
         .catch((err) => {
           const response = err.response;
@@ -147,7 +167,7 @@ export default function Users() {
   };
 
   useEffect(() => {
-    getUsers();
+    getPayments();
   }, []);
 
   return (
@@ -163,33 +183,24 @@ export default function Users() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <DropDownButtons
-            title="Users"
-            optionLink1="/admin/users/archives"
-            optionLabel1="Archives"
-          />
-
-          <Button onClick={addModal} variant="contained" size="small">
-            <Add />
-          </Button>
+          <Typography variant="h5">Payment Records</Typography>
         </Box>
 
-        {notification && <Alert severity="success">{notification}</Alert>}
-
-        <UserEdit
+        {/* <PaymentModal
           open={open}
-          onClick={closepopup}
           onClose={closepopup}
+          onClick={closepopup}
           onSubmit={onSubmit}
-          loading={modalloading}
-          roles={[]}
-          user={user}
-          setUser={setUser}
-          errors={errors}
-          isUpdate={user.id}
-        />
+          loading={loading}
+          payment={paymentrecord}
+          setPayment={setPaymentRecord}
+          clientservice={clientservice}
+          pastbalance={pastbalance}
+          calculateBalance={calculateBalance}
+          //  errors={errors}
+        /> */}
 
-        <TableContainer sx={{ height: 340 }} maxwidth="sm">
+        <TableContainer sx={{ height: "!00%" }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -206,16 +217,23 @@ export default function Users() {
             {loading && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
               </TableBody>
             )}
-           {!loading && message && (
+
+            {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -224,15 +242,23 @@ export default function Users() {
 
             {!loading && (
               <TableBody>
-                {users &&
-                  users
+                {payments &&
+                  payments
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.id}</TableCell>
-                        <TableCell>{r.email}</TableCell>
-                        <TableCell>{r.role_id}</TableCell>
+                        <TableCell>{r.date}</TableCell>
+                        <TableCell>{r.chargeslip_ref_no}</TableCell>
                         <TableCell>
+                          {r.type === "Cash"
+                            ? `${r.type}`
+                            : `${r.type} ${r.type_ref_no}`}
+                        </TableCell>
+                        <TableCell>{r.total.toFixed(2)}</TableCell>
+                        <TableCell>{r.amount.toFixed(2)}</TableCell>
+                        <TableCell>{r.change.toFixed(2)}</TableCell>
+                        {/* <TableCell>
                           <Stack direction="row" spacing={2}>
                             <Button
                               variant="contained"
@@ -246,12 +272,12 @@ export default function Users() {
                               variant="contained"
                               color="error"
                               size="small"
-                              onClick={() => onArchive(r)}
+                              onClick={() => onDelete(r)}
                             >
                               <Archive fontSize="small" />
                             </Button>
                           </Stack>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))}
               </TableBody>
@@ -262,7 +288,7 @@ export default function Users() {
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}
           page={page}
-          count={users.length}
+          count={payments.length}
           component="div"
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}

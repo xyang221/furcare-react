@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Home, ListRounded, People, Pets } from "@mui/icons-material";
+import { Home, ListAlt, ListRounded, People, Pets, Settings, Vaccines } from "@mui/icons-material";
 import {
   Drawer,
   List,
@@ -9,6 +9,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const StyledList = styled(List)(({ theme }) => ({
   // selected and (selected + hover) states
@@ -59,7 +60,8 @@ export default function Sidebar() {
           <ListItemButton
             selected={selectedIndex === 6}
             onClick={() => handleListItemClick(6)}
-            to="/admin/home"
+            component={Link}
+            to="/home"
           >
             <ListItemText primary="Home"></ListItemText>
             <ListItemIcon>
@@ -71,6 +73,7 @@ export default function Sidebar() {
           <ListItemButton
             selected={selectedIndex === 7}
             onClick={() => handleListItemClick(7)}
+            component={Link}
             to="/admin/appointments"
           >
             <ListItemText primary="Appointments"></ListItemText>
@@ -79,11 +82,11 @@ export default function Sidebar() {
             </ListItemIcon>
           </ListItemButton>
         </ListItem>
-
         <ListItem>
           <ListItemButton
             selected={selectedIndex === 4}
             onClick={() => handleListItemClick(4)}
+            component={Link}
             to="/admin/petowners"
           >
             <ListItemText primary="Pet Owners"></ListItemText>
@@ -96,11 +99,38 @@ export default function Sidebar() {
           <ListItemButton
             selected={selectedIndex === 9}
             onClick={() => handleListItemClick(9)}
+            component={Link}
             to="/admin/pets"
           >
             <ListItemText primary="Pets"></ListItemText>
             <ListItemIcon>
               <Pets />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 10}
+            onClick={() => handleListItemClick(10)}
+            component={Link}
+            to="/admin/availed-services"
+          >
+            <ListItemText primary="Services Logs"></ListItemText>
+            <ListItemIcon>
+              <ListAlt />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 11}
+            onClick={() => handleListItemClick(11)}
+            component={Link}
+            to="/admin/vaccinations"
+          >
+            <ListItemText primary="Vaccination Records"></ListItemText>
+            <ListItemIcon>
+              <Vaccines />
             </ListItemIcon>
           </ListItemButton>
         </ListItem>

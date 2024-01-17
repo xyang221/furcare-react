@@ -3,10 +3,12 @@ import {
   Archive,
   Home,
   ListAlt,
+  PaymentOutlined,
   People,
   Person,
   Person2,
   Pets,
+  Settings,
 } from "@mui/icons-material";
 import {
   Box,
@@ -70,7 +72,7 @@ export default function PetOwnerSidebar() {
             selected={selectedIndex === 0}
             onClick={() => handleListItemClick(0)}
             component={Link}
-            to="/petowner"
+            to="/home"
           >
             <ListItemText primary="Home"></ListItemText>
             <ListItemIcon>
@@ -101,6 +103,32 @@ export default function PetOwnerSidebar() {
             <ListItemText primary="Pets"></ListItemText>
             <ListItemIcon>
               <Pets />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 3}
+            onClick={() => handleListItemClick(3)}
+            component={Link}
+            to="/petowner/availed"
+          >
+            <ListItemText primary="Availed Services"></ListItemText>
+            <ListItemIcon>
+              <ListAlt />
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        <ListItem>
+          <ListItemButton
+            selected={selectedIndex === 4}
+            onClick={() => handleListItemClick(4)}
+            component={Link}
+            to="/petowner/payments"
+          >
+            <ListItemText primary="Payments History"></ListItemText>
+            <ListItemIcon>
+              <PaymentOutlined />
             </ListItemIcon>
           </ListItemButton>
         </ListItem>

@@ -43,7 +43,7 @@ export default function UserEdit(props) {
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            {isUpdate ? "Update User" : "New User"}
+            {isUpdate ? "Edit User" : "New User"}
             <IconButton onClick={onClick} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
@@ -89,13 +89,13 @@ export default function UserEdit(props) {
               <TextField
                 variant="outlined"
                 id="Password"
-                label="Password"
+                label="New Password"
                 type="password"
                 value={user.password || ""}
                 onChange={(ev) =>
                   handleFieldChange("password", ev.target.value)
                 }
-                required
+                required={!isUpdate}
               />
               <TextField
                 variant="outlined"
@@ -106,7 +106,8 @@ export default function UserEdit(props) {
                 onChange={(ev) =>
                   handleFieldChange("password_confirmation", ev.target.value)
                 }
-                required
+                required={!isUpdate}
+                placeholder="Retype Change Password"
               />
               <Button color="primary" variant="contained" type="submit">
                 Save

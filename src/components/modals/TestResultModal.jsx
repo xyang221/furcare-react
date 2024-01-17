@@ -33,7 +33,9 @@ export default function TestResultModal(props) {
     isUpdate,
     handleImage,
     error,
-    servicename
+    servicename,
+    errormessage,
+    othertests,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -66,9 +68,14 @@ export default function TestResultModal(props) {
                   ))}
                 </Box>
               )}
+              {errormessage && (
+                <Box>
+                  <Alert severity="error">{errormessage}</Alert>
+                </Box>
+              )}
               <form onSubmit={(e) => onSubmit(e)}>
                 <Stack spacing={2} margin={2}>
-                  {!isUpdate && (
+                  {!isUpdate && !othertests && (
                     <TextField
                       label={`${servicename} Price`}
                       type="number"
@@ -83,25 +90,59 @@ export default function TestResultModal(props) {
                       }
                     />
                   )}
-                  <FormControl>
-                    <InputLabel>Pet</InputLabel>
-                    <Select
-                      label="Pet"
-                      value={testresult.pet_id || ""}
+                  {othertests && (
+                    <FormControl>
+                      <InputLabel>Type</InputLabel>
+                      <Select
+                        label="Type"
+                        value={testresult.service_id || ""}
+                        onChange={(ev) =>
+                          handleFieldChange("service_id", ev.target.value)
+                        }
+                        readOnly={isUpdate ? true : false}
+                        required
+                      >
+                        {othertests.map((item) => (
+                          <MenuItem key={item.id} value={item.id}>
+                            {item.service}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                  {!isUpdate && othertests && (
+                    <TextField
+                      label={`Test Price`}
+                      type="number"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">₱</InputAdornment>
+                        ),
+                      }}
+                      value={testresult.unit_price || ""}
                       onChange={(ev) =>
-                        handleFieldChange("pet_id", ev.target.value)
+                        handleFieldChange("unit_price", ev.target.value)
                       }
-                      readOnly={isUpdate ? true : false}
-                      required
-                    >
-                      {pets.map((item) => (
-                        <MenuItem key={item.id} value={item.id}>
-                          {item.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
+                    />
+                  )}
+                    <FormControl>
+                      <InputLabel>Pet</InputLabel>
+                      <Select
+                        label="Pet"
+                        value={testresult.pet_id || ""}
+                        onChange={(ev) =>
+                          handleFieldChange("pet_id", ev.target.value)
+                        }
+                        readOnly={isUpdate ? true : false}
+                        required
+                      >
+                        {pets.map((item) => (
+                          <MenuItem key={item.id} value={item.id}>
+                            {item.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   {!isUpdate && (
                     <FormControl>
                       <TextField

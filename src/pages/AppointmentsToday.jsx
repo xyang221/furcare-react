@@ -288,7 +288,6 @@ export default function AppointmentsToday() {
   useEffect(() => {
     getAppointments();
     getServices();
-    getVets();
   }, []);
 
   return (

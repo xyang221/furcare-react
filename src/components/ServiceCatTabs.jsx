@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
-import { Button, Skeleton, Tab } from "@mui/material";
+import { Button, Divider, Skeleton, Tab, Typography } from "@mui/material";
 import axiosClient from "../axios-client";
 import Consultation from "../pages/Services/Consultation";
 import ServiceAvail from "../pages/Services/ServiceAvail";
@@ -24,6 +24,8 @@ import {
 } from "@mui/icons-material";
 import Vaccination from "../pages/Services/Vaccination";
 import Admissions from "../pages/Admissions";
+import Medicines from "../pages/Services/Medicines";
+import OtherTestResults from "../pages/Services/4DXTestResults";
 
 export default function ServiceCatBtns() {
   const [servicesCat, setServicesCat] = useState([]);
@@ -39,7 +41,7 @@ export default function ServiceCatBtns() {
   const getServices = () => {
     setLoading(true);
     axiosClient
-      .get("/services")
+      .get("/services/modified")
       .then(({ data }) => {
         setServices(data.data);
         const uniqueCategories = Array.from(
@@ -67,6 +69,10 @@ export default function ServiceCatBtns() {
     "Tick/Flea Treatment": <Medication />,
     Admission: <LocalHospital />,
     Others: <ControlPointDuplicate />,
+  };
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
   };
 
   const handleCategoryClick = (category) => {
@@ -188,9 +194,28 @@ export default function ServiceCatBtns() {
             <Box
               sx={{ width: "100%", borderColor: "divider", marginTop: "10px" }}
             >
+              <Divider />
               <TabContext value={value}>
-                <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-                  <TabList aria-label="lab API tabs">
+                <Box sx={{ maxWidth: { xs: 320, sm: 1000 } }}>
+                  <Typography
+                    variant="h6"
+                    align="center"
+                    p={0.5}
+                    sx={{
+                      backgroundColor: "black",
+                      width: "100%",
+                      color: "white",
+                    }}
+                  >
+                    {selectedCategory}
+                  </Typography>
+                  <TabList
+                    value={value}
+                    onChange={handleChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    aria-label="lab API tabs"
+                  >
                     {services
                       .filter(
                         (service) =>
@@ -233,19 +258,19 @@ export default function ServiceCatBtns() {
                         <ServiceAvail title="Surgery" sid={service.id} />
                       )}
                       {service.service == "DHLPPI" && (
-                        <Vaccination sid={service.id} />
+                        <Vaccination sid={service.id} sname={service.service} />
                       )}
                       {service.service == "BRONCHICINE" && (
-                        <Vaccination sid={service.id} />
+                        <Vaccination sid={service.id} sname={service.service} />
                       )}
                       {service.service == "HEARTWORM" && (
-                        <Vaccination sid={service.id} />
+                        <Vaccination sid={service.id} sname={service.service} />
                       )}
                       {service.service == "RABIES" && (
-                        <Vaccination sid={service.id} />
+                        <Vaccination sid={service.id} sname={service.service} />
                       )}
                       {service.service == "TRICAT" && (
-                        <Vaccination sid={service.id} />
+                        <Vaccination sid={service.id} sname={service.service} />
                       )}
                       {service.service == "Deworming" && (
                         <Deworming sid={service.id} />
@@ -269,10 +294,40 @@ export default function ServiceCatBtns() {
                         <TestResults sid={service.id} sname={service.service} />
                       )}
                       {service.service == "4DX" && (
+                        <OtherTestResults
+                          sid={service.id}
+                          sname={service.service}
+                        />
+                      )}
+                      {service.service == "Ultrasound" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Vaginal Smear Test" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Fecalysis" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Urinalysis" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Xray" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Progesterone Test" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Pregnancy Test" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Flu Test" && (
+                        <TestResults sid={service.id} sname={service.service} />
+                      )}
+                      {service.service == "Leptospirosis Test" && (
                         <TestResults sid={service.id} sname={service.service} />
                       )}
                       {service.service == "Medicine" && (
-                        <ServiceAvail title="Medicines" sid={service.id} />
+                        <Medicines title="Medicines" sid={service.id} />
                       )}
                       {service.service == "Tick/Flea Treatment" && (
                         <ServiceAvail

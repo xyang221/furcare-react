@@ -159,9 +159,19 @@ export default function PetsModal(props) {
                         label="Female"
                       />
                       <FormControlLabel
+                        value="Female/Spayed"
+                        control={<Radio />}
+                        label="Female/Spayed"
+                      />
+                      <FormControlLabel
                         value="Male"
                         control={<Radio />}
                         label="Male"
+                      />
+                       <FormControlLabel
+                        value="Male/Castrated"
+                        control={<Radio />}
+                        label="Male/Castrated"
                       />
                     </RadioGroup>
                   </FormControl>

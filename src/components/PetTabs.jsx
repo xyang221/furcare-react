@@ -24,7 +24,7 @@ export default function PetTabs() {
             <Tab label="Vaccination Logs" value="1" />
             <Tab label="Deworming Logs" value="2" />
             <Tab label="Medical Records" value="3" />
-            <Tab label="Other Services" value="4" />
+            <Tab label="Availed Services" value="4" />
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -37,7 +37,6 @@ export default function PetTabs() {
         <MedicalRecordTabs/>
         </TabPanel>
         <TabPanel value="4">
-          {/* <OtherServicesTabs/> */}
           <PetServiceAvail/>
         </TabPanel>
       </TabContext>

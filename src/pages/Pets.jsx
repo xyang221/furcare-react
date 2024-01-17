@@ -141,7 +141,7 @@ export default function Pets() {
         {notification && <Alert severity="success">{notification}</Alert>}
 
         <Divider />
-        <TableContainer sx={{ height: 350 }}>
+        <TableContainer sx={{ height: "100%" }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

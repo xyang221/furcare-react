@@ -28,9 +28,10 @@ import EditAppointment from "../../components/modals/EditAppointment";
 import Swal from "sweetalert2";
 import { useStateContext } from "../../contexts/ContextProvider";
 import PetownerAppointmentModal from "../../components/modals/PetownerAppointmentModal";
+import DropDownButtons from "../../components/DropDownButtons";
 
 export default function MyAppointments() {
-  const { staff } = useStateContext();
+  const { staffuser } = useStateContext();
   //for table
   const columns = [
     { id: "Date", name: "Date" },
@@ -81,7 +82,7 @@ export default function MyAppointments() {
     setMessage("");
     setLoading(true);
     axiosClient
-      .get(`/petowners/${staff.id}/appointments`)
+      .get(`/petowners/${staffuser.id}/appointments`)
       .then(({ data }) => {
         setLoading(false);
         setAppointments(data.data);
@@ -126,6 +127,43 @@ export default function MyAppointments() {
   const closepopup = () => {
     setOpen(false);
   };
+
+  
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleAppointments = (searchValue) => {
+    setMessage(null);
+    setAppointments([]);
+    setLoading(true);
+    axiosClient
+      .get(`/appointments/${searchValue}`)
+      .then(({ data }) => {
+        setAppointments(data.data);
+        setLoading(false);
+        setAnchorEl(null);
+      })
+      .catch((error) => {
+        const response = error.response;
+        if (response && response.status === 404) {
+          setMessage(response.data.message);
+        }
+        setLoading(false);
+        setAnchorEl(null);
+      });
+  };
+
+  const handleMenuItemClick = (searchValue) => {
+    handleAppointments(searchValue);
+  };
+
+  const handleOpenMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
 
   const onEdit = (r) => {
     setErrors(null);
@@ -191,7 +229,7 @@ export default function MyAppointments() {
         });
     } else {
       axiosClient
-        .post(`/appointments/petowner/${staff.id}`, appointment)
+        .post(`/appointments/petowner/${staffuser.id}`, appointment)
         .then(() => {
           setOpen(false);
           Swal.fire({
@@ -244,14 +282,26 @@ export default function MyAppointments() {
             create appointment
           </Button>
         </Box>
-
+        {/* <DropDownButtons
+              title="status"
+              status={true}
+              anchorEl={anchorEl}
+              handleMenuItemClick={handleMenuItemClick}
+              handleOpenMenu={handleOpenMenu}
+              handleCloseMenu={handleCloseMenu}
+              optionLabel1="current"
+              optionLabel2="pending"
+              optionLabel3="confirmed"
+              optionLabel4="completed"
+              optionLabel5="cancelled"
+            /> */}
         <PetownerAppointmentModal
           open={open}
           onClose={closepopup}
           onClick={closepopup}
           onSubmit={onSubmit}
           loading={modalloading}
-          petownerid={staff.id}
+          petownerid={staffuser.id}
           services={services}
           doctors={doctors}
           appointment={appointment}

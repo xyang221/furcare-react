@@ -259,7 +259,7 @@ export default function ViewMyPet() {
     QRCode.toDataURL(
       qrval,
       {
-        width: 150,
+        width: 120,
         margin: 2,
         color: {
           dark: "#000000",
@@ -269,7 +269,6 @@ export default function ViewMyPet() {
       (err, qrval) => {
         if (err) return console.error(err);
 
-        console.log(qrval);
         setQr(qrval);
       }
     );
@@ -310,9 +309,6 @@ export default function ViewMyPet() {
           </Button>
           <Stack flexDirection="column" padding={1}>
             <Typography variant="h6">Pet Details</Typography>
-            <Typography>
-              Pet Owner: {petowner.firstname} {petowner.lastname}
-            </Typography>
             <Stack flexDirection="row">
               <Stack sx={{ marginRight: "10px" }}>
                 <Typography>Pet Name: {pet.name}</Typography>
@@ -327,11 +323,26 @@ export default function ViewMyPet() {
             </Stack>
           </Stack>
           {/* qrcode */}
-          <QrCodeGenerator
-            qr={qr}
-            GenerateQRCode={GenerateQRCode}
-            petname={pet.name}
-          />
+          <Stack>
+            <Box
+              sx={{
+                ml: 10,
+                width: "170px",
+                height: "170px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor:"whitesmoke"
+              }}
+            >
+              <QrCodeGenerator
+                qr={qr}
+                GenerateQRCode={GenerateQRCode}
+                petname={pet.name}
+              />
+            </Box>
+          </Stack>
         </Stack>
         <PetsModal
           open={open}

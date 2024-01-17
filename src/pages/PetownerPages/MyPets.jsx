@@ -25,7 +25,7 @@ import PetsModal from "../../components/modals/PetsModal";
 import { useStateContext } from "../../contexts/ContextProvider";
 
 export default function MyPets() {
-  const { staff } = useStateContext();
+  const { staffuser } = useStateContext();
   //for table
   const columns = [
     { id: "Photo", name: "Photo" },
@@ -89,7 +89,7 @@ export default function MyPets() {
     setMessage("");
     setLoading(true);
     axiosClient
-      .get(`/petowners/${staff.id}/pets`)
+      .get(`/petowners/${staffuser.id}/pets`)
       .then(({ data }) => {
         setLoading(false);
         setPets(data.data);
@@ -244,7 +244,7 @@ export default function MyPets() {
         <Typography variant="h4" mb={1} ml={1}>
           My Pets
         </Typography>
-        <TableContainer sx={{ height: 350 }}>
+        <TableContainer sx={{ height: "100%" }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

@@ -13,6 +13,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { Archive, Edit } from "@mui/icons-material";
 import DewormingLogsModal from "../../components/modals/DewormingLogsModal";

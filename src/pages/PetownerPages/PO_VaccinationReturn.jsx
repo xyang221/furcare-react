@@ -15,7 +15,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useStateContext } from "../../contexts/ContextProvider";
-import DropDownButtons from "../../components/DropDownButtons";
 
 export default function PO_VaccinationReturn() {
   const { notification, setNotification } = useStateContext();
@@ -31,40 +30,9 @@ export default function PO_VaccinationReturn() {
     { id: "Last Avail", name: "Last Avail" },
   ];
 
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [errors, setErrors] = useState(null);
-  const [vaccinationlogs, setVaccinationlogs] = useState([]);
-  const [pets, setPets] = useState([]);
-  const [againsts, setAgainsts] = useState([]);
-  const [vaccinationlog, setVaccinationlog] = useState({
-    id: null,
-    weight: "",
-    description: "",
-    va_againsts: "",
-    return: null,
-    pet_id: null,
-    vet_id: null,
-    unit_price: null,
-  });
-  const [vets, setVets] = useState([]);
-  const [pet, setPet] = useState([]);
-
-  const [openAdd, setOpenAdd] = useState(false);
-  const [modalloading, setModalloading] = useState(false);
-
-  const { id } = useParams();
-
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+    const [vaccinationlogs, setVaccinationlogs] = useState([]);
 
   const getVaccination = () => {
     setVaccinationlogs([]);
@@ -83,67 +51,6 @@ export default function PO_VaccinationReturn() {
         }
         setLoading(false);
       });
-  };
-
-  const getAgainsts = () => {
-    axiosClient
-      .get(`/againsts`)
-      .then(({ data }) => {
-        setAgainsts(data.data);
-      })
-      .catch(() => {});
-  };
-
-  const getVets = () => {
-    axiosClient
-      .get(`/vets`)
-      .then(({ data }) => {
-        setVets(data.data);
-      })
-      .catch(() => {});
-  };
-
-  const handleOpenAddModal = () => {
-    getAgainsts();
-    getVets();
-    setOpenAdd(true);
-    setVaccinationlog({});
-    setErrors(null);
-  };
-
-  const handleCloseModal = () => {
-    setOpenAdd(false);
-  };
-
-  const handleArchive = (record) => {
-    if (!window.confirm("Are you sure to archive this?")) {
-      return;
-    }
-
-    axiosClient.delete(`/vaccinationlogs/${record.id}/archive`).then(() => {
-      setNotification("Vaccination was archived");
-      getVaccination();
-    });
-  };
-
-  const handleEdit = (record) => {
-    getAgainsts();
-    getVets();
-    setErrors(null);
-    setModalloading(true);
-
-    axiosClient
-      .get(`/vaccinationlogs/${record.id}`)
-      .then(({ data }) => {
-        setModalloading(false);
-        setVaccinationlog(data);
-        setPet(data.pet);
-      })
-      .catch(() => {
-        setModalloading(false);
-      });
-
-    setOpenAdd(true);
   };
 
   useEffect(() => {
@@ -173,17 +80,6 @@ export default function PO_VaccinationReturn() {
       });
   };
 
-  const handleMenuItemClick = (searchValue) => {
-    handleVaccinations(searchValue);
-  };
-
-  const handleOpenMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <>
@@ -203,18 +99,6 @@ export default function PO_VaccinationReturn() {
           <Typography variant="h5" p={1}>
            Upcoming Vaccinations
           </Typography>
-          {/* <DropDownButtons
-            title="filter"
-            status={true}
-            anchorEl={anchorEl}
-            handleMenuItemClick={handleMenuItemClick}
-            handleOpenMenu={handleOpenMenu}
-            handleCloseMenu={handleCloseMenu}
-            optionLabel1="today"
-            optionLabel2="weekly"
-            optionLabel3="monthly"
-            optionLabel4="yearly"
-          /> */}
         </Box>
         <Box sx={{ minWidth: "90%" }}>
           {notification && <Alert severity="success">{notification}</Alert>}
@@ -227,6 +111,8 @@ export default function PO_VaccinationReturn() {
                     <TableCell
                       style={{ backgroundColor: "black", color: "white",fontSize:"12px" }}
                       key={column.id}
+                      size="small"
+
                     >
                       {column.name}
                     </TableCell>

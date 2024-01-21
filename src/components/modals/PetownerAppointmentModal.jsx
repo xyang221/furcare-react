@@ -14,6 +14,7 @@ import {
   FormControlLabel,
   IconButton,
   InputLabel,
+  ListSubheader,
   MenuItem,
   OutlinedInput,
   Select,
@@ -112,10 +113,8 @@ export default function PetownerAppointmentModal(props) {
                   onChange={(ev) => handleFieldChange("date", ev.target.value)}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
-                    min: isUpdate
-                      ? appointment.date
-                      : new Date().toISOString().split("T")[0] + "T00:00",
-                  }} // Set minimum date to today
+                    min: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0] + "T00:00",
+                  }}
                   required
                 />
 
@@ -154,18 +153,27 @@ export default function PetownerAppointmentModal(props) {
                       </Stack>
                     )}
                   >
-                    {services.map((name) => (
+                    {services.map((name, index) => [
+                      (index === 0 ||
+                        name.category.category !==
+                          services[index - 1].category.category) && (
+                        <ListSubheader
+                          key={`subheader-${name.category.category}`}
+                        >
+                          {name.category.category}
+                        </ListSubheader>
+                      ),
                       <MenuItem
                         key={name.id}
                         value={name.id}
-                        sx={{ justifyContent: "space-between" }}
+                        sx={{ml:5, justifyContent: "space-between" }}
                       >
-                        {`${name.service} (${name.category.category})`}
+                        {name.service}
                         {selectedServices.includes(name) ? (
                           <Check color="info" />
                         ) : null}
-                      </MenuItem>
-                    ))}
+                      </MenuItem>,
+                    ])}
                   </Select>
                 </FormControl>
 

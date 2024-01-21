@@ -8,7 +8,6 @@ import UserEdit from "../../components/modals/UserEdit";
 import PetOwnerTabs from "../../components/PetOwnerTabs";
 import Swal from "sweetalert2";
 import { useStateContext } from "../../contexts/ContextProvider";
-import PetOWnerTabs from "./PetOwnerTabs";
 
 export default function EditProfilePetOwner() {
   const { staffuser } = useStateContext();

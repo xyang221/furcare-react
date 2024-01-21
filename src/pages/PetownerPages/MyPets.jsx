@@ -241,8 +241,8 @@ export default function MyPets() {
           handleImage={handleImage}
           error={error}
         />
-        <Typography variant="h4" mb={1} ml={1}>
-          My Pets
+        <Typography variant="h5" p={1}>
+          Pets
         </Typography>
         <TableContainer sx={{ height: "100%" }}>
           <Table stickyHeader aria-label="sticky table">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import QrCodeScanner from "../../components/QrCodeScanner";
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, Grid, Paper, Stack, Typography } from "@mui/material";
 import { Close, Money, Paid, People } from "@mui/icons-material";
 import TotalGraph from "../../components/TotalGraph";
 import axiosClient from "../../axios-client";
@@ -68,7 +68,7 @@ export default function PetownerHome() {
       .catch((mes) => {
         const response = mes.response;
         if (response && response.status == 404) {
-          setMessage(response.data.message);
+          setBalance(response.data.message);
         }
       });
   };
@@ -86,28 +86,26 @@ export default function PetownerHome() {
         <Typography variant="h5" mb={1}>
           Home
         </Typography>
-        <Stack flexDirection={"column"}>
-          <Stack
-            flexDirection={"row"}
-            sx={{ width: "1050px", height: "100px", alignItems: "center" }}
-          >
-            <Stack flexDirection={"row"}>
-              <TotalGraph
-                total={pets}
-                totaltype="Pets"
-                color={"#1769aa"}
-                link={"/petowner/pets"}
-                width="340px"
-              />
-              <TotalGraph
-                total={balance}
-                totaltype="Pending Balance"
-                color={"#ffc107"}
-                icon={Paid}
-                width="340px"
-              />
-            </Stack>
-            <Stack mt={-2}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={4}>
+            <TotalGraph
+              total={pets}
+              totaltype="Pets"
+              color={"#1769aa"}
+              link={"/petowner/pets"}
+              width="100%"
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <TotalGraph
+              total={balance}
+              totaltype="Pending Balance"
+              color={"#ffc107"}
+              icon={Paid}
+              width="100%"
+            />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <HomeSearchBar
               searchwhat={"pets"}
               placeholder={"Search pets here..."}
@@ -122,17 +120,14 @@ export default function PetownerHome() {
               setLoading={setLoading}
               search={search}
             />
-           </Stack>
-          </Stack>
-          <Stack flexDirection={"row"}>
-              <Stack width={"525px"}>
-                <PO_AppointmentsToday />
-              </Stack>
-              <Stack width={"525px"}>
-                <PO_VaccinationReturn />
-              </Stack>
-          </Stack>
-        </Stack>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <PO_AppointmentsToday />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <PO_VaccinationReturn />
+          </Grid>
+        </Grid>
       </Paper>
     </>
   );

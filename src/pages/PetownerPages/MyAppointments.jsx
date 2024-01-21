@@ -17,23 +17,18 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  Add,
-  DoneAll,
-  ArrowBackIos,
   Edit,
-  Cancel,
   Close,
 } from "@mui/icons-material";
-import EditAppointment from "../../components/modals/EditAppointment";
 import Swal from "sweetalert2";
 import { useStateContext } from "../../contexts/ContextProvider";
 import PetownerAppointmentModal from "../../components/modals/PetownerAppointmentModal";
-import DropDownButtons from "../../components/DropDownButtons";
 
 export default function MyAppointments() {
   const { staffuser } = useStateContext();
   //for table
   const columns = [
+    { id: "ID", name: "ID" },
     { id: "Date", name: "Date" },
     { id: "Services", name: "Services" },
     { id: "Purpose", name: "Purpose" },
@@ -128,7 +123,6 @@ export default function MyAppointments() {
     setOpen(false);
   };
 
-  
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleAppointments = (searchValue) => {
@@ -163,7 +157,6 @@ export default function MyAppointments() {
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
-
 
   const onEdit = (r) => {
     setErrors(null);
@@ -268,11 +261,12 @@ export default function MyAppointments() {
         }}
       >
         <Box
-          p={2}
+          p={1}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
+          <Typography variant="h5">Appointments</Typography>
           <Button
             onClick={addModal}
             variant="contained"
@@ -359,6 +353,7 @@ export default function MyAppointments() {
                     .slice(page * rowperpage, page * rowperpage + rowperpage)
                     .map((r) => (
                       <TableRow hover role="checkbox" key={r.id}>
+                        <TableCell>{r.id}</TableCell>
                         <TableCell>{r.date}</TableCell>
                         <TableCell>
                           {services

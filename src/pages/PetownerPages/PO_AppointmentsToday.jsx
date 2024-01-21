@@ -34,14 +34,6 @@ export default function PO_AppointmentsToday() {
     { id: "Actions", name: "Actions" },
   ];
 
-  const petownerscolumns = [
-    { id: "id", name: "ID" },
-    { id: "name", name: "Name" },
-    { id: "contact_num", name: "Contact Number" },
-    { id: "address", name: "Address" },
-    { id: "Actions", name: "Actions" },
-  ];
-
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -277,7 +269,6 @@ export default function PO_AppointmentsToday() {
         sx={{
           minWidth: "90%",
           padding: "10px",
-          // margin: "10px",
         }}
       >
         <Box
@@ -311,36 +302,24 @@ export default function PO_AppointmentsToday() {
           setSelectedServices={setSelectedServices}
         />
 
-        <TableContainer sx={{ height: 280 }}>
+        <TableContainer sx={{ height: 280, overflowX: "auto" }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
-              {!query ? (
-                <TableRow>
-                  {columns.map((column) => (
-                    <TableCell
-                      style={{
-                        backgroundColor: "black",
-                        color: "white",
-                        fontSize: "12px",
-                      }}
-                      key={column.id}
-                    >
-                      {column.name}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ) : (
-                <TableRow>
-                  {petownerscolumns.map((column) => (
-                    <TableCell
-                      style={{ backgroundColor: "black", color: "white" }}
-                      key={column.id}
-                    >
-                      {column.name}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              )}
+              <TableRow>
+                {columns.map((column) => (
+                  <TableCell
+                    style={{
+                      backgroundColor: "black",
+                      color: "white",
+                      fontSize: "12px",
+                    }}
+                    // size="small"
+                    key={column.id}
+                  >
+                    {column.name}
+                  </TableCell>
+                ))}
+              </TableRow>
             </TableHead>
             {loading && (
               <TableBody>

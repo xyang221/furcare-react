@@ -19,7 +19,6 @@ import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 import UserEdit from "../components/modals/UserEdit";
 import { Link } from "react-router-dom";
 import BreedsModal from "../components/modals/BreedsModal";
-import DropDownButtons from "../components/DropDownButtons";
 
 export default function Breeds() {
   //for table
@@ -87,6 +86,7 @@ export default function Breeds() {
   const [open, openchange] = useState(false);
 
   const addModal = (ev) => {
+    getSpecies();
     setBreed({});
     setErrors(null);
     openchange(true);
@@ -158,7 +158,6 @@ export default function Breeds() {
 
   useEffect(() => {
     getBreeds();
-    getSpecies();
   }, []);
 
   return (
@@ -174,13 +173,13 @@ export default function Breeds() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <DropDownButtons
-            title="Breeds"
-            optionLink1="/admin/breeds/archives"
-            optionLabel1="Archives"
-          />
-
-          <Button onClick={addModal} variant="contained" size="small">
+          <Typography variant="h5">Breeds</Typography>
+          <Button
+            onClick={addModal}
+            variant="contained"
+            size="small"
+            color="success"
+          >
             <Add />
           </Button>
         </Box>

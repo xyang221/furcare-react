@@ -14,9 +14,11 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { Add, Archive, Edit, Visibility } from "@mui/icons-material";
 import DropDownButtons from "../components/DropDownButtons";
+import Swal from "sweetalert2";
 
 export default function Staffs() {
   //for table
@@ -57,13 +59,24 @@ export default function Staffs() {
   };
 
   const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this staff?")) {
-      return;
-    }
-
-    axiosClient.delete(`/staffs/${u.id}/archive`).then(() => {
-      setNotification("Staff was archived");
-      getStaffs();
+    Swal.fire({
+      text: "Are you sure to archive this staff?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.delete(`/staffs/${u.id}/archive`).then(() => {
+          Swal.fire({
+            text: "Staff was archived.",
+            icon: "success",
+          }).then(() => {
+            getStaffs();
+          });
+        });
+      }
     });
   };
 
@@ -85,17 +98,14 @@ export default function Staffs() {
           flexDirection="row"
           justifyContent="space-between"
         >
-           <DropDownButtons
-            title="Staffs"
-            optionLink1="/admin/staffs/archives"
-            optionLabel1="Archives"
-          />
-
+          <Typography variant="h5">Staffs</Typography>
           <Button
             component={Link}
             to={"/admin/staffs/new"}
             variant="contained"
             size="small"
+            color="success"
+            target="_blank"
           >
             <Add />
           </Button>

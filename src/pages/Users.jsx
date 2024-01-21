@@ -17,9 +17,15 @@ import {
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 import UserEdit from "../components/modals/UserEdit";
-import DropDownButtons from "../components/DropDownButtons";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Notif from "../components/Notif";
+import { useStateContext } from "../contexts/ContextProvider";
+import Swal from "sweetalert2";
 
 export default function Users() {
+  const { notification, setNotification } = useStateContext();
+
   //for table
   const columns = [
     { id: "id", name: "ID" },
@@ -42,8 +48,8 @@ export default function Users() {
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [opennotif, setOpennotif] = useState(false);
   const [message, setMessage] = useState(null);
-  const [notification, setNotification] = useState("");
 
   const getUsers = () => {
     setMessage(null);
@@ -75,9 +81,21 @@ export default function Users() {
     role_id: null,
   });
   const [open, openchange] = useState(false);
+  const [roles, setRoles] = useState([]);
+
+  const getRoles = () => {
+    axiosClient
+      .get("/roles")
+      .then(({ data }) => {
+        setRoles(data.data);
+      })
+      .catch(() => {});
+  };
 
   const addModal = (ev) => {
+    setNotification("");
     setUser({});
+    getRoles();
     setErrors(null);
     openchange(true);
   };
@@ -102,13 +120,24 @@ export default function Users() {
   };
 
   const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this user?")) {
-      return;
-    }
-
-    axiosClient.delete(`/users/${u.id}/archive`).then(() => {
-      setNotification("User was archived");
-      getUsers();
+    Swal.fire({
+      text: "Are you sure to archive this user?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosClient.delete(`/users/${u.id}/archive`).then(() => {
+          Swal.fire({
+            text: "User was archived.",
+            icon: "success",
+          }).then(() => {
+            getUsers();
+          });
+        });
+      }
     });
   };
 
@@ -117,10 +146,11 @@ export default function Users() {
 
     if (user.id) {
       axiosClient
-        .put(`/users/${user.id}`, user)
+        .patch(`/users/${user.id}`, user)
         .then(() => {
-          setNotification("User was successfully updated");
+          setNotification("User was successfully updated.");
           openchange(false);
+          setOpennotif(true);
           getUsers();
         })
         .catch((err) => {
@@ -133,8 +163,9 @@ export default function Users() {
       axiosClient
         .post(`/users`, user)
         .then(() => {
-          setNotification("User was successfully created");
+          setNotification("Admin user was successfully created.");
           openchange(false);
+          setOpennotif(true);
           getUsers();
         })
         .catch((err) => {
@@ -163,26 +194,23 @@ export default function Users() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <DropDownButtons
-            title="Users"
-            optionLink1="/admin/users/archives"
-            optionLabel1="Archives"
-          />
-
-          <Button onClick={addModal} variant="contained" size="small">
+          <Typography variant="h5">Users</Typography>
+          <Button
+            onClick={addModal}
+            variant="contained"
+            size="small"
+            color="success"
+          >
             <Add />
           </Button>
         </Box>
-
-        {notification && <Alert severity="success">{notification}</Alert>}
-
         <UserEdit
           open={open}
           onClick={closepopup}
           onClose={closepopup}
           onSubmit={onSubmit}
           loading={modalloading}
-          roles={[]}
+          roles={roles}
           user={user}
           setUser={setUser}
           errors={errors}
@@ -212,10 +240,13 @@ export default function Users() {
                 </TableRow>
               </TableBody>
             )}
-           {!loading && message && (
+            {!loading && message && (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={columns.length} style={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={columns.length}
+                    style={{ textAlign: "center" }}
+                  >
                     {message}
                   </TableCell>
                 </TableRow>
@@ -267,6 +298,11 @@ export default function Users() {
           onPageChange={handlechangepage}
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
+        <Notif
+          open={opennotif}
+          notification={notification}
+          severity={"success"}
+        />
       </Paper>
     </>
   );

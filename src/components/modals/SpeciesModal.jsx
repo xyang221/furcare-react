@@ -44,7 +44,7 @@ export default function SpeciesModal(props) {
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            {isUpdate ? "Update specie" : "Add specie"}
+            {isUpdate ? "Update Specie" : "Add Specie"}
             <IconButton onClick={onClick} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
@@ -79,7 +79,6 @@ export default function SpeciesModal(props) {
                   onChange={(ev) =>
                     handleFieldChange("description", ev.target.value)
                   }
-                  required
                 />
 
                 <Button color="primary" variant="contained" type="submit">

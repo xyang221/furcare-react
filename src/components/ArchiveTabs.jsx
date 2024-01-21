@@ -9,7 +9,6 @@ import PetOwnerArchives from '../pages/PetOwnersArchives';
 import PetsArchives from '../pages/PetsArchives';
 import StaffsArchives from '../pages/StaffsArchives';
 import VetArchives from '../pages/VetArchives';
-import AppointmentArchives from '../pages/AppointmentArchives';
 
 export default function ArchiveTabs() {
   const [value, setValue] = useState('1');
@@ -28,7 +27,6 @@ export default function ArchiveTabs() {
             <Tab label="Pets" value="3" />
             <Tab label="Staffs" value="4" />
             <Tab label="Veterinarians" value="5" />
-            <Tab label="Appointments" value="6" />
           </TabList>
         </Box>
         <TabPanel value="1"><UserArchives/> </TabPanel>
@@ -36,7 +34,6 @@ export default function ArchiveTabs() {
         <TabPanel value="3"><PetsArchives/></TabPanel>
         <TabPanel value="4"><StaffsArchives/></TabPanel>
         <TabPanel value="5"><VetArchives/></TabPanel>
-        <TabPanel value="6"><AppointmentArchives/></TabPanel>
       </TabContext>
     </Box>
   );

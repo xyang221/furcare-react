@@ -17,7 +17,8 @@ import {
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 import SpeciesModal from "../components/modals/SpeciesModal";
-import DropDownButtons from "../components/DropDownButtons";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Species() {
   //for table
@@ -41,8 +42,6 @@ export default function Species() {
   const [rowperpage, rowperpagechange] = useState(10);
 
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState("");
-
   const [species, setSpecies] = useState([]);
 
   const getSpecies = () => {
@@ -94,17 +93,6 @@ export default function Species() {
     openchange(true);
   };
 
-  const onArchive = (s) => {
-    if (!window.confirm("Are you sure to archive this specie?")) {
-      return;
-    }
-
-    axiosClient.delete(`/species/${s.id}`).then(() => {
-      setNotification("Specie was deleted");
-      getSpecies();
-    });
-  };
-
   const onSubmit = (e) => {
     e.preventDefault();
 
@@ -112,7 +100,9 @@ export default function Species() {
       axiosClient
         .put(`/species/${specie.id}`, specie)
         .then(() => {
-          setNotification("A specie was successfully updated.");
+          toast.success("A specie was successfully updated.", {
+            theme: "colored",
+          });
           openchange(false);
           getSpecies();
         })
@@ -126,7 +116,7 @@ export default function Species() {
       axiosClient
         .post(`/species`, specie)
         .then(() => {
-          setNotification("A specie was successfully added.");
+          toast.success("A specie was successfully added.");
           openchange(false);
           getSpecies();
         })
@@ -150,24 +140,23 @@ export default function Species() {
           padding: "10px",
         }}
       >
+        <ToastContainer></ToastContainer>
         <Box
           p={2}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
         >
-          <DropDownButtons
-            title="Species"
-            optionLink1="/admin/species/archives"
-            optionLabel1="Archives"
-          />
-
-          <Button onClick={addModal} variant="contained" size="small">
+          <Typography variant="h5">Species</Typography>
+          <Button
+            onClick={addModal}
+            variant="contained"
+            size="small"
+            color="success"
+          >
             <Add />
           </Button>
         </Box>
-
-        {notification && <Alert severity="success">{notification}</Alert>}
 
         <SpeciesModal
           open={open}
@@ -243,8 +232,6 @@ export default function Species() {
           onRowsPerPageChange={handleRowsPerPage}
         ></TablePagination>
       </Paper>
-      {/* </Box> */}
-      {/* </Stack> */}
     </>
   );
 }

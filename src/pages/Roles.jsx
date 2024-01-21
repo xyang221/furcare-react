@@ -24,7 +24,6 @@ import {
 import { useEffect, useState } from "react";
 import axiosClient from "../axios-client";
 import { Add, Close, Delete, Edit, Search } from "@mui/icons-material";
-import DropDownButtons from "../components/DropDownButtons";
 
 export default function Roles() {
   //for table
@@ -125,20 +124,6 @@ export default function Roles() {
             setErrors(response.data.errors);
           }
         });
-    } else {
-      axiosClient
-        .post(`/roles`, role)
-        .then(() => {
-          setNotification("Role was successfully created");
-          openchange(false);
-          getRoles();
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status === 422) {
-            setErrors(response.data.errors);
-          }
-        });
     }
   };
 
@@ -159,10 +144,7 @@ export default function Roles() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h4">Roles</Typography>
-          <Button variant="contained" size="small" onClick={functionopenpopup}>
-            <Add />
-          </Button>
+          <Typography variant="h5">Roles</Typography>
         </Box>
 
         {notification && <Alert severity="success">{notification} </Alert>}
@@ -173,7 +155,6 @@ export default function Roles() {
 
         {!modalloading && (
           <Dialog
-            // fullScreen
             open={open}
             onClose={closepopup}
             fullWidth
@@ -214,6 +195,10 @@ export default function Roles() {
                   label="Role"
                   value={role.role}
                   onChange={(ev) => setRole({ ...role, role: ev.target.value })}
+                  InputProps={{
+                    readOnly: role.id ? true : false,
+                    "aria-readonly": role.id ? true : false,
+                  }}
                 />
                 <TextField
                   variant="outlined"
@@ -281,14 +266,6 @@ export default function Roles() {
                             >
                               <Edit fontSize="small" />
                             </Button>
-                            {/* <Button
-                              variant="contained"
-                              color="error"
-                              size="small"
-                              onClick={() => onDelete(r)}
-                            >
-                              <Delete fontSize="small" />
-                            </Button> */}
                           </Stack>
                         </TableCell>
                       </TableRow>

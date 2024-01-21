@@ -216,24 +216,27 @@ export default function Vets() {
                   ))}
                 </Box>
               )}
-              <Stack spacing={2} margin={2}>
-                <TextField
-                  variant="outlined"
-                  id="Full Name"
-                  label="Full Name"
-                  value={vet.fullname}
-                  onChange={(ev) =>
-                    setVet({ ...vet, fullname: ev.target.value })
-                  }
-                />
-                <Button
-                  color="primary"
-                  variant="contained"
-                  onClick={() => onSubmit()}
-                >
-                  Save
-                </Button>
-              </Stack>
+              <form onSubmit={(e) => onSubmit(e)}>
+                <Stack spacing={2} margin={2}>
+                  <TextField
+                    variant="outlined"
+                    id="Full Name"
+                    label="Full Name"
+                    value={vet.fullname}
+                    onChange={(ev) =>
+                      setVet({ ...vet, fullname: ev.target.value })
+                    }
+                    required
+                  />
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    type="submit"
+                  >
+                    Save
+                  </Button>
+                </Stack>
+              </form>
             </DialogContent>
             <DialogActions></DialogActions>
           </Dialog>

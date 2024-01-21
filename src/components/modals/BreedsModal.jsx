@@ -8,7 +8,9 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  FormControl,
   IconButton,
+  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -25,7 +27,7 @@ export default function BreedsModal(props) {
     loading,
     species,
     breed,
-    setBreed, 
+    setBreed,
     errors,
     isUpdate,
   } = props;
@@ -60,44 +62,48 @@ export default function BreedsModal(props) {
                 ))}
               </Box>
             )}
-            <form onSubmit={(e) => onSubmit(e)} >
-            <Stack spacing={2} margin={2}>
-          
-            <Select
-                  label="Specie"
-                  value={breed.specie_id || ''}
-                  onChange={(ev) => handleFieldChange("specie_id", ev.target.value)}
-                  required
-                >
-                  {species.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.specie}
-                    </MenuItem>
-                  ))}
-                </Select>
-             
+            <form onSubmit={(e) => onSubmit(e)}>
+              <Stack spacing={2} margin={2}>
+                <FormControl>
+                  <InputLabel>Specie</InputLabel>
+                  <Select
+                    label="Specie"
+                    value={breed.specie_id || ""}
+                    onChange={(ev) =>
+                      handleFieldChange("specie_id", ev.target.value)
+                    }
+                    required
+                  >
+                    {species.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.specie}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-              <TextField
-                variant="outlined"
-                id="Breed"
-                label="Breed"
-                value={breed.breed}
-                onChange={(ev) => handleFieldChange("breed", ev.target.value)}
-                required
-              />
-              <TextField
-                variant="outlined"
-                id="Description"
-                label="Description"
-                value={breed.description}
-                onChange={(ev) => handleFieldChange("description", ev.target.value)}
-                required
-              />
-             
-              <Button color="primary" variant="contained" type="submit">
-                Save
-              </Button>
-            </Stack>
+                <TextField
+                  variant="outlined"
+                  id="Breed"
+                  label="Breed"
+                  value={breed.breed}
+                  onChange={(ev) => handleFieldChange("breed", ev.target.value)}
+                  required
+                />
+                <TextField
+                  variant="outlined"
+                  id="Description"
+                  label="Description"
+                  value={breed.description}
+                  onChange={(ev) =>
+                    handleFieldChange("description", ev.target.value)
+                  }
+                />
+
+                <Button color="primary" variant="contained" type="submit">
+                  Save
+                </Button>
+              </Stack>
             </form>
           </DialogContent>
         </Dialog>

@@ -190,7 +190,7 @@ export default function ViewStaff() {
     timerId = setTimeout(() => {
       setZipcodeerror(null);
       getZipcodeDetails(selectedZipcode);
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(timerId);
   }, [selectedZipcode]);

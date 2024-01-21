@@ -220,7 +220,7 @@ export default function ViewPetOwner() {
     timerId = setTimeout(() => {
       setZipcodeerror(null);
       getZipcodeDetails(selectedZipcode);
-    }, 3000);
+    }, 2000);
 
     return () => clearTimeout(timerId);
   }, [selectedZipcode]);
@@ -281,7 +281,7 @@ export default function ViewPetOwner() {
           {services
             .filter((service) => appointment.includes(service.id))
             .map((filteredService) => (
-              <span key={filteredService.id}>{filteredService.service}, </span>
+              <span key={filteredService.id}> {filteredService.service}, </span>
             ))}
         </Typography>
       )}

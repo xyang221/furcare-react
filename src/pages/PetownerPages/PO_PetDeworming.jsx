@@ -14,6 +14,7 @@ import {
   TablePagination,
   TableRow,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { Archive, Edit } from "@mui/icons-material";
 import DewormingLogsModal from "../../components/modals/DewormingLogsModal";
@@ -22,6 +23,7 @@ import { useStateContext } from "../../contexts/ContextProvider";
 export default function PO_PetDeworming() {
   const { notification, setNotification } = useStateContext();
   const { id } = useParams();
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   //for table
   const columns = [
@@ -177,7 +179,12 @@ export default function PO_PetDeworming() {
 
         {notification && <Alert severity="success">{notification}</Alert>}
 
-        <TableContainer sx={{ height: 380 }}>
+        <TableContainer
+          sx={{
+            height: 380,
+            display: { xs: "none", sm: "block", md: "block", lg: "block" },
+          }}
+        >
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -235,6 +242,87 @@ export default function PO_PetDeworming() {
             )}
           </Table>
         </TableContainer>
+
+        {isMobile && (
+          <TableContainer
+            sx={{
+              height: "100%",
+              width: "100%",
+            }}
+          >
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    style={{ backgroundColor: "black", color: "white" }}
+                  >
+                    Dewormings
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              {loading && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && message && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
+                      {message}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && (
+                <TableBody>
+                  {deworminglogs &&
+                    deworminglogs
+                      .slice(page * rowperpage, page * rowperpage + rowperpage)
+                      .map((r) => (
+                        <TableRow hover role="checkbox" key={r.id}>
+                          <TableCell
+                            sx={{
+                              fontSize: "15px",
+                            }}
+                          >
+                            <div>
+                              <strong>Date:</strong> {r.date}
+                            </div>
+                            <div>
+                              <strong>Weight:</strong>
+                              {`${r.weight} kg`}
+                            </div>
+                            <div>
+                              <strong>Description:</strong> {r.description}
+                            </div>
+                            <div>
+                              <strong>Vet:</strong> {r.vet.fullname}
+                            </div>
+                            <div>
+                              <strong>Return:</strong> {r.return}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
+        )}
+
         <TablePagination
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}

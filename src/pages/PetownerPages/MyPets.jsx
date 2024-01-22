@@ -403,52 +403,56 @@ export default function MyPets() {
                       .map((r) => (
                         <TableRow hover role="checkbox" key={r.id}>
                           <TableCell
-                            
+                            sx={{ display: "flex", flexDirection: "row" }}
                           >
-                            <div>
-                              {r.photo ? (
-                                <Avatar
-                                  alt="pet-photo"
-                                  src={`http://localhost:8000/` + r.photo}
-                                  sx={{ width: 50, height: 50 }}
-                                  variant="rounded"
-                                />
-                              ) : (
-                                <Avatar
-                                  sx={{ width: 50, height: 50 }}
-                                  variant="rounded"
-                                >
-                                  <AddPhotoAlternate
-                                    sx={{ width: 20, height: 20 }}
+                            <Stack pr={3}>
+                              <div>
+                                {r.photo ? (
+                                  <Avatar
+                                    alt="pet-photo"
+                                    src={`http://localhost:8000/` + r.photo}
+                                    sx={{ width: 100, height: 100 }}
+                                    variant="rounded"
                                   />
-                                </Avatar>
-                              )}
-                            </div>
-                            <div>
-                              <strong>Pet Name:</strong> {r.name}
-                            </div>
-                            <div>
-                              <strong>Birthdate:</strong> {r.birthdate}
-                            </div>
-                            <div>
-                              <strong>Gender:</strong> {r.gender}
-                            </div>
-                            <div>
-                              <strong>Breed:</strong> {r.breed.breed}
-                            </div>
-                            <div>
-                              <strong>Color:</strong> {r.color}
-                            </div>
-                            <Stack direction="row" spacing={2}>
-                              <Button
-                                variant="contained"
-                                color="info"
-                                size="small"
-                                component={Link}
-                                to={`/petowner/pets/` + r.id + `/view`}
-                              >
-                                <Visibility fontSize="small" />
-                              </Button>
+                                ) : (
+                                  <Avatar
+                                    sx={{ width: 100, height: 100 }}
+                                    variant="rounded"
+                                  >
+                                    <AddPhotoAlternate
+                                      sx={{ width: 20, height: 20 }}
+                                    />
+                                  </Avatar>
+                                )}
+                              </div>
+                            </Stack>
+                            <Stack>
+                              <div>
+                                <strong>Pet Name:</strong> {r.name}
+                              </div>
+                              <div>
+                                <strong>Birthdate:</strong> {r.birthdate}
+                              </div>
+                              <div>
+                                <strong>Gender:</strong> {r.gender}
+                              </div>
+                              <div>
+                                <strong>Breed:</strong> {r.breed.breed}
+                              </div>
+                              <div>
+                                <strong>Color:</strong> {r.color}
+                              </div>
+                              <Stack direction="row" spacing={2}>
+                                <Button
+                                  variant="contained"
+                                  color="info"
+                                  size="small"
+                                  component={Link}
+                                  to={`/petowner/pets/` + r.id + `/view`}
+                                >
+                                  <Visibility fontSize="small" />
+                                </Button>
+                              </Stack>
                             </Stack>
                           </TableCell>
                         </TableRow>

@@ -13,6 +13,7 @@ import {
   Snackbar,
   Stack,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { AddPhotoAlternate, Edit } from "@mui/icons-material";
 import PetsModal from "../../components/modals/PetsModal";
@@ -26,6 +27,8 @@ import PetImageModal from "../../components/modals/PetImageModal";
 
 export default function ViewMyPet() {
   const { id } = useParams();
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   const { notification, setNotification } = useStateContext();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
@@ -292,25 +295,29 @@ export default function ViewMyPet() {
     <div>
       <Paper mt={1} sx={{ padding: "15px" }}>
         {notification && <Alert severity="success">{notification}</Alert>}
-        <Stack flexDirection="row">
+        <Stack direction={{ xs: "column", sm: "row" }}>
+        {isMobile && <Typography variant="h5" fontWeight={"bold"} align="center">Pet Details</Typography>}
+        <Stack >
           <Button onClick={uploadImage}>
             {pet.photo ? (
               <Avatar
                 alt="pet-photo"
                 src={`http://localhost:8000/` + pet.photo}
-                sx={{ width: 100, height: 100 }}
+                sx={{ width: 130, height: 130 }}
                 variant="rounded"
               />
             ) : (
-              <Avatar sx={{ width: 100, height: 100 }} variant="rounded">
+              <Avatar sx={{ width: 130, height: 130 }} variant="rounded">
                 <AddPhotoAlternate sx={{ width: 40, height: 40 }} />
               </Avatar>
             )}
           </Button>
+          
+          </Stack>
           <Stack flexDirection="column" padding={1}>
-            <Typography variant="h6">Pet Details</Typography>
+            {!isMobile && <Typography variant="h6">Pet Details</Typography>}
             <Stack flexDirection="row">
-              <Stack sx={{ marginRight: "10px" }}>
+              <Stack sx={{ marginRight: "10px" }} >
                 <Typography>Pet Name: {pet.name}</Typography>
                 <Typography>Birthdate: {pet.birthdate}</Typography>
                 <Typography>Gender: {pet.gender}</Typography>
@@ -323,7 +330,27 @@ export default function ViewMyPet() {
             </Stack>
           </Stack>
           {/* qrcode */}
-          <Stack>
+          {isMobile && 
+            <Box
+              sx={{
+                // ml: 10,
+                // width: "170px",
+                // height: "170px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                // backgroundColor: "whitesmoke",
+              }}
+            >
+              <QrCodeGenerator
+                qr={qr}
+                GenerateQRCode={GenerateQRCode}
+                petname={pet.name}
+              />
+            </Box>
+        }
+        {!isMobile &&  <Stack>
             <Box
               sx={{
                 ml: 10,
@@ -333,7 +360,7 @@ export default function ViewMyPet() {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor:"whitesmoke"
+                backgroundColor: "whitesmoke",
               }}
             >
               <QrCodeGenerator
@@ -342,7 +369,7 @@ export default function ViewMyPet() {
                 petname={pet.name}
               />
             </Box>
-          </Stack>
+          </Stack>}
         </Stack>
         <PetsModal
           open={open}

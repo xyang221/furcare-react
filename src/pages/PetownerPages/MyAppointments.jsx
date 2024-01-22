@@ -318,7 +318,7 @@ export default function MyAppointments() {
         <TableContainer
           sx={{
             height: "100%",
-            width: "1050px",
+            // width: "1050px",
             display: { xs: "none", sm: "block", md: "block", lg: "block" },
           }}
         >

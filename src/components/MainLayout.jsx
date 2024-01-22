@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, CssBaseline } from "@mui/material";
+import { Box, CssBaseline, Grid } from "@mui/material";
 import Navbar from "./Navbar";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useStateContext } from "../contexts/ContextProvider";
@@ -8,12 +8,11 @@ import PetOwnerSidebar from "./PetOwnerSidebar";
 
 export default function MainLayout() {
   const { user, token } = useStateContext();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   if (!token) {
     return <Navigate to="/login" />;
   }
-
 
   let sidebarComponent = null;
   let dashboardComponent = null;
@@ -37,10 +36,9 @@ export default function MainLayout() {
       <CssBaseline />
       <Box>
         {token && <Navbar />}
-        <Box display="flex" justifyContent="space-between">
+        <Box sx={{marginLeft:{sm:"240px"}}}>
           {sidebarComponent}
           <Box flex={5}>
-
             <Outlet />
           </Box>
         </Box>

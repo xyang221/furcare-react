@@ -15,6 +15,7 @@ import {
   TablePagination,
   TableRow,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { Add, Archive, Edit } from "@mui/icons-material";
 import VaccinationLogsModal from "../../components/modals/VaccinationLogsModal";
@@ -23,6 +24,7 @@ import { useStateContext } from "../../contexts/ContextProvider";
 export default function PO_PetVaccination() {
   const { id } = useParams();
   const { notification, setNotification } = useStateContext();
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   const columns = [
     { id: "date", name: "Date" },
@@ -184,7 +186,7 @@ export default function PO_PetVaccination() {
 
           {notification && <Alert severity="success">{notification}</Alert>}
 
-          <TableContainer sx={{ height: 380 }}>
+          <TableContainer sx={{ height: 380,  display: { xs: "none", sm: "block", md: "block", lg: "block" }, }} >
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
                 <TableRow>
@@ -246,6 +248,92 @@ export default function PO_PetVaccination() {
               )}
             </Table>
           </TableContainer>
+
+          {isMobile && (
+            <TableContainer
+              sx={{
+                height: "100%",
+                width: "100%",
+              }}
+            >
+              <Table stickyHeader aria-label="sticky table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      style={{ backgroundColor: "black", color: "white" }}
+                    >
+                      Vaccinations
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                {loading && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        style={{ textAlign: "center" }}
+                      >
+                        Loading...
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
+
+                {!loading && message && (
+                  <TableBody>
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        style={{ textAlign: "center" }}
+                      >
+                        {message}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                )}
+
+                {!loading && (
+                  <TableBody>
+                    {vaccinationlogs &&
+                      vaccinationlogs
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((r) => (
+                          <TableRow hover role="checkbox" key={r.id}>
+                            <TableCell
+                              sx={{
+                                fontSize: "15px",
+                              }}
+                            >
+                              <div>
+                                <strong>Date:</strong> {r.date}
+                              </div>
+                              <div>
+                                <strong>Weight:</strong>{`${r.weight} kg`}
+                              </div>
+                              <div>
+                                <strong>Againsts:</strong> {r.va_againsts}
+                              </div>
+                              <div>
+                                <strong>Description:</strong> {r.description}
+                              </div>
+                              <div>
+                                <strong>Vet:</strong> {r.vet.fullname}
+                              </div>
+                              <div>
+                                <strong>Return:</strong> {r.return}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                  </TableBody>
+                )}
+              </Table>
+            </TableContainer>
+          )}
+
           <TablePagination
             rowsPerPageOptions={[10, 15, 25]}
             rowsPerPage={rowsPerPage}

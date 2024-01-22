@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from "react";
 import QrCodeScanner from "../../components/QrCodeScanner";
-import { Box, Button, Grid, Paper, Stack, Typography } from "@mui/material";
-import { Close, Money, Paid, People } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  List,
+  Menu,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { Add, Close, Money, Paid, People } from "@mui/icons-material";
 import TotalGraph from "../../components/TotalGraph";
 import axiosClient from "../../axios-client";
 import AppointmentsToday from "../AppointmentsToday";
@@ -19,7 +29,7 @@ export default function PetownerHome() {
   const [balance, setBalance] = useState([]);
   const [message, setMessage] = useState("");
 
-  const { staffuser,user } = useStateContext();
+  const { staffuser, user } = useStateContext();
 
   const [query, setQuery] = useState("");
   const [data, setData] = useState([]);
@@ -91,7 +101,7 @@ export default function PetownerHome() {
     // channel.listen('.appointement-event', (event) => {
     //   const eventData = event.data;
     //   const userId = event.userId;
-    
+
     //   // Use userId and eventData as needed
     // });
 
@@ -133,7 +143,7 @@ export default function PetownerHome() {
               totaltype="Pets"
               color={"#1769aa"}
               link={"/petowner/pets"}
-              width="350px"
+              width="100%"
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -142,7 +152,7 @@ export default function PetownerHome() {
               totaltype="Pending Balance"
               color={"#ffc107"}
               icon={Paid}
-              width="350px"
+              width="100%"
             />
           </Grid>
           <Grid item xs={12} md={4}>

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import {
+  Add,
   Archive,
   Home,
   ListAlt,
@@ -8,6 +9,7 @@ import {
   Person,
   Person2,
   Pets,
+  Reorder,
   Settings,
 } from "@mui/icons-material";
 import {
@@ -72,10 +74,15 @@ export default function PetOwnerSidebar() {
       <IconButton
         color="inherit"
         aria-label="open drawer"
+        id="sidebar-button"
         onClick={handleDrawerOpen}
         edge="start"
+        sx={{
+          display: { xs: "block", sm: "none" },
+
+        }}
       >
-        <Menu />
+        <Reorder  sx={{ width: 40, height: 40 }} />
       </IconButton>
       <Drawer
         sx={{
@@ -86,7 +93,7 @@ export default function PetOwnerSidebar() {
             boxSizing: "border-box",
             marginTop: "75px",
           },
-          display: { xs: "none", sm: "block" },
+          display: { xs: "block", sm: "block" },
           zIndex: 999,
         }}
         variant={isMobile ? "temporary" : "permanent"}

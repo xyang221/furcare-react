@@ -208,7 +208,7 @@ export default function EditProfilePetOwner() {
         margin: "10px",
       }}
     >
-      <Stack flexDirection="row">
+      <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
         <Stack p={2}>
           <Typography variant="h5">
             Pet Owner Information{" "}
@@ -274,7 +274,6 @@ export default function EditProfilePetOwner() {
         isUpdate={userdata.id}
       />
 
-      {/* <PetOWnerTabs petowner={petownerdata} /> */}
     </Paper>
   );
 }

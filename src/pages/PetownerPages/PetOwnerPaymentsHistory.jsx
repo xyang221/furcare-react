@@ -10,12 +10,15 @@ import {
   TablePagination,
   TableRow,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import axiosClient from "../../axios-client";
 import { useStateContext } from "../../contexts/ContextProvider";
 
 export default function PetOwnerPaymentsHistory() {
   const { staffuser } = useStateContext();
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   //for table
   const columns = [
     { id: "Date", name: "Date" },
@@ -74,11 +77,19 @@ export default function PetOwnerPaymentsHistory() {
           padding: "20px",
         }}
       >
-        <Typography p={2} variant="h5">
-          Payments History
-        </Typography>
+        {!isMobile && (
+          <Typography p={2} variant="h5">
+            Payments History
+          </Typography>
+        )}
 
-        <TableContainer sx={{ height: 350 }}>
+        <TableContainer
+          sx={{
+            height: "100%",
+            width: "1050px",
+            display: { xs: "none", sm: "block", md: "block", lg: "block" },
+          }}
+        >
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -128,9 +139,13 @@ export default function PetOwnerPaymentsHistory() {
                       <TableRow hover role="checkbox" key={r.id}>
                         <TableCell>{r.date}</TableCell>
                         <TableCell>{r.total.toFixed(2)}</TableCell>
-                        <TableCell>{r.clientdeposit.deposit.toFixed(2)}</TableCell>
                         <TableCell>
-                          {(r.total - r.clientdeposit.deposit).toFixed(2) > 0 ? (r.total - r.clientdeposit.deposit).toFixed(2) : 0}
+                          {r.clientdeposit.deposit.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          {(r.total - r.clientdeposit.deposit).toFixed(2) > 0
+                            ? (r.total - r.clientdeposit.deposit).toFixed(2)
+                            : 0}
                         </TableCell>
                         <TableCell>{r.type}</TableCell>
                         <TableCell>{r.amount.toFixed(2)}</TableCell>
@@ -145,6 +160,104 @@ export default function PetOwnerPaymentsHistory() {
             )}
           </Table>
         </TableContainer>
+
+        {isMobile && (
+          <TableContainer
+            sx={{
+              height: "100%",
+              width: "100%",
+            }}
+          >
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    style={{ backgroundColor: "black", color: "white" }}
+                  >
+                    Payments History
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              {loading && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && message && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
+                      {message}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && (
+                <TableBody>
+                  {chargeslip &&
+                    chargeslip
+                      .slice(page * rowperpage, page * rowperpage + rowperpage)
+                      .map((r) => (
+                        <TableRow hover role="checkbox" key={r.id}>
+                          <TableCell
+                            sx={{
+                              fontSize: "15px",
+                            }}
+                          >
+                            <div>
+                              <strong>Date:</strong> {r.date}
+                            </div>
+                            <div>
+                              <strong>Total:</strong> {r.total.toFixed(2)}
+                            </div>
+                            <div>
+                              <strong>Deposit:</strong>
+                              {r.clientdeposit.deposit.toFixed(2)}
+                            </div>
+                            <div>
+                              <strong>Remaining Charge:</strong>{" "}
+                              {(r.total - r.clientdeposit.deposit).toFixed(2) >
+                              0
+                                ? (r.total - r.clientdeposit.deposit).toFixed(2)
+                                : 0}
+                            </div>
+                            <div>
+                              <strong>Type of Payment:</strong> {r.type}
+                            </div>
+                            <div>
+                              <strong>Amount:</strong> {r.amount.toFixed(2)}
+                            </div>
+                            <div>
+                              <strong>Change:</strong> {r.change.toFixed(2)}
+                            </div>
+                            <div>
+                              <strong>Balance:</strong>{" "}
+                              {r.clientdeposit.balance.toFixed(2)}
+                            </div>
+                            <div>
+                              <strong>Status:</strong> {r.clientdeposit.status}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
+        )}
+
         <TablePagination
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}

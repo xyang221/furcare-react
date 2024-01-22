@@ -9,13 +9,17 @@ import { HomeSearchBar } from "../../components/HomeSearchBar";
 import { useStateContext } from "../../contexts/ContextProvider";
 import PO_AppointmentsToday from "./PO_AppointmentsToday";
 import PO_VaccinationReturn from "./PO_VaccinationReturn";
+import pusher from "../../echo";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import echo from "../../echo";
 
 export default function PetownerHome() {
   const [pets, setPets] = useState([]);
   const [balance, setBalance] = useState([]);
   const [message, setMessage] = useState("");
 
-  const { staffuser } = useStateContext();
+  const { staffuser,user } = useStateContext();
 
   const [query, setQuery] = useState("");
   const [data, setData] = useState([]);
@@ -73,10 +77,46 @@ export default function PetownerHome() {
       });
   };
 
-  const [openscan, setOpenscan] = useState(false);
+  // const pushAppointment = () => {
+  //   const channel = pusher.subscribe("admin-channel");
+  //   channel.bind("appointment-event", function (data) {
+  //     alert(data.data);
+  //   });
+  // }
+
+  useEffect(() => {
+    const channel = echo.channel(`admin-channel`);
+    // const channel = echo.private(`admin-channel.${user.id}`);
+
+    // channel.listen('.appointement-event', (event) => {
+    //   const eventData = event.data;
+    //   const userId = event.userId;
+    
+    //   // Use userId and eventData as needed
+    // });
+
+    // channel.listen(".appointment-event", function (data) {
+    //   alert(JSON.stringify(data));
+    // });
+
+    // channel.listen(".deworming-event", function (data) {
+    //   alert(JSON.stringify(data));
+    // });
+
+    // channel.listen(".vaccination-event", function (data) {
+    //   alert(JSON.stringify(data));
+    // });
+
+    // return () => {
+    //   channel.stopListening("appointment-event");
+    //   channel.stopListening("deworming-event");
+    //   channel.stopListening("vaccination-event");
+    // };
+  }, []);
 
   useEffect(() => {
     getPetsTotal();
+    // pushAppointment()
     getBalance();
   }, []);
 
@@ -93,7 +133,7 @@ export default function PetownerHome() {
               totaltype="Pets"
               color={"#1769aa"}
               link={"/petowner/pets"}
-              width="100%"
+              width="350px"
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -102,7 +142,7 @@ export default function PetownerHome() {
               totaltype="Pending Balance"
               color={"#ffc107"}
               icon={Paid}
-              width="100%"
+              width="350px"
             />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -124,7 +164,7 @@ export default function PetownerHome() {
           <Grid item xs={12} md={6}>
             <PO_AppointmentsToday />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={5} md={6}>
             <PO_VaccinationReturn />
           </Grid>
         </Grid>

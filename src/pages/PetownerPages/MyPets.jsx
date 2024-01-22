@@ -17,8 +17,14 @@ import {
   TablePagination,
   TableRow,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
-import { Add, AddPhotoAlternate, Archive, Visibility } from "@mui/icons-material";
+import {
+  Add,
+  AddPhotoAlternate,
+  Archive,
+  Visibility,
+} from "@mui/icons-material";
 import { Link, useParams } from "react-router-dom";
 import axiosClient from "../../axios-client";
 import PetsModal from "../../components/modals/PetsModal";
@@ -207,6 +213,9 @@ export default function MyPets() {
     }
   };
 
+  //responsive
+  const isMobile = useMediaQuery("(max-width:600px)");
+
   useEffect(() => {
     getPets();
     getSpecies();
@@ -241,10 +250,18 @@ export default function MyPets() {
           handleImage={handleImage}
           error={error}
         />
-        <Typography variant="h5" p={1}>
-          Pets
-        </Typography>
-        <TableContainer sx={{ height: "100%" }}>
+        {!isMobile && (
+          <Typography variant="h5" p={1}>
+            Pets
+          </Typography>
+        )}
+        <TableContainer
+          sx={{
+            height: "100%",
+            width: "1050px",
+            display: { xs: "none", sm: "block", md: "block", lg: "block" },
+          }}
+        >
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -300,7 +317,10 @@ export default function MyPets() {
                               variant="rounded"
                             />
                           ) : (
-                            <Avatar sx={{ width: 50, height: 50 }} variant="rounded">
+                            <Avatar
+                              sx={{ width: 50, height: 50 }}
+                              variant="rounded"
+                            >
                               <AddPhotoAlternate
                                 sx={{ width: 20, height: 20 }}
                               />
@@ -331,6 +351,113 @@ export default function MyPets() {
             )}
           </Table>
         </TableContainer>
+
+        {isMobile && (
+          <TableContainer
+            sx={{
+              height: "100%",
+              width: "100",
+            }}
+          >
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    style={{ backgroundColor: "black", color: "white" }}
+                  >
+                    Pets
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              {loading && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && message && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
+                      {message}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && (
+                <TableBody>
+                  {pets &&
+                    pets
+                      .slice(page * rowperpage, page * rowperpage + rowperpage)
+                      .map((r) => (
+                        <TableRow hover role="checkbox" key={r.id}>
+                          <TableCell
+                            
+                          >
+                            <div>
+                              {r.photo ? (
+                                <Avatar
+                                  alt="pet-photo"
+                                  src={`http://localhost:8000/` + r.photo}
+                                  sx={{ width: 50, height: 50 }}
+                                  variant="rounded"
+                                />
+                              ) : (
+                                <Avatar
+                                  sx={{ width: 50, height: 50 }}
+                                  variant="rounded"
+                                >
+                                  <AddPhotoAlternate
+                                    sx={{ width: 20, height: 20 }}
+                                  />
+                                </Avatar>
+                              )}
+                            </div>
+                            <div>
+                              <strong>Pet Name:</strong> {r.name}
+                            </div>
+                            <div>
+                              <strong>Birthdate:</strong> {r.birthdate}
+                            </div>
+                            <div>
+                              <strong>Gender:</strong> {r.gender}
+                            </div>
+                            <div>
+                              <strong>Breed:</strong> {r.breed.breed}
+                            </div>
+                            <div>
+                              <strong>Color:</strong> {r.color}
+                            </div>
+                            <Stack direction="row" spacing={2}>
+                              <Button
+                                variant="contained"
+                                color="info"
+                                size="small"
+                                component={Link}
+                                to={`/petowner/pets/` + r.id + `/view`}
+                              >
+                                <Visibility fontSize="small" />
+                              </Button>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
+        )}
         <TablePagination
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}

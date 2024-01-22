@@ -13,11 +13,15 @@ import {
 import {
   Box,
   Drawer,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Menu,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -50,89 +54,114 @@ export default function PetOwnerSidebar() {
     localStorage.setItem("selectedIndex", index);
   };
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width:600px)");
+
+  const [open, setOpen] = useState(!isMobile);
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
   return (
-    <Drawer
-      sx={{
-        width: "240px",
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
+    <>
+      <IconButton
+        color="inherit"
+        aria-label="open drawer"
+        onClick={handleDrawerOpen}
+        edge="start"
+      >
+        <Menu />
+      </IconButton>
+      <Drawer
+        sx={{
           width: "240px",
-          boxSizing: "border-box",
-          marginTop: "75px",
-        },
-        display: { xs: "none", sm: "block" },
-        zIndex: 999,
-      }}
-      variant="permanent"
-      anchor="left"
-    >
-      <StyledList>
-        <ListItem>
-          <ListItemButton
-            selected={selectedIndex === 0}
-            onClick={() => handleListItemClick(0)}
-            component={Link}
-            to="/home"
-          >
-            <ListItemText primary="Home"></ListItemText>
-            <ListItemIcon>
-              <Home />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton
-            selected={selectedIndex === 2}
-            onClick={() => handleListItemClick(2)}
-            component={Link}
-            to="/petowner/appointments"
-          >
-            <ListItemText primary="Appointments"></ListItemText>
-            <ListItemIcon>
-              <ListAlt />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton
-            selected={selectedIndex === 1}
-            onClick={() => handleListItemClick(1)}
-            component={Link}
-            to="/petowner/pets"
-          >
-            <ListItemText primary="Pets"></ListItemText>
-            <ListItemIcon>
-              <Pets />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton
-            selected={selectedIndex === 3}
-            onClick={() => handleListItemClick(3)}
-            component={Link}
-            to="/petowner/availed"
-          >
-            <ListItemText primary="Availed Services"></ListItemText>
-            <ListItemIcon>
-              <ListAlt />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-        <ListItem>
-          <ListItemButton
-            selected={selectedIndex === 4}
-            onClick={() => handleListItemClick(4)}
-            component={Link}
-            to="/petowner/payments"
-          >
-            <ListItemText primary="Payments History"></ListItemText>
-            <ListItemIcon>
-              <PaymentOutlined />
-            </ListItemIcon>
-          </ListItemButton>
-        </ListItem>
-      </StyledList>
-    </Drawer>
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: "240px",
+            boxSizing: "border-box",
+            marginTop: "75px",
+          },
+          display: { xs: "none", sm: "block" },
+          zIndex: 999,
+        }}
+        variant={isMobile ? "temporary" : "permanent"}
+        anchor="left"
+        open={open}
+        onClose={handleDrawerClose}
+      >
+        <StyledList>
+          <ListItem>
+            <ListItemButton
+              selected={selectedIndex === 0}
+              onClick={() => handleListItemClick(0)}
+              component={Link}
+              to="/home"
+            >
+              <ListItemText primary="Home"></ListItemText>
+              <ListItemIcon>
+                <Home />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              selected={selectedIndex === 2}
+              onClick={() => handleListItemClick(2)}
+              component={Link}
+              to="/petowner/appointments"
+            >
+              <ListItemText primary="Appointments"></ListItemText>
+              <ListItemIcon>
+                <ListAlt />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              selected={selectedIndex === 1}
+              onClick={() => handleListItemClick(1)}
+              component={Link}
+              to="/petowner/pets"
+            >
+              <ListItemText primary="Pets"></ListItemText>
+              <ListItemIcon>
+                <Pets />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              selected={selectedIndex === 3}
+              onClick={() => handleListItemClick(3)}
+              component={Link}
+              to="/petowner/availed"
+            >
+              <ListItemText primary="Availed Services"></ListItemText>
+              <ListItemIcon>
+                <ListAlt />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+          <ListItem>
+            <ListItemButton
+              selected={selectedIndex === 4}
+              onClick={() => handleListItemClick(4)}
+              component={Link}
+              to="/petowner/payments"
+            >
+              <ListItemText primary="Payments History"></ListItemText>
+              <ListItemIcon>
+                <PaymentOutlined />
+              </ListItemIcon>
+            </ListItemButton>
+          </ListItem>
+        </StyledList>
+      </Drawer>
+    </>
   );
 }

@@ -15,17 +15,19 @@ import {
   TablePagination,
   TableRow,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
-import {
-  Edit,
-  Close,
-} from "@mui/icons-material";
+import { Edit, Close, Add } from "@mui/icons-material";
 import Swal from "sweetalert2";
 import { useStateContext } from "../../contexts/ContextProvider";
 import PetownerAppointmentModal from "../../components/modals/PetownerAppointmentModal";
 
 export default function MyAppointments() {
   const { staffuser } = useStateContext();
+  const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width:600px)");
+  // const isMobile = useMediaQuery(theme.breakpoints.up("xs"));
   //for table
   const columns = [
     { id: "ID", name: "ID" },
@@ -266,14 +268,21 @@ export default function MyAppointments() {
           flexDirection="row"
           justifyContent="space-between"
         >
-          <Typography variant="h5">Appointments</Typography>
+          {!isMobile && <Typography variant="h5">Appointments</Typography>}
           <Button
             onClick={addModal}
             variant="contained"
             color="success"
             size="small"
           >
-            create appointment
+            {/* create appointment */}
+            {isMobile ? (
+              <Add />
+            ) : (
+              <Typography justifyContent={"right"}>
+                Create Appointment
+              </Typography>
+            )}
           </Button>
         </Box>
         {/* <DropDownButtons
@@ -306,7 +315,13 @@ export default function MyAppointments() {
           setSelectedServices={setSelectedServices}
         />
 
-        <TableContainer sx={{ height: "100%" }}>
+        <TableContainer
+          sx={{
+            height: "100%",
+            width: "1050px",
+            display: { xs: "none", sm: "block", md: "block", lg: "block" },
+          }}
+        >
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -400,6 +415,124 @@ export default function MyAppointments() {
             )}
           </Table>
         </TableContainer>
+
+        {isMobile && (
+          <TableContainer
+            sx={{
+              height: "100%",
+              width: "100%",
+            }}
+          >
+            <Table stickyHeader aria-label="sticky table">
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    style={{ backgroundColor: "black", color: "white" }}
+                  >
+                    Appointments
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              {loading && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && message && (
+                <TableBody>
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      style={{ textAlign: "center" }}
+                    >
+                      {message}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              )}
+
+              {!loading && (
+                <TableBody>
+                  {appointments &&
+                    appointments
+                      .slice(page * rowperpage, page * rowperpage + rowperpage)
+                      .map((r) => (
+                        <TableRow hover role="checkbox" key={r.id}>
+                          <TableCell
+                            sx={{
+                              fontSize: "15px",
+                            }}
+                          >
+                            <div>
+                              <strong>ID:</strong> {r.id}
+                            </div>
+                            <div>
+                              <strong>Date:</strong> {r.date}
+                            </div>
+                            <div>
+                              <strong>Services:</strong>{" "}
+                              {services
+                                .filter((service) =>
+                                  r.services.includes(service.id)
+                                )
+                                .map((filteredService) => (
+                                  <span key={filteredService.id}>
+                                    {filteredService.service}
+                                    <br />
+                                  </span>
+                                ))}
+                            </div>
+                            <div>
+                              <strong>Purpose:</strong> {r.purpose}
+                            </div>
+                            <div>
+                              <strong>Remarks:</strong> {r.remarks}
+                            </div>
+                            <div>
+                              <strong>Vet:</strong> {r.vet.fullname}
+                            </div>
+                            <div>
+                              <strong>Status:</strong> {r.status}
+                            </div>
+                            {(r.status === "Pending" ||
+                              r.status === "Confirmed") && (
+                              <div>
+                                <Stack direction="row" spacing={2}>
+                                  <Button
+                                    variant="contained"
+                                    size="small"
+                                    color="info"
+                                    onClick={() => onEdit(r)}
+                                  >
+                                    <Edit fontSize="small" />
+                                  </Button>
+                                  <Button
+                                    variant="contained"
+                                    size="small"
+                                    color="error"
+                                    onClick={() => onCancel(r)}
+                                  >
+                                    <Close fontSize="small" />
+                                  </Button>
+                                </Stack>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                </TableBody>
+              )}
+            </Table>
+          </TableContainer>
+        )}
         <TablePagination
           rowsPerPageOptions={[10, 15, 25]}
           rowsPerPage={rowperpage}

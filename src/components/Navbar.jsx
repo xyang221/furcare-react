@@ -1,7 +1,17 @@
 import styled from "@emotion/styled";
 import { Mail, Notifications } from "@mui/icons-material";
-import { AppBar, Badge, Box, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Badge,
+  Box,
+  IconButton,
+  Toolbar,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import Profile from "./Profile";
+import NotifIcon from "./NotifIcon";
+import { useTheme } from "@emotion/react";
 
 export default function Navbar() {
   const StyledToolbar = styled(Toolbar)({
@@ -12,30 +22,29 @@ export default function Navbar() {
 
   const Icons = styled(Box)(({ theme }) => ({
     display: "flex",
-    gap: "20px",
+    gap: "10px",
     alignItems: "center",
   }));
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <AppBar position="sticky">
       <StyledToolbar>
         <Box display="flex" flexDirection={"row"} alignItems={"center"}>
-          <img
-            src="/../src/assets/furcare-logo.png"
-            height={"50"}
-            width={"50"}
-          />
-          <Typography variant="h6" fontWeight={"bold"} align={"center"} pl={1}>
-            Fur Care Veterinary Clinic
+          <IconButton edge="start" color="inherit" aria-label="menu">
+            <img
+              src="/../src/assets/furcare-logo.png"
+              height={"50"}
+              width={"50"}
+            />
+          </IconButton>
+          <Typography variant="h6" fontWeight="bold" align="center">
+            {isMobile ? "Fur Care" : "Fur Care Clinic Management System"}
           </Typography>
         </Box>
         <Icons>
-          <Badge badgeContent={4} color="primary">
-            <Mail />
-          </Badge>
-          <Badge badgeContent={7} color="primary">
-            <Notifications />
-          </Badge>
+          <NotifIcon />
           <Profile />
         </Icons>
       </StyledToolbar>

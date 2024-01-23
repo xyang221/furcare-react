@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -34,12 +34,12 @@ import Payments from "./pages/Payments";
 import MyAppointments from "./pages/PetownerPages/MyAppointments";
 import MyPets from "./pages/PetownerPages/MyPets";
 import EditProfilePetOwner from "./pages/PetownerPages/EditProfilePetOwner";
-import PetOwnerPayments from "./pages/PetOwnerPayments";
-import AllServicesAvailed from "./pages/AllServicesAvailed";
 import ViewStaffEdit from "./pages/ViewStaffEdit";
 import Services from "./pages/Services";
 import VDTabs from "./components/VDTabs";
 import ViewMyPet from "./pages/PetownerPages/ViewMyPet";
+import PetOwnerPaymentsHistory from "./pages/PetownerPages/PetOwnerPaymentsHistory";
+import PetOwnerServicesAvailed from "./pages/PetownerPages/PetOwnerServicesAvailed";
 
 const roles = {
   ADMIN: "1",
@@ -48,17 +48,23 @@ const roles = {
 };
 
 function App() {
+  // useEffect(() => {
+  //   // Fetch initial data from your Laravel backend
+  //   axios
+  //     .get("/api/today")
+  //     .then((response) => {
+  //       console.log("Initial Data Received:", response.data);
+  //       // Perform actions based on the initial data
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching initial data:", error);
+  //     });
+  // }, []);
   return (
     <>
       <Routes>
         {/* Authenticated Routes */}
-        {/* <Route
-          element={
-            <RequireAuth
-              allowedRoles={[roles.ADMIN, roles.PETOWNER, roles.STAFF]}
-            />
-          }
-        > */}
+
         <Route path="/" element={<MainLayout />}>
           <Route path="home" element={<Home />} />
           {/* Admin-Only Routes */}
@@ -66,8 +72,6 @@ function App() {
             path="admin/*"
             element={<RequireAuth allowedRoles={[roles.ADMIN, roles.STAFF]} />}
           >
-            <Route path="settings" element={<SettingsTabs />} />
-
             <Route path="roles" element={<Roles />} />
 
             <Route path="users" element={<Users />} />
@@ -102,7 +106,9 @@ function App() {
 
             <Route path="myprofile" element={<ViewStaffEdit />} />
           </Route>
-
+          <Route element={<RequireAuth allowedRoles={[roles.ADMIN]} />}>
+            <Route path="/admin/settings" element={<SettingsTabs />} />
+          </Route>
           {/* Staff-Only Routes */}
           {/* <Route
             path="staffs/*"
@@ -135,8 +141,8 @@ function App() {
             <Route path="pets/:id/view" element={<ViewMyPet />} />
             <Route path="appointments" element={<MyAppointments />} />
             <Route path="myprofile" element={<EditProfilePetOwner />} />
-            <Route path="availed" element={<AllServicesAvailed />} />
-            <Route path="payments" element={<PetOwnerPayments />} />
+            <Route path="availed" element={<PetOwnerServicesAvailed />} />
+            <Route path="payments" element={<PetOwnerPaymentsHistory />} />
           </Route>
         </Route>
         {/* </Route> */}

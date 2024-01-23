@@ -15,8 +15,9 @@ import {
   Typography,
 } from "@mui/material";
 import { Add, Archive, Close, Edit, Refresh, Save } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
 
-export default function PetConditionAdmission({ tid }) {
+export default function PetConditionAdmission() {
   //for table
   const columns = [
     { id: "AM/PM", name: "AM/PM" },
@@ -25,18 +26,21 @@ export default function PetConditionAdmission({ tid }) {
     { id: "urinated", name: "urinated" },
     { id: "vomit", name: "vomit" },
     { id: "defecated", name: "defecated" },
-    { id: "Actions", name: "Actions" },
+    // { id: "Actions", name: "Actions" },
   ];
 
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [petconditions, setPetconditions] = useState([]);
   const [message, setMessage] = useState("");
+  const [admission, setAdmission] = useState([]);
 
   const getTreatmentPetCondition = () => {
     setMessage("");
+    setErrors(null);
     setLoading(true);
     axiosClient
-      .get(`/treatments/${tid}/petconditions`)
+      .get(`/treatments/${id}/petconditions`)
       .then(({ data }) => {
         setLoading(false);
         setPetconditions(data.data);
@@ -48,6 +52,15 @@ export default function PetConditionAdmission({ tid }) {
         }
         setLoading(false);
       });
+  };
+
+  const getCurrentTreatment = () => {
+    axiosClient
+      .get(`/admissions/treatment/${id}`)
+      .then(({ data }) => {
+        setAdmission(data.servicesavailed);
+      })
+      .catch(() => {});
   };
 
   //for add table
@@ -77,12 +90,16 @@ export default function PetConditionAdmission({ tid }) {
   const onEdit = (r) => {
     setErrors(null);
     setAddbtn(true);
+    setLoading(true);
     axiosClient
       .get(`/petconditions/${r.id}`)
       .then(({ data }) => {
         setPetcondition(data);
+        setLoading(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        setLoading(false);
+      });
   };
 
   const onArchive = (u) => {
@@ -113,7 +130,7 @@ export default function PetConditionAdmission({ tid }) {
         });
     } else {
       axiosClient
-        .post(`/petconditions/treatment/${tid}`, petcondition)
+        .post(`/petconditions/treatment/${id}`, petcondition)
         .then(() => {
           getTreatmentPetCondition();
           setAddbtn(false);
@@ -136,35 +153,36 @@ export default function PetConditionAdmission({ tid }) {
   const handleRefresh = () => {
     getTreatmentPetCondition();
   };
+  console.log(admission);
 
   useEffect(() => {
     getTreatmentPetCondition();
+    getCurrentTreatment();
   }, []);
 
   return (
     <>
-      <Stack sx={{ margin: "5px" }}>
+      <Stack sx={{ margin: "5px", p: 1 }}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
           }}
         >
-          <Typography>
-            <IconButton color="success" onClick={handleRefresh}>
-              <Refresh />
-            </IconButton>
+          <Typography variant="body1" fontWeight={"bold"}>
             Pet Condition:
           </Typography>
-          <IconButton
-            color="success"
-            variant="contained"
-            onClick={handlePetCondition}
-          >
-            <Add />
-          </IconButton>
+          {admission.status !== "Completed" && (
+            <IconButton
+              color="success"
+              variant="contained"
+              onClick={handlePetCondition}
+            >
+              <Add />
+            </IconButton>
+          )}
         </Box>
-        <TableContainer maxwidth="sm">
+        <TableContainer style={{ maxWidth: "sm", overflowX: "auto" }}>
           {errors && (
             <Box>
               {Object.keys(errors).map((key) => (
@@ -178,15 +196,20 @@ export default function PetConditionAdmission({ tid }) {
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
-                  <TableCell key={column.id}>{column.name}</TableCell>
+                  <TableCell key={column.id} size="small">
+                    {column.name}
+                  </TableCell>
                 ))}
+                {admission.status !== "Completed" && (
+                  <TableCell size="small">Actions</TableCell>
+                )}
               </TableRow>
             </TableHead>
             {loading && (
               <TableBody>
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={7}
                     style={{ textAlign: "center" }}
                   >
                     Loading...
@@ -218,32 +241,36 @@ export default function PetConditionAdmission({ tid }) {
                       <TableCell>{r.urinated}</TableCell>
                       <TableCell>{r.vomit}</TableCell>
                       <TableCell>{r.defecated}</TableCell>
-                      <TableCell>
-                        <Stack direction="row">
-                          <IconButton
-                            variant="contained"
-                            size="small"
-                            color="info"
-                            onClick={() => onEdit(r)}
-                          >
-                            <Edit fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            onClick={() => onArchive(r)}
-                          >
-                            <Archive fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      </TableCell>
+                      {admission.status !== "Completed" && (
+                        <TableCell>
+                          {!addbtn && (
+                            <Stack direction="row">
+                              <IconButton
+                                variant="contained"
+                                size="small"
+                                color="info"
+                                onClick={() => onEdit(r)}
+                              >
+                                <Edit fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                variant="contained"
+                                color="error"
+                                size="small"
+                                onClick={() => onArchive(r)}
+                              >
+                                <Archive fontSize="small" />
+                              </IconButton>
+                            </Stack>
+                          )}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
               </TableBody>
             )}
-            {addbtn && (
-              <TableBody>
+            {!loading && addbtn && (
+              <TableBody sx={{ border: "1px solid black" }}>
                 <TableRow>
                   <TableCell></TableCell>
                   <TableCell>
@@ -301,26 +328,28 @@ export default function PetConditionAdmission({ tid }) {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>
-                    <Stack direction="row">
-                      <IconButton
-                        variant="contained"
-                        size="small"
-                        color="success"
-                        onClick={(e) => onSubmit(e)}
-                      >
-                        <Save fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        variant="contained"
-                        size="small"
-                        color="error"
-                        onClick={handleClose}
-                      >
-                        <Close fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                  </TableCell>
+                  {admission.status !== "Completed" && (
+                    <TableCell>
+                      <Stack direction="row">
+                        <IconButton
+                          variant="contained"
+                          size="small"
+                          color="success"
+                          onClick={(e) => onSubmit(e)}
+                        >
+                          <Save fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          variant="contained"
+                          size="small"
+                          color="error"
+                          onClick={handleClose}
+                        >
+                          <Close fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    </TableCell>
+                  )}
                 </TableRow>
               </TableBody>
             )}

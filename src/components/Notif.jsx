@@ -1,7 +1,7 @@
 import { Stack, Snackbar, Alert, AlertTitle } from "@mui/material";
 
 export default function Notif(props) {
-  const { open, notification, severity, title } = props;
+  const { open, notification, severity } = props;
 
   return (
     <>
@@ -16,7 +16,7 @@ export default function Notif(props) {
               severity={severity}
               sx={{ fontSize: "14px", width: "100%" }}
             >
-              <AlertTitle>{title}</AlertTitle>
+              {/* <AlertTitle>{title}</AlertTitle> */}
               {notification}
             </Alert>
           </Snackbar>

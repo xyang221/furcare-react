@@ -6,6 +6,7 @@ import { ContextProvider } from './contexts/ContextProvider.jsx'
 import { ThemeProvider } from '@emotion/react'
 import {theme} from './theme.jsx' 
 
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
@@ -17,3 +18,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ThemeProvider>
   </React.StrictMode>,
 )
+
+
+

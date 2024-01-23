@@ -7,7 +7,7 @@ import Popper from "@mui/material/Popper";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Stack from "@mui/material/Stack";
-import { Avatar, Typography } from "@mui/material";
+import { Avatar, Divider, Menu, Typography } from "@mui/material";
 import { useStateContext } from "../contexts/ContextProvider";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axiosClient from "../axios-client";
@@ -35,8 +35,6 @@ export default function Profile() {
   const [roles, setRoles] = useState([]);
 
   //for menuitem
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
 
   const logoutmodal = () => {
     Swal.fire({
@@ -111,115 +109,86 @@ export default function Profile() {
     }
   };
 
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setOpen(false);
+  const handleClose = () => {
+    setAnchorEl(null);
   };
-
-  function handleListKeyDown(event) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      setOpen(false);
-    } else if (event.key === "Escape") {
-      setOpen(false);
-    }
-  }
-
-  const prevOpen = useRef(open);
-  useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      anchorRef.current.focus();
-    }
-
-    prevOpen.current = open;
-  }, [open]);
 
   return (
     <Stack direction="row" spacing={2}>
       <div>
         <Button
-          ref={anchorRef}
-          id="composition-button"
-          aria-controls={open ? "composition-menu" : undefined}
-          aria-expanded={open ? "true" : undefined}
-          aria-haspopup="true"
-          onClick={handleToggle}
+          onClick={handleClick}
         >
           <Avatar sx={{ width: 30, height: 30, margin: "5px" }} />
           {staffuser && (
-            <Typography variant="span" color="white">
+            <Typography
+              variant="span"
+              color="white"
+              sx={{ display: { xs: "none", md: "block" } }}
+            >
               {staffuser.firstname && staffuser.lastname !== "null"
                 ? `${staffuser.firstname} ${staffuser.lastname}`
                 : "ADMIN"}
             </Typography>
           )}
         </Button>
-        <Popper
-          open={open}
-          anchorEl={anchorRef.current}
-          role={undefined}
-          transition
-          disablePortal
+        <Menu
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          sx={{ width: "50%", height: "70%",
+         }}
         >
-          {({ TransitionProps, placement }) => (
-            <Grow
-              {...TransitionProps}
-              style={{
-                transformOrigin:
-                  placement === "top-start" ? "left bottom" : "left top",
-              }}
+          {staffuser && (
+            <MenuItem
+              variant="span"
+              color="white"
+              sx={{ display: { md: "none" } }}
             >
-              <Paper>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList
-                    autoFocusItem={open}
-                    id="composition-menu"
-                    aria-labelledby="composition-button"
-                    onKeyDown={handleListKeyDown}
-                  >
-                    {user.role_id === "1" && [
-                      <MenuItem key="edit" onClick={onEdit}>
-                        Edit Account
-                      </MenuItem>,
-                      <MenuItem
-                        key="settings"
-                        onClick={() => navigate("/admin/settings")}
-                      >
-                        Settings
-                      </MenuItem>,
-                    ]}
-                    {user.role_id === "2" && [
-                      <MenuItem
-                        key="profile"
-                        onClick={() => navigate("/admin/myprofile")}
-                      >
-                        Profile
-                      </MenuItem>,
-                    ]}
-                    {user.role_id === "3" && [
-                      <MenuItem
-                        key="petProfile"
-                        onClick={() => navigate("/petowner/myprofile")}
-                      >
-                        Profile
-                      </MenuItem>,
-                    ]}
-                    <MenuItem onClick={logoutmodal} key="logout">
-                      Logout
-                    </MenuItem>
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
+              {staffuser.firstname && staffuser.lastname !== "null"
+                ? `${staffuser.firstname} ${staffuser.lastname}`
+                : "ADMIN"}
+            </MenuItem>
           )}
-        </Popper>
+          <Divider sx={{ display: { md: "none" } }} />
+          {user.role_id === "1" && [
+            <MenuItem key="edit" onClick={onEdit}>
+              Edit Account
+            </MenuItem>,
+            <MenuItem
+              key="settings"
+              onClick={() => navigate("/admin/settings")}
+            >
+              Settings
+            </MenuItem>,
+          ]}
+          {user.role_id === "2" && [
+            <MenuItem
+              key="profile"
+              onClick={() => navigate("/admin/myprofile")}
+            >
+              Profile
+            </MenuItem>,
+          ]}
+          {user.role_id === "3" && [
+            <MenuItem
+              key="petProfile"
+              onClick={() => navigate("/petowner/myprofile")}
+            >
+              Profile
+            </MenuItem>,
+          ]}
+          <MenuItem onClick={logoutmodal} key="logout">
+            Logout
+          </MenuItem>
+        </Menu>
       </div>
       <UserEdit
         open={openchange}

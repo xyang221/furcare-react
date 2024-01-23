@@ -31,7 +31,7 @@ export default function MedicationModal(props) {
     errors,
     category,
     isUpdate,
-    medicine
+    medicine,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -39,14 +39,22 @@ export default function MedicationModal(props) {
     setMedication(updatedMedication);
   };
 
-  const handleFieldChangeMedicine = (fieldName, value) => {
-    const updatedMedication = {
-      ...medication,
-      [fieldName]: value,
-      unit_price: value,
-    };
-    setMedication(updatedMedication);
+  const handleUnitPriceChange = (newUnitPrice) => {
+    setMedication((prevMedication) => ({
+      ...prevMedication,
+      unit_price: newUnitPrice,
+      price: newUnitPrice, // Keep price in sync with unit_price
+    }));
   };
+
+  // const handleFieldChangeMedicine = (fieldName, value) => {
+  //   const updatedMedication = {
+  //     ...medication,
+  //     [fieldName]: value,
+  //     unit_price: value,
+  //   };
+  //   setMedication(updatedMedication);
+  // };
 
   return (
     <>
@@ -72,12 +80,14 @@ export default function MedicationModal(props) {
               </Box>
             )}
             <Stack spacing={2} margin={2}>
-              <FormControl>
+             {!isUpdate && <FormControl>
                 <InputLabel>Medicine Category</InputLabel>
                 <Select
                   label="Medicine Category"
                   value={medication.medcat_id || ""}
-                  onChange={(ev) => handleFieldChange("medcat_id", ev.target.value)}
+                  onChange={(ev) =>
+                    handleFieldChange("medcat_id", ev.target.value)
+                  }
                   required
                   fullWidth
                 >
@@ -87,7 +97,7 @@ export default function MedicationModal(props) {
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </FormControl>}
 
               <TextField
                 value={medication.name || ""}
@@ -95,13 +105,20 @@ export default function MedicationModal(props) {
                 label="Medicine Name"
                 required
               />
-              <TextField
-                value={medication.price || ""}
-                onChange={(ev) => handleFieldChange("price", ev.target.value)}
+              {/* <TextField
+                value={medication.unit_price || ""}
+                onChange={(ev) => handleFieldChange("unit_price", ev.target.value)}
                 label="Medicine Price"
                 type="number"
                 required
-              />
+              /> */}
+             {!isUpdate && <TextField
+                value={medication.unit_price || ""}
+                onChange={(ev) => handleUnitPriceChange(ev.target.value)}
+                label="Medicine Price"
+                type="number"
+                required
+              />}
               <TextField
                 value={medication.quantity || ""}
                 onChange={(ev) =>

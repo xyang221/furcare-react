@@ -16,7 +16,6 @@ import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
 
 export default function AllServicesAvailed() {
-  const { user } = useStateContext();
   //for table
   const columns = [
     { id: "Date", name: "Date" },
@@ -75,12 +74,6 @@ export default function AllServicesAvailed() {
         }}
       >
         <Divider />
-        {user.role_id === "3" && (
-          <Typography p={2} variant="h5">
-            Availed Services
-          </Typography>
-        )}
-
         <TableContainer sx={{ height: 350 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>

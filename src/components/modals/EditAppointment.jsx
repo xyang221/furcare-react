@@ -14,6 +14,7 @@ import {
   FormControlLabel,
   IconButton,
   InputLabel,
+  ListSubheader,
   MenuItem,
   OutlinedInput,
   Select,
@@ -41,9 +42,7 @@ export default function EditAppointment(props) {
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
-    // Create a copy of the appointment object and update the specified field
     const updatedAppointment = { ...appointment, [fieldName]: value };
-    // Update the appointment object with the updated value
     setAppointment(updatedAppointment);
   };
 
@@ -53,7 +52,7 @@ export default function EditAppointment(props) {
     setWithremarks(event.target.checked);
     if (!event.target.checked) {
       // Clear remarks if the checkbox is unchecked
-      handleFieldChange("remarks", "");
+      handleFieldChange("remarks", " ");
     }
   };
 
@@ -124,13 +123,13 @@ export default function EditAppointment(props) {
                   onChange={(ev) => handleFieldChange("date", ev.target.value)}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{
-                    min: isUpdate ? appointment.date : new Date().toISOString().split("T")[0] + "T00:00",
-                  }} // Set minimum date to today
+                    min: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0] + "T00:00",
+                  }}
                   required
                 />
 
                 <FormControl sx={{ m: 1, width: "100%" }}>
-                  <InputLabel>Select Services</InputLabel>
+                  <InputLabel>Services</InputLabel>
                   <Select
                     required
                     multiple
@@ -163,18 +162,27 @@ export default function EditAppointment(props) {
                       </Stack>
                     )}
                   >
-                    {services.map((name) => (
+                    {services.map((name, index) => [
+                      (index === 0 ||
+                        name.category.category !==
+                          services[index - 1].category.category) && (
+                        <ListSubheader
+                          key={`subheader-${name.category.category}`}
+                        >
+                          {name.category.category}
+                        </ListSubheader>
+                      ),
                       <MenuItem
                         key={name.id}
                         value={name.id}
-                        sx={{ justifyContent: "space-between" }}
+                        sx={{ml:5, justifyContent: "space-between" }}
                       >
-                       {`${name.service} (${name.category.category})`}
+                        {name.service}
                         {selectedServices.includes(name) ? (
-                          <Check color="info" />
+                          <Check  />
                         ) : null}
-                      </MenuItem>
-                    ))}
+                      </MenuItem>,
+                    ])}
                   </Select>
                 </FormControl>
 

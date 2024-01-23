@@ -14,17 +14,18 @@ import {
 } from "@mui/material";
 import { Add, Archive, Edit, Refresh } from "@mui/icons-material";
 import MedicationModal from "../components/modals/MedicationModal";
+import { useParams } from "react-router-dom";
 
-export default function PetMedicationAdmission({ tid, pid }) {
+export default function PetMedicationAdmission({ pid }) {
   //for table
   const columns = [
     { id: "Medicine", name: "Medicine" },
     { id: "Quantity", name: "Quantity" },
     { id: "Dosage", name: "Dosage" },
     { id: "Description", name: "Description" },
-    { id: "Actions", name: "Actions" },
   ];
 
+  const { id } = useParams();
   const [loading, setLoading] = useState(false);
   const [medications, setMedications] = useState([]);
   const [message, setMessage] = useState("");
@@ -32,11 +33,22 @@ export default function PetMedicationAdmission({ tid, pid }) {
   const [open, setOpen] = useState(false);
   const [modalloading, setModalloading] = useState(false);
 
+  const [admission, setAdmission] = useState([]);
+
+  const getCurrentTreatment = () => {
+    axiosClient
+      .get(`/admissions/treatment/${id}`)
+      .then(({ data }) => {
+        setAdmission(data.servicesavailed);
+      })
+      .catch(() => {});
+  };
+
   const getTreatmentPetMedication = () => {
     setMessage("");
     setLoading(true);
     axiosClient
-      .get(`/treatments/${tid}/medications`)
+      .get(`/treatments/${id}/medications`)
       .then(({ data }) => {
         setLoading(false);
         setMedications(data.data);
@@ -60,6 +72,7 @@ export default function PetMedicationAdmission({ tid, pid }) {
     description: "",
     quantity: null,
     dosage: "",
+    price: null,
   });
   const [category, setCategory] = useState([]);
 
@@ -75,7 +88,6 @@ export default function PetMedicationAdmission({ tid, pid }) {
   const onEdit = (r) => {
     setErrors(null);
     setOpen(true);
-    getCategory();
     setModalloading(true);
     axiosClient
       .get(`/medications/${r.id}`)
@@ -85,7 +97,7 @@ export default function PetMedicationAdmission({ tid, pid }) {
           ...prev,
           medcat_id: data.medicine.medcat_id,
           name: data.medicine.name,
-          price: data.medicine.price,
+          unit_price: data.medicine.price,
         }));
         setModalloading(false);
       })
@@ -95,11 +107,11 @@ export default function PetMedicationAdmission({ tid, pid }) {
   };
 
   const onArchive = (u) => {
-    if (!window.confirm("Are you sure to archive this user?")) {
+    if (!window.confirm("Are you sure to archive this medication?")) {
       return;
     }
 
-    axiosClient.delete(`/users/${u.id}/archive`).then(() => {
+    axiosClient.delete(`/medications/${u.id}/archive`).then(() => {
       getTreatmentPetMedication();
     });
   };
@@ -122,7 +134,7 @@ export default function PetMedicationAdmission({ tid, pid }) {
         });
     } else {
       axiosClient
-        .post(`/medications/petowner/${pid}/treatment/${tid}`, medication)
+        .post(`/medications/petowner/${pid}/treatment/${id}`, medication)
         .then(() => {
           getTreatmentPetMedication();
           setOpen(false);
@@ -146,36 +158,33 @@ export default function PetMedicationAdmission({ tid, pid }) {
   const closeModal = () => {
     setOpen(false);
   };
-  const handleRefresh = () => {
-    getTreatmentPetMedication();
-  };
 
   useEffect(() => {
     getTreatmentPetMedication();
+    getCurrentTreatment();
   }, []);
 
   return (
     <>
-      <Stack sx={{ margin: "5px" }}>
+      <Stack sx={{ margin: "5px", p: 1 }}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
           }}
         >
-          <Typography>
-            <IconButton color="success" onClick={handleRefresh}>
-              <Refresh />
-            </IconButton>
-            Medication:
+          <Typography variant="body1" fontWeight={"bold"}>
+            Pet Medication:
           </Typography>
-          <IconButton
-            color="success"
-            variant="contained"
-            onClick={addMedication}
-          >
-            <Add />
-          </IconButton>
+          {admission.status !== "Completed" && (
+            <IconButton
+              color="success"
+              variant="contained"
+              onClick={addMedication}
+            >
+              <Add />
+            </IconButton>
+          )}
         </Box>
 
         <MedicationModal
@@ -190,13 +199,18 @@ export default function PetMedicationAdmission({ tid, pid }) {
           category={category}
           isUpdate={medication.id}
         />
-        <TableContainer maxwidth="sm">
+        <TableContainer maxWidth="sm">
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
-                  <TableCell key={column.id}>{column.name}</TableCell>
+                  <TableCell key={column.id} size="small">
+                    {column.name}
+                  </TableCell>
                 ))}
+                {admission.status !== "Completed" && (
+                  <TableCell size="small">Actions</TableCell>
+                )}
               </TableRow>
             </TableHead>
             {loading && (
@@ -227,26 +241,28 @@ export default function PetMedicationAdmission({ tid, pid }) {
                       <TableCell>{r.quantity}</TableCell>
                       <TableCell>{r.dosage}</TableCell>
                       <TableCell>{r.description}</TableCell>
-                      <TableCell>
-                        <Stack direction="row">
-                          <IconButton
-                            variant="contained"
-                            size="small"
-                            color="info"
-                            onClick={() => onEdit(r)}
-                          >
-                            <Edit fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            onClick={() => onArchive(r)}
-                          >
-                            <Archive fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      </TableCell>
+                      {admission.status !== "Completed" && (
+                        <TableCell>
+                          <Stack direction="row">
+                            <IconButton
+                              variant="contained"
+                              size="small"
+                              color="info"
+                              onClick={() => onEdit(r)}
+                            >
+                              <Edit fontSize="small" />
+                            </IconButton>
+                            <IconButton
+                              variant="contained"
+                              color="error"
+                              size="small"
+                              onClick={() => onArchive(r)}
+                            >
+                              <Archive fontSize="small" />
+                            </IconButton>
+                          </Stack>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
               </TableBody>

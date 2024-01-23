@@ -50,8 +50,9 @@ const QrCodeScanner = () => {
       if (scanner) {
         scanner.clear();
       }
-      location.reload()
       navigate(`/admin/pets/${qrresult}/view`);
+      location.reload()
+
     }
   }, [qrresult, navigate]);
 

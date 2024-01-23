@@ -47,6 +47,7 @@ export default function PetTestResults({ sid, sname }) {
   const [error, setError] = useState(null);
 
   const getTestresults = () => {
+    setError(null)
     setFilterdate(null)
     setTestresults([]);
     setMessage(null);
@@ -68,7 +69,7 @@ export default function PetTestResults({ sid, sname }) {
 
   const getPets = () => {
     axiosClient
-      .get(`/petowners/${id}/pets`)
+      .get(`/pets`)
       .then(({ data }) => {
         setPets(data.data);
       })
@@ -292,6 +293,8 @@ export default function PetTestResults({ sid, sname }) {
         setLoading(false);
       });
   };
+
+ 
 
   useEffect(() => {
     getTestresults();

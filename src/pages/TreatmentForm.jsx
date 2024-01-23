@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import {
+  Backdrop,
   Box,
   Button,
+  CircularProgress,
   Divider,
   Paper,
   Stack,
@@ -12,25 +14,27 @@ import {
 } from "@mui/material";
 import PetConditionAdmission from "./PetConditionAdmission";
 import PetMedicationAdmission from "./PetMedicationAdmission";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function TreatmentForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [errors, setErrors] = useState(null);
+  const [loading, setLoading] = useState(null);
 
   const [treatment, setTreatment] = useState({
     id: null,
     pet_id: null,
     diagnosis: "",
-    body_weight: "",
-    heart_rate: "",
-    mucous_membranes: "",
-    pr_prealbumin: "",
-    temperature: "",
-    respiration_rate: "",
-    caspillar_refill_time: "",
-    body_condition_score: "",
-    fluid_rate: "",
+    body_weight: null,
+    heart_rate: null,
+    mucous_membranes: null,
+    pr_prealbumin: null,
+    temperature: null,
+    respiration_rate: null,
+    caspillar_refill_time: null,
+    body_condition_score: null,
+    fluid_rate: null,
     comments: "",
   });
 
@@ -39,12 +43,28 @@ export default function TreatmentForm() {
   const [edittreatment, setEdittreatment] = useState(false);
 
   const getCurrentTreatment = () => {
+    setErrors(null);
+    setLoading(true);
     axiosClient
       .get(`/treatments/${id}`)
       .then(({ data }) => {
         setTreatment(data);
         setPet(data.pet);
         setBreed(data.pet.breed);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
+
+  const [admission, setAdmission] = useState([]);
+
+  const getAdmission = () => {
+    axiosClient
+      .get(`/admissions/treatment/${id}`)
+      .then(({ data }) => {
+        setAdmission(data.servicesavailed);
       })
       .catch(() => {});
   };
@@ -115,16 +135,21 @@ export default function TreatmentForm() {
 
   useEffect(() => {
     getCurrentTreatment();
+    getAdmission()
   }, []);
 
   return (
     <Paper
       sx={{
-        width: "80%",
+        width: "70%",
         margin: "auto",
-        padding: "10px",
+        padding: "15px",
       }}
     >
+      <Backdrop open={loading} style={{ zIndex: 999 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+      {/* <ToastContainer></ToastContainer> */}
       <Stack
         sx={{
           display: "flex",
@@ -179,8 +204,10 @@ export default function TreatmentForm() {
               value={treatment.diagnosis}
               onChange={(ev) => handleFieldChange("diagnosis", ev.target.value)}
               label="Diagnosis/Findings"
+              InputLabelProps={{ shrink: true }}
               variant="standard"
               size="small"
+              multiline
               required
               InputProps={{
                 readOnly: edittreatment ? false : true,
@@ -194,6 +221,7 @@ export default function TreatmentForm() {
                 handleFieldChange("body_weight", ev.target.value)
               }
               label="Pet"
+              InputLabelProps={{ shrink: true }}
               size="small"
               required
               InputProps={{
@@ -210,6 +238,7 @@ export default function TreatmentForm() {
                   handleFieldChange("body_weight", ev.target.value)
                 }
                 label="BW"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 required
@@ -224,6 +253,7 @@ export default function TreatmentForm() {
                   handleFieldChange("heart_rate", ev.target.value)
                 }
                 label="HR"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 type="number"
@@ -237,6 +267,7 @@ export default function TreatmentForm() {
                   handleFieldChange("mucous_membranes", ev.target.value)
                 }
                 label="MM"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 type="number"
@@ -252,6 +283,7 @@ export default function TreatmentForm() {
                   handleFieldChange("pr_prealbumin", ev.target.value)
                 }
                 label="PR"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 type="number"
@@ -265,6 +297,7 @@ export default function TreatmentForm() {
                   handleFieldChange("temperature", ev.target.value)
                 }
                 label="Temp"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 type="number"
@@ -278,6 +311,7 @@ export default function TreatmentForm() {
                   handleFieldChange("respiration_rate", ev.target.value)
                 }
                 label="RR"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 type="number"
@@ -293,6 +327,7 @@ export default function TreatmentForm() {
                   handleFieldChange("caspillar_refill_time", ev.target.value)
                 }
                 label="CRT"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 type="number"
@@ -306,6 +341,7 @@ export default function TreatmentForm() {
                   handleFieldChange("body_condition_score", ev.target.value)
                 }
                 label="BCS"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 type="number"
@@ -319,6 +355,7 @@ export default function TreatmentForm() {
                   handleFieldChange("fluid_rate", ev.target.value)
                 }
                 label="FR"
+                InputLabelProps={{ shrink: true }}
                 variant="standard"
                 size="small"
                 type="number"
@@ -329,10 +366,11 @@ export default function TreatmentForm() {
             </Stack>
           </Stack>
           <TextField
-          sx={{width:"98%"}}
+            sx={{ width: "98%" }}
             value={treatment.comments}
             onChange={(ev) => handleFieldChange("comments", ev.target.value)}
             label="Comments"
+            InputLabelProps={{ shrink: true }}
             variant="standard"
             size="small"
             type="text"
@@ -343,47 +381,49 @@ export default function TreatmentForm() {
             rows={2}
             fullWidth
           />
-          <Box display="flex" justifyContent={"right"}>
-            {edittreatment && (
-              <>
+          {admission.status !== "Completed" && (
+            <Box display="flex" justifyContent={"right"}>
+              {edittreatment && (
+                <>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="success"
+                    size="small"
+                    sx={{ mt: 1 }}
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    sx={{ mt: 1, ml: 1 }}
+                    onClick={onCancel}
+                  >
+                    cancel
+                  </Button>
+                </>
+              )}
+              {!edittreatment && (
                 <Button
-                  type="submit"
+                  onClick={onEdit}
                   variant="contained"
-                  color="success"
+                  color="info"
                   size="small"
                   sx={{ mt: 1 }}
                 >
-                  Save
+                  Edit
                 </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  sx={{ mt: 1, ml: 1 }}
-                  onClick={onCancel}
-                >
-                  cancel
-                </Button>
-              </>
-            )}
-            {!edittreatment && (
-              <Button
-                onClick={onEdit}
-                variant="contained"
-                color="info"
-                size="small"
-                sx={{ mt: 1 }}
-              >
-                Edit
-              </Button>
-            )}{" "}
-          </Box>
+              )}{" "}
+            </Box>
+          )}
         </form>
       </Stack>
-      <Divider sx={{ mt: 1 }} />
-      <PetConditionAdmission tid={treatment.id} />
-      <Divider />
-      <PetMedicationAdmission tid={treatment.id} pid={pet.petowner_id} />
+      {/* <Divider sx={{ mt: 1 }} /> */}
+      <PetConditionAdmission />
+      {/* <Divider /> */}
+      <PetMedicationAdmission pid={pet.petowner_id} />
     </Paper>
   );
 }

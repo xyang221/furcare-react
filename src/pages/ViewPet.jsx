@@ -306,11 +306,11 @@ export default function ViewPet() {
               <Avatar
                 alt="pet-photo"
                 src={`http://localhost:8000/` + pet.photo}
-                sx={{ width: 100, height: 100 }}
+                sx={{ width: 130, height: 130 }}
                 variant="rounded"
               />
             ) : (
-              <Avatar sx={{ width: 100, height: 100 }} variant="rounded">
+              <Avatar sx={{ width: 130, height: 130 }} variant="rounded">
                 <AddPhotoAlternate sx={{ width: 40, height: 40 }} />
               </Avatar>
             )}

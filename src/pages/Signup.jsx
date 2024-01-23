@@ -16,15 +16,24 @@ import {
   CssBaseline,
   Avatar,
   Grid,
+  useTheme,
 } from "@mui/material";
 import Swal from "sweetalert2";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { LoadingButton } from "@mui/lab";
 
 export default function Signup() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const navigate = useNavigate();
   const [errors, setErrors] = useState(null);
 
   const [selectedZipcode, setSelectedZipcode] = useState(null);
   const [zipcodeerror, setZipcodeerror] = useState(null);
+  const [code, setCode] = useState(null);
+  const [entercode, setEnterCode] = useState(null);
+  const [loading, setLoading] = useState(null);
 
   const [petowner, setPetowner] = useState({
     id: null,
@@ -50,7 +59,11 @@ export default function Signup() {
 
   const [activeStep, setActiveStep] = useState(0);
 
-  const steps = ["Create a User Account", "Pet Owner Registration"];
+  const steps = [
+    "Create a User Account",
+    "Verify Email",
+    "Pet Owner Registration",
+  ];
 
   const onSubmit = (ev) => {
     ev.preventDefault();
@@ -81,12 +94,60 @@ export default function Signup() {
       });
   };
 
+  const verifyEmail = (ev) => {
+    ev.preventDefault();
+    setErrors(null);
+    setLoading(true);
+    setCode(null)
+    setEnterCode(null)
+    axiosClient
+      .post("/verifyemail", petowner)
+      .then(({ data }) => {
+        setCode(data.code);
+        setActiveStep(1);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+
+        const response = err.response;
+        if (response && response.status == 422) {
+          setErrors(response.data.errors);
+        }
+        if (errors.email || errors.password) {
+          setActiveStep(0);
+        }
+      });
+  };
+
+  const handlePetowner = (e) => {
+    e.preventDefault();
+    if (code === entercode) {
+      setActiveStep(2);
+    } else {
+      Swal.fire({
+        // title: "Error",
+        text: "You have entered wrong verification code.",
+        icon: "error",
+      });
+    }
+  };
+
   const handleNext = (e) => {
     e.preventDefault();
+    if (activeStep === 0) {
+      verifyEmail(e);
+      return true;
+    }
     if (activeStep === 1) {
+      handlePetowner(e);
+      return true;
+    }
+    if (activeStep === 2) {
       onSubmit(e);
       return true;
     }
+
     setActiveStep((prevStep) => prevStep + 1);
   };
 
@@ -104,7 +165,7 @@ export default function Signup() {
       setZipcodeerror(null);
       setErrors(null);
       getZipcodeDetails(selectedZipcode);
-    }, 4000);
+    }, 2000);
 
     return () => clearTimeout(timerId);
   }, [selectedZipcode]);
@@ -140,7 +201,7 @@ export default function Signup() {
     switch (step) {
       case 0:
         return (
-          <Box p={2}>
+          <Box p={isMobile ? 1 : 2}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -202,6 +263,30 @@ export default function Signup() {
           </Box>
         );
       case 1:
+        return (
+          <Box p={isMobile ? 1 : 2}>
+            <Grid container spacing={2} sx={{ textAlign: "center" }}>
+              <Grid item xs={12}>
+                <Typography align="center" pt={3}>
+                  We have sent a verification code to your email address.
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  id="Code"
+                  size="small"
+                  label="Code"
+                  required
+                  type="number"
+                  value={entercode || ""}
+                  onChange={(ev) => setEnterCode(ev.target.value)}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        );
+      case 2:
         return (
           <Box p={2}>
             <Grid container spacing={2}>
@@ -360,16 +445,16 @@ export default function Signup() {
       <Container
         sx={{
           backgroundColor: "white",
-          borderRadius: "5%",
-          p: 1,
-          mt: "5%",
+          borderRadius: "5%", // Adjust radius for mobile
+          p: 1, // Remove padding for mobile
+          mt: isMobile ? "20%" : "5%",
         }}
         component="main"
         maxWidth="sm"
       >
         <Box
           sx={{
-            marginTop: "5%",
+            p: 1,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -416,13 +501,23 @@ export default function Signup() {
                     </Button>
                     {activeStep === 0 && (
                       <>
-                        <Button
+                          <LoadingButton
+                          size="small"
+                          loading={loading}
+                          color="primary"
+                          type="submit"
+                          variant="contained"
+                        >
+                          Next
+                          {/* <span>Next</span> */}
+                        </LoadingButton>
+                        {/* <Button
                           variant="contained"
                           color="primary"
                           type="submit"
                         >
                           Next
-                        </Button>
+                        </Button> */}
                       </>
                     )}
                     {activeStep === 1 && (
@@ -432,7 +527,18 @@ export default function Signup() {
                           color="primary"
                           type="submit"
                         >
-                          Save
+                          Verify
+                        </Button>
+                      </>
+                    )}
+                    {activeStep === 2 && (
+                      <>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          type="submit"
+                        >
+                          Register
                         </Button>
                       </>
                     )}

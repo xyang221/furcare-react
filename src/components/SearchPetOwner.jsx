@@ -22,7 +22,7 @@ export const SearchPetOwner = ({ query, setQuery, search, getPetowners }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <TextField
-         placeholder="Search here..."
+         placeholder="Search petowner here..."
          value={query}
          onChange={handleInputChange}
          onKeyPress={handleKeyPress}

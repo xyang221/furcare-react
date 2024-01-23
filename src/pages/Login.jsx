@@ -6,7 +6,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { Alert, Link, Paper } from "@mui/material";
+import { Alert, Link, Paper, useMediaQuery } from "@mui/material";
 
 import { useEffect, useRef, useState } from "react";
 import { useStateContext } from "../contexts/ContextProvider";
@@ -15,6 +15,7 @@ import axiosClient from "../axios-client";
 export default function Login() {
   const { user, updateUser, setToken, updateStaff, token, updatePetowner } =
     useStateContext();
+  const isMobile = useMediaQuery("(max-width:600px)");
 
   const redirectToHome = () => {
     window.location.href = "/home";
@@ -94,7 +95,7 @@ export default function Login() {
             height={"70"}
             width={"70"}
           />
-          <Typography variant="h6" fontWeight={"bold"}>
+          <Typography variant={isMobile ? "body1":"h6"} fontWeight={"bold"}>
             FUR CARE VETERINARY CLINIC
           </Typography>
           <Box component="form" onSubmit={onSubmit}>
@@ -130,11 +131,11 @@ export default function Login() {
               size="small"
               required
             />
-            <Grid item xs align="right">
+            {/* <Grid item xs align="right">
               <Link href="#" variant="body2">
                 Forgot password?
               </Link>
-            </Grid>
+            </Grid> */}
             <Button
               type="submit"
               fullWidth

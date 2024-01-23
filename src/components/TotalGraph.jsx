@@ -12,7 +12,7 @@ export default function TotalGraph(props) {
         padding={2}
         mr={2}
         sx={{
-          width: width,
+          width: width, // Adjust the width as needed
           height: "90px",
           backgroundColor: color,
           borderRadius: "5px",
@@ -22,17 +22,18 @@ export default function TotalGraph(props) {
           sx={{
             flexDirection: "row",
             justifyContent: "space-between",
+            alignItems: "center" ,
           }}
         >
-          <Box>
-            <Typography variant="h6" color={"white"} fontFamily={"sans-serif"}>
+          <Box mb={{ xs: 1, md: 0 }}>
+            <Typography variant="h6" color="white" fontFamily="sans-serif">
               {totaltype}
             </Typography>
             <Typography
               variant="h5"
-              color={"white"}
-              fontWeight={"bold"}
-              fontFamily={"monospace"}
+              color="white"
+              fontWeight="bold"
+              fontFamily="monospace"
             >
               {total ? total : 0}
             </Typography>
@@ -49,17 +50,19 @@ export default function TotalGraph(props) {
               color="disabled"
               sx={{ width: "30px", height: "30px" }}
             />
-           {link && <Typography
-              color={"white"}
-              fontSize={"15px"}
-              component={Link}
-              to={link}
-              display={"flex"}
-              alignItems={"center"}
-              justifyContent={"center"}
-            >
-              More info
-            </Typography>}
+            {link && (
+              <Typography
+                color="white"
+                fontSize={{ xs: "12px", md: "15px" }} // Adjust font size based on screen size
+                component={Link}
+                to={link}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+              >
+                More info
+              </Typography>
+            )}
           </Box>
         </Stack>
       </Stack>

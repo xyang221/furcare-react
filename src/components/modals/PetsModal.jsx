@@ -84,7 +84,7 @@ export default function PetsModal(props) {
       setSelectedOption(colorMatch.color);
     } else {
       setSelectedOption("Others");
-      setOtherText(pet.color)
+      setOtherText(pet.color);
     }
   }, [pet.color]);
 
@@ -168,7 +168,7 @@ export default function PetsModal(props) {
                         control={<Radio />}
                         label="Male"
                       />
-                       <FormControlLabel
+                      <FormControlLabel
                         value="Male/Castrated"
                         control={<Radio />}
                         label="Male/Castrated"
@@ -184,6 +184,7 @@ export default function PetsModal(props) {
                       onChange={handleSpecieChange}
                       required
                       fullWidth
+                      sx={{ maxHeight: "200px", overflowY: "auto" }}
                     >
                       {species.map((item) => (
                         <MenuItem key={item.id} value={item.id}>
@@ -193,26 +194,28 @@ export default function PetsModal(props) {
                     </Select>
                   </FormControl>
 
-                  {selectedSpecie && (
-                    <FormControl>
-                      <InputLabel>Breed</InputLabel>
-                      <Select
-                        label="Breed"
-                        value={pet.breed_id || ""}
-                        onChange={(ev) =>
-                          handleFieldChange("breed_id", ev.target.value)
-                        }
-                        required
-                        fullWidth
-                      >
-                        {breeds.map((item) => (
-                          <MenuItem key={item.id} value={item.id}>
-                            {item.breed}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  )}
+                  {/* {selectedSpecie && ( */}
+                  <FormControl>
+                    <InputLabel>Breed</InputLabel>
+                    <Select
+                      label="Breed"
+                      value={pet.breed_id || ""}
+                      onChange={(ev) =>
+                        handleFieldChange("breed_id", ev.target.value)
+                      }
+                      required
+                      disabled={selectedSpecie ? false : true}
+                      fullWidth
+                      sx={{ maxHeight: "200px", overflowY: "auto" }}
+                    >
+                      {breeds.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.breed}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  {/* )} */}
 
                   <FormControl>
                     <InputLabel>Color</InputLabel>

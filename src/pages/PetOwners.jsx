@@ -130,6 +130,7 @@ export default function PetOwners() {
               variant="contained"
               color="success"
               size="small"
+              target="_blank"
             >
               <Add />
             </Button>

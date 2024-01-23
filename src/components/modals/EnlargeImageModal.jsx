@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Box,
+  Button,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -12,9 +13,15 @@ import { Close } from "@mui/icons-material";
 export default function EnlargeImageModal(props) {
   const { open, onClose, image, title, errors } = props;
 
+  const [rotation, setRotation] = useState(0);
+
+  const rotateImage = () => {
+    setRotation((prevRotation) => (prevRotation + 90) % 360);
+  };
+
   return (
-    <>
-      <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <div style={{ maxWidth: '200%', maxHeight: '100%', overflow: 'auto' }}>
+      <Dialog open={open} onClose={onClose} fullWidth >
         <DialogTitle>
           {title}
           <IconButton onClick={onClose} style={{ float: "right" }}>
@@ -31,22 +38,23 @@ export default function EnlargeImageModal(props) {
               ))}
             </Box>
           )}
-
+         <Button variant="contained" size="small" onClick={rotateImage}>Rotate 90°</Button>
           <img
             style={{
               top: 0,
               left: 0,
-              width: "100%",
-              height: "100%",
+              maxWidth: "100%",
+              maxHeight: "100%",
               backgroundColor: "rgba(0, 0, 0, 0.8)",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              transform: `rotate(${rotation}deg)`,
             }}
             src={`http://localhost:8000/` + image}
           />
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

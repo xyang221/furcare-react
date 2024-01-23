@@ -14,7 +14,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Add, Close, Done, DoneAll, Edit } from "@mui/icons-material";
+import { Add, Close, Done, DoneAll, Edit, Launch, NavigateNext, TaskAltOutlined } from "@mui/icons-material";
 import EditAppointment from "../components/modals/EditAppointment";
 import DropDownButtons from "../components/DropDownButtons";
 import { SearchPetOwner } from "../components/SearchPetOwner";
@@ -23,6 +23,7 @@ import { useStateContext } from "../contexts/ContextProvider";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { HomeSearchBar } from "../components/HomeSearchBar";
+import { toast } from "react-toastify";
 
 export default function Appointments() {
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ export default function Appointments() {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorElVets, setAnchorElVets] = useState(null);
+  const [openadd, setOpenadd] = useState(false);
 
   const handleAppointments = (searchValue) => {
     setMessage(null);
@@ -141,7 +143,6 @@ export default function Appointments() {
         setAppointments(data.data);
         setLoading(false);
         setAnchorElVets(null);
-        console.log(searchValue)
       })
       .catch((error) => {
         const response = error.response;
@@ -174,7 +175,7 @@ export default function Appointments() {
     axiosClient
       .get("/appointments/current")
       .then(({ data }) => {
-        setAppointments(data.data);
+        setAppointments(data.confirmed);
         setLoading(false);
       })
       .catch((mes) => {
@@ -350,15 +351,19 @@ export default function Appointments() {
 
   const onSubmit = (e) => {
     e.preventDefault();
+    setOpenadd(false)
 
     if (appointment.id) {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
-          Swal.fire({
-            title: "Appointment updated!",
-            icon: "success",
+          toast.success("Appointment update!", {
+            theme: "colored",
           });
+          // Swal.fire({
+          //   title: "Appointment updated!",
+          //   icon: "success",
+          // });
           openchange(false);
           handleAppointments("current");
         })
@@ -394,7 +399,7 @@ export default function Appointments() {
   useEffect(() => {
     handleAppointments("current");
     getServices();
-    getVets()
+    getVets();
   }, []);
 
   return (
@@ -430,21 +435,21 @@ export default function Appointments() {
               optionLabel4="completed"
               optionLabel5="cancelled"
             />
-             <DropDownButtons
+            <DropDownButtons
               title="veterinarians"
               anchorEl={anchorElVets}
               vets={doctors}
               handleMenuItemClick={handleMenuItemClickVets}
               handleOpenMenu={handleOpenMenuVets}
-              handleCloseMenu={handleCloseMenuVets  }
+              handleCloseMenu={handleCloseMenuVets}
             />
           </Box>
-          <SearchPetOwner
-            query={query}
-            setQuery={setQuery}
-            search={search}
-            getPetowners={getAppointments}
-          />
+            <SearchPetOwner
+              query={query}
+              setQuery={setQuery}
+              search={search}
+              getPetowners={getAppointments}
+            />
         </Box>
 
         <EditAppointment
@@ -466,7 +471,7 @@ export default function Appointments() {
           setSelectedServices={setSelectedServices}
         />
 
-        <TableContainer sx={{ height: "100%" }} >
+        <TableContainer sx={{ height: "100%" }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               {!query ? (

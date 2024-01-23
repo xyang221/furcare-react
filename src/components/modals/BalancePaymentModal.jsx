@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Add, Archive, Close, Delete, Edit } from "@mui/icons-material";
 
-export default function PaymentModal(props) {
+export default function BalancePaymentModal(props) {
   const {
     open,
     onClose,
@@ -30,7 +30,6 @@ export default function PaymentModal(props) {
     setPayment,
     clientservice,
     errors,
-    calculateBalance,
   } = props;
 
   const handleFieldChange = (fieldName, value) => {
@@ -39,32 +38,36 @@ export default function PaymentModal(props) {
   };
 
   const calculateChange = () => {
-    const totalCost = payment.total || 0;
+    // const totalCost = payment.total || 0;
     const balance = clientservice.balance || 0;
-    const deposit = clientservice.deposit || 0;
+    // const deposit = clientservice.deposit || 0;
     const amount = payment.amount || 0;
-    const currentbalance = totalCost + balance - deposit;
+    // const currentbalance =  balance - deposit;
 
     if (
-      isNaN(deposit) ||
+      // isNaN(deposit) ||
       isNaN(balance) ||
       isNaN(amount) ||
-      deposit === undefined ||
+      // deposit === undefined ||
       balance === undefined ||
       amount === undefined
     ) {
       return 0;
     }
 
-    if (totalCost !== 0) {
-      const change =
-        amount -
-        (payment.total + clientservice.balance - clientservice.deposit);
-      payment.change = change >= 0 ? change : 0;
-      return change >= 0 ? change : 0;
-    } else {
-      return 0;
-    }
+    // if (totalCost !== 0) {
+    //   const change =
+    //     amount -
+    //     (payment.total + clientservice.balance - clientservice.deposit);
+    //   payment.change = change >= 0 ? change : 0;
+    //   return change >= 0 ? change : 0;
+    // } else {
+    //   return 0;
+    // }
+
+    const change = amount - balance;
+    payment.change = change >= 0 ? change : 0;
+    return change >= 0 ? change : 0;
   };
 
   useEffect(() => {
@@ -110,14 +113,11 @@ export default function PaymentModal(props) {
                     size="small"
                     type="number"
                   />
-                  <TextField
+               <TextField
                     variant="outlined"
-                    id="Total"
-                    label="Total"
-                    value={payment.total || ``}
-                    onChange={(ev) =>
-                      handleFieldChange("total", ev.target.value)
-                    }
+                    id="Balance"
+                    label="Balance"
+                    value={clientservice.balance}
                     required
                     InputProps={{
                       readOnly: true,
@@ -128,40 +128,6 @@ export default function PaymentModal(props) {
                     }}
                     size="small"
                   />
-                  <TextField
-                    variant="outlined"
-                    id="Deposit"
-                    label="Deposit"
-                    value={payment.total === 0 ? 0 : clientservice.deposit}
-                    required
-                    InputProps={{
-                      readOnly: true,
-                      "aria-readonly": true,
-                      startAdornment: (
-                        <InputAdornment position="start">₱</InputAdornment>
-                      ),
-                    }}
-                    size="small"
-                  />
-                  <TextField
-                    variant="outlined"
-                    id="Remaining Charge"
-                    label="Remaining Charge"
-                    value={payment.total - clientservice.deposit}
-                    // onChange={(ev) =>
-                    //   handleFieldChange("balance", ev.target.value)
-                    // }
-                    required
-                    InputProps={{
-                      readOnly: true,
-                      "aria-readonly": true,
-                      startAdornment: (
-                        <InputAdornment position="start">₱</InputAdornment>
-                      ),
-                    }}
-                    size="small"
-                  />
-                  <Divider/>
                   <FormControl>
                     <InputLabel>Type of Payment</InputLabel>
                     <Select
@@ -221,39 +187,6 @@ export default function PaymentModal(props) {
                     required
                     size="small"
                   />
-                    <TextField
-                    variant="outlined"
-                    id="Balance"
-                    label="Balance"
-                    value={calculateBalance()}
-                    onChange={(ev) =>
-                      handleFieldChange("balance", ev.target.value)
-                    }
-                    required
-                    InputProps={{
-                      readOnly: true,
-                      "aria-readonly": true,
-                      startAdornment: (
-                        <InputAdornment position="start">₱</InputAdornment>
-                      ),
-                    }}
-                    size="small"
-                  />
-                  {/* <TextField
-                    variant="outlined"
-                    id="Balance"
-                    label="Balance"
-                    value={clientservice.balance}
-                    required
-                    InputProps={{
-                      readOnly: true,
-                      "aria-readonly": true,
-                      startAdornment: (
-                        <InputAdornment position="start">₱</InputAdornment>
-                      ),
-                    }}
-                    size="small"
-                  /> */}
                   <Button color="success" variant="contained" type="submit">
                     Pay
                   </Button>

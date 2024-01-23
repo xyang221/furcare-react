@@ -3,7 +3,6 @@ import {
   Backdrop,
   Box,
   Button,
-  CircularProgress,
   Divider,
   Table,
   TableBody,
@@ -190,18 +189,6 @@ export default function ToPayServices() {
           balance: calculateBalance() || 0,
         };
 
-        // if(calculateBalance() === 0){
-
-        // }
-        // if (calculateBalance() === 0) {
-        //   const updatedServicesPromises = servicesavailed.map((item) =>{
-        //     return axiosClient.put(`/servicesavailed/${item.id}`, {
-        //       ...item,
-        //       status: "Completed",
-        //     })
-        // });
-
-        // Update the client service and post payment record
         await axiosClient.put(
           `/clientdeposits/${clientservice.id}`,
           updatedClientService
@@ -211,18 +198,12 @@ export default function ToPayServices() {
           paymentrecord
         );
 
-        const updatedServicesPromises = servicesavailed.map((item) =>
-          axiosClient.put(`/servicesavailed/${item.id}`, { ...item })
-        );
-
-        await Promise.all(updatedServicesPromises);
-
         setBackdrop(false);
 
         Swal.fire({
           title: "Success",
           icon: "success",
-          confirmButtonText: "PRINT CHARGE SLIP",
+          confirmButtonText: "GENERATE CHARGE SLIP",
           confirmButtonColor: "black",
           allowOutsideClick: false,
         }).then((result) => {
@@ -239,7 +220,6 @@ export default function ToPayServices() {
         title: "Error",
         text: "An error occurred. Please try again.",
         icon: "error",
-        confirmButtonColor: "black",
       });
     }
   };

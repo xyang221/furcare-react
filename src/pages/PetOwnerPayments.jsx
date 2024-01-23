@@ -21,17 +21,17 @@ import Swal from "sweetalert2";
 import AdmissionModal from "../components/modals/AdmissionModal";
 import { useStateContext } from "../contexts/ContextProvider";
 import PaymentModal from "../components/modals/PaymentModal";
+import BalancePaymentModal from "../components/modals/BalancePaymentModal";
 
 export default function PetOwnerPayments() {
-  const { user } = useStateContext();
   //for table
   const columns = [
     { id: "Date", name: "Date" },
     { id: "Deposit", name: "Deposit" },
     { id: "Balance", name: "Balance" },
     { id: "Status", name: "Status" },
-    ...(user.role_id !== "3" ? [{ id: "Actions", name: "Actions" }] : []),
-];
+    { id: "Actions", name: "Actions" },
+  ];
   const [page, pagechange] = useState(0);
   const [rowperpage, rowperpagechange] = useState(10);
 
@@ -122,17 +122,6 @@ export default function PetOwnerPayments() {
       });
   };
 
-  const calculateTotal = () => {
-    const totalCost = servicesavailed.reduce((total, item) => {
-      const price = item.unit_price || 0;
-      return total + price * item.quantity;
-    }, 0);
-
-    payment.total = totalCost.toFixed(2);
-
-    return totalCost;
-  };
-
   const [openconsent, setOpenconsent] = useState(false);
 
   const openEdit = (r) => {
@@ -192,10 +181,22 @@ export default function PetOwnerPayments() {
     chargeslip_ref_no: "",
     type: "Cash",
     type_ref_no: "",
-    total: 0,
+    total: null,
     amount: null,
     change: 0,
   });
+
+  const calculateTotal = () => {
+    const totalCost = servicesavailed.reduce((total, item) => {
+      const price = item.unit_price || 0;
+      return total + price * item.quantity;
+    }, 0);
+
+    paymentrecord.total = totalCost.toFixed(2);
+
+    return totalCost;
+    // return paymentrecord.total;
+  };
 
   const calculateBalance = () => {
     const totalCost = paymentrecord.total || 0;
@@ -214,49 +215,52 @@ export default function PetOwnerPayments() {
 
   const toPay = (r) => {
     setOpenpayment(true);
-    setClientservice(r)
+    setClientservice(r);
   };
+  const [backdrop, setBackdrop] = useState(false);
 
   const payBalance = async (ev) => {
-    ev.preventDefault()
+    ev.preventDefault();
     setOpenpayment(false);
+    setBackdrop(true);
+
     try {
       if (clientservice.status === "Pending") {
-         const updatedClientService = {
+        const updatedClientService = {
           ...clientservice,
           balance: calculateBalance() || 0,
         };
-          await axiosClient.put(
-            `/clientdeposits/${clientservice.id}`,
-            updatedClientService)
-      }
-
-        await axiosClient.post(
-          `/paymentrecords/clientdeposits/${clientservice.id}`,
-          paymentrecord
+        await axiosClient.put(
+          `/clientdeposits/${clientservice.id}`,
+          updatedClientService
         );
-
-        Swal.fire({
-          title: "Success",
-          icon: "success",
-          confirmButtonText: "PRINT CHARGE SLIP",
-          confirmButtonColor: "black",
-          allowOutsideClick: false,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            windowOpenPDFforPrint();
-            getPayments();
-          }
-        });
       }
-     catch (err) {
-      // setBackdrop(false);
+
+      await axiosClient.post(
+        `/paymentrecords/clientdeposits/${clientservice.id}`,
+        paymentrecord
+      );
+      setBackdrop(false); 
+
+      Swal.fire({
+        title: "Success",
+        icon: "success",
+        confirmButtonText: "GENERATE CHARGE SLIP",
+        confirmButtonColor: "black",
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          windowOpenPDFforPrint();
+          getPayments();
+        }
+      });
+    } catch (err) {
+      setBackdrop(false);
 
       Swal.fire({
         title: "Error",
         text: "An error occurred. Please try again.",
         icon: "error",
-        confirmButtonColor: "black",
       });
     }
   };
@@ -265,7 +269,7 @@ export default function PetOwnerPayments() {
     try {
       // Fetch PDF content
       const response = await axiosClient.get(
-        `/clientdeposits/${clientservice.id}/generate-chargeslip`,
+        `/clientdeposits/${clientservice.id}/generate-chargeslip/balancepaid`,
         {
           responseType: "blob",
           headers: {
@@ -309,7 +313,6 @@ export default function PetOwnerPayments() {
           padding: "20px",
         }}
       >
-       {user.role_id === "3" && <Typography p={2} variant="h5">Payments History</Typography>}
         <ChargeSlipDetailsModal
           open={openmodal}
           onClose={closeModal}
@@ -334,7 +337,7 @@ export default function PetOwnerPayments() {
           loading={modalloading}
         />
 
-        <PaymentModal
+        <BalancePaymentModal
           open={openpayment}
           onClose={closeModal}
           onClick={closeModal}
@@ -411,7 +414,7 @@ export default function PetOwnerPayments() {
                             >
                               details
                             </Button>
-                            {user.role_id !== "3" && r.status === "To Pay" && (
+                            {r.status === "To Pay" && (
                               <Button
                                 variant="contained"
                                 size="small"

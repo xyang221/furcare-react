@@ -27,6 +27,7 @@ export default function ChargeSlipDetailsModal(props) {
     printPDF,
     message,
     payment,
+    clientservice
   } = props;
 
   const columns = [
@@ -46,7 +47,7 @@ export default function ChargeSlipDetailsModal(props) {
       {!loading && (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
           <DialogTitle>
-            Services
+            Charge Slip
             <IconButton onClick={onClose} style={{ float: "right" }}>
               <Close color="primary"></Close>
             </IconButton>
@@ -105,6 +106,36 @@ export default function ChargeSlipDetailsModal(props) {
                       align="right"
                       sx={{ fontWeight: "bold" }}
                     >
+                      Deposit:
+                    </TableCell>
+                    <TableCell>{clientservice.deposit}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      align="right"
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      Remaining Charge:
+                    </TableCell>
+                    <TableCell>{payment.total - clientservice.deposit}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      align="right"
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      Type of Payment:
+                    </TableCell>
+                    <TableCell>{payment.type !== "Cash" ? `${payment.type} ${payment.type_ref_no}` : payment.type}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      align="right"
+                      sx={{ fontWeight: "bold" }}
+                    >
                       Amount:
                     </TableCell>
                     <TableCell>{payment.amount}</TableCell>
@@ -119,21 +150,20 @@ export default function ChargeSlipDetailsModal(props) {
                     </TableCell>
                     <TableCell>{payment.change}</TableCell>
                   </TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      align="right"
+                      sx={{ fontWeight: "bold" }}
+                    >
+                      Balance:
+                    </TableCell>
+                    <TableCell>{clientservice.balance}</TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
           </DialogContent>
-          <DialogActions>
-            <Button
-              variant="contained"
-              size="small"
-              color="success"
-              onClick={printPDF}
-            >
-              <Print fontSize="small" />
-              <Typography variant="body1"> Print</Typography>
-            </Button>
-          </DialogActions>
         </Dialog>
       )}
     </>

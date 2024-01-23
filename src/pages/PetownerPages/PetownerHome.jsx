@@ -94,35 +94,46 @@ export default function PetownerHome() {
   //   });
   // }
 
-  useEffect(() => {
-    const channel = echo.channel(`admin-channel`);
-    // const channel = echo.private(`admin-channel.${user.id}`);
+  const channel = echo.private(`admin-channel.${3}`);
+  // const channel = echo.channel(`admin-channel`);
 
-    // channel.listen('.appointement-event', (event) => {
-    //   const eventData = event.data;
-    //   const userId = event.userId;
+  channel.listen(".appointment-event", function (data) {
+    const display = `The appointment ${data.id} of ${data.firstname} ${data.lastname} is on ${data.date}`;
+    toast.info(display, { theme: "colored",autoClose:10000 });
+  });
+  console.log(channel)
+  // useEffect(() => {
+  //   if (channel) {
+  //     // Run this block every 5 seconds (adjust the interval as needed)
+  //     // const intervalId = setInterval(() => {
+  //     // axiosClient
+  //     //   .get("/appointments-triger/today")
+  //     //   .then((response) => {
+  //     //     console.log("Initial Data Received:", response.data);
+  //     //   })
+  //     //   .catch((error) => {
+  //     //     console.error("Error fetching initial data:", error);
+  //     //   });
+  //     // channel.bind("appointment-event", function (data) {
+  //     //   const display = `The appointment ${data.id} of ${data.firstname} ${data.lastname} is today ${data.date}`
+  //     //   toast.info(display, { theme: "colored" });
+  //     // });
+  //     channel.listen(".appointment-event", function (data) {
+  //       const display = `The appointment ${data.id} of ${data.firstname} ${data.lastname} is today ${data.date}`
+  //       toast.info(display, { theme: "colored" });
+  //     });
+  //     // channel.bind('appointment-event', function(data) {
+  //     //   toast.info(data, { theme: "colored" });
+  //     // });
 
-    //   // Use userId and eventData as needed
-    // });
+  //     // Log a test message
+  //     console.log(channel);
+  //     // }, 60000); // 10000 milliseconds = 10 seconds
 
-    // channel.listen(".appointment-event", function (data) {
-    //   alert(JSON.stringify(data));
-    // });
-
-    // channel.listen(".deworming-event", function (data) {
-    //   alert(JSON.stringify(data));
-    // });
-
-    // channel.listen(".vaccination-event", function (data) {
-    //   alert(JSON.stringify(data));
-    // });
-
-    // return () => {
-    //   channel.stopListening("appointment-event");
-    //   channel.stopListening("deworming-event");
-    //   channel.stopListening("vaccination-event");
-    // };
-  }, []);
+  //     // Clear the interval when the component is unmounted
+  //     // return () => clearInterval(intervalId);
+  //   }
+  // }, [channel]);
 
   useEffect(() => {
     getPetsTotal();

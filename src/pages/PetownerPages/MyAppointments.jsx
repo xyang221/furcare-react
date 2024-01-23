@@ -22,6 +22,8 @@ import { Edit, Close, Add } from "@mui/icons-material";
 import Swal from "sweetalert2";
 import { useStateContext } from "../../contexts/ContextProvider";
 import PetownerAppointmentModal from "../../components/modals/PetownerAppointmentModal";
+import echo from "../../echo";
+import { toast } from "react-toastify";
 
 export default function MyAppointments() {
   const { staffuser } = useStateContext();
@@ -244,6 +246,15 @@ export default function MyAppointments() {
         });
     }
   };
+
+  const channel = echo.private(`admin-channel.${3}`);
+  // const channel = echo.channel(`admin-channel`);
+
+  channel.listen(".appointment-event", function (data) {
+    const display = `The appointment ${data.id} of ${data.firstname} ${data.lastname} is on ${data.date}`;
+    toast.info(display, { theme: "colored",autoClose:10000 });
+  });
+  console.log(channel)
 
   useEffect(() => {
     setAppointment({ ...appointment, services: selectedServices });

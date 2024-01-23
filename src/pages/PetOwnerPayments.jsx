@@ -217,11 +217,11 @@ export default function PetOwnerPayments() {
     setOpenpayment(true);
     setClientservice(r);
   };
+
   const [backdrop, setBackdrop] = useState(false);
 
   const payBalance = async (ev) => {
     ev.preventDefault();
-    setOpenpayment(false);
     setBackdrop(true);
 
     try {
@@ -240,6 +240,8 @@ export default function PetOwnerPayments() {
         `/paymentrecords/clientdeposits/${clientservice.id}`,
         paymentrecord
       );
+    setOpenpayment(false);
+
       setBackdrop(false); 
 
       Swal.fire({

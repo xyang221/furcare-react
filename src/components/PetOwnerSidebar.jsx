@@ -91,7 +91,7 @@ export default function PetOwnerSidebar() {
           "& .MuiDrawer-paper": {
             width: "240px",
             boxSizing: "border-box",
-            marginTop: "75px",
+            marginTop: "70px",
           },
           display: { xs: "block", sm: "block" },
           zIndex: 999,

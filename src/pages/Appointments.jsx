@@ -357,13 +357,13 @@ export default function Appointments() {
       axiosClient
         .put(`/appointments/${appointment.id}`, appointment)
         .then(() => {
-          toast.success("Appointment update!", {
-            theme: "colored",
-          });
-          // Swal.fire({
-          //   title: "Appointment updated!",
-          //   icon: "success",
+          // toast.success("Appointment updated!", {
+          //   theme: "colored",
           // });
+          Swal.fire({
+            title: "Appointment updated!",
+            icon: "success",
+          });
           openchange(false);
           handleAppointments("current");
         })

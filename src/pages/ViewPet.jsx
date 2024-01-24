@@ -113,7 +113,7 @@ export default function ViewPet() {
     setOpen(true);
     if (specie.id) {
       setSelectedSpecie(specie.id);
-      getBreeds(specie.id)
+      getBreeds(specie.id);
     }
   };
 
@@ -285,7 +285,7 @@ export default function ViewPet() {
 
   return (
     <div>
-      <Paper mt={1} sx={{ padding: "15px", margin:"10px" }}>
+      <Paper mt={1} sx={{ padding: "15px", margin: "10px" }}>
         <Breadcrumbs color="primary">
           <Button
             component={Link}
@@ -305,7 +305,7 @@ export default function ViewPet() {
             {pet.photo ? (
               <Avatar
                 alt="pet-photo"
-                src={`http://localhost:8000/` + pet.photo}
+                src={`${import.meta.env.VITE_API_BASE_URL}` + pet.photo}
                 sx={{ width: 130, height: 130 }}
                 variant="rounded"
               />
@@ -323,12 +323,11 @@ export default function ViewPet() {
                 variant="contained"
                 color="info"
                 onClick={() => onEdit()}
-
               >
                 <Edit fontSize="small" />
               </IconButton>
             </Typography>
-            <Typography >
+            <Typography>
               Pet Owner: {petowner.firstname} {petowner.lastname}
             </Typography>
             <Stack flexDirection="row">
@@ -355,7 +354,7 @@ export default function ViewPet() {
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor:"whitesmoke"
+                backgroundColor: "whitesmoke",
               }}
             >
               <QrCodeGenerator

@@ -50,6 +50,7 @@ export default function Vaccination({ sid, sname }) {
     pet_id: null,
     vet_id: null,
     unit_price: null,
+    date:null
 
   });
   const [vets, setVets] = useState([]);

@@ -32,7 +32,8 @@ export default function Navbar() {
     <AppBar position="sticky">
       <StyledToolbar>
         <Box display="flex" flexDirection={"row"} alignItems={"center"}>
-          <IconButton edge="start" color="inherit" aria-label="menu">
+          <IconButton edge="start" color="inherit" aria-label="menu" 
+          >
             <img
               src="/../src/assets/furcare-logo.png"
               height={"50"}

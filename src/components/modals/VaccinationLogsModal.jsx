@@ -109,7 +109,7 @@ export default function VaccinationLogsModal(props) {
                     variant="outlined"
                     id="Date"
                     label="Date"
-                    value={date.toLocaleDateString()}
+                    value={vaccination.date}
                     InputLabelProps={{ shrink: true }}
                     InputProps={{
                       readOnly: true,
@@ -156,7 +156,7 @@ export default function VaccinationLogsModal(props) {
                   variant="outlined"
                   id="Weight"
                   label="Weight"
-                  type="number"
+                  // type="number"
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">kg</InputAdornment>

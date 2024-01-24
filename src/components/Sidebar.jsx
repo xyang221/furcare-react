@@ -81,7 +81,7 @@ export default function Sidebar() {
         }}
         variant="permanent"
         anchor="left"
-        hideBackdrop={true}
+        // hideBackdrop={true}
         // open={isMobile ? false : true}
         // variant={isMobile ? 'temporary' : 'persistent'}
       >

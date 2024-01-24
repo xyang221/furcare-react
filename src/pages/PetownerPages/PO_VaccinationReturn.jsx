@@ -57,30 +57,6 @@ export default function PO_VaccinationReturn() {
     getVaccination();
   }, []);
 
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleVaccinations = (searchValue) => {
-    setMessage(null);
-    setVaccinationlogs([]);
-    setLoading(true);
-    axiosClient
-      .get(`/vaccinationlogs/${searchValue}`)
-      .then(({ data }) => {
-        setVaccinationlogs(data.data);
-        setLoading(false);
-        setAnchorEl(null);
-      })
-      .catch((error) => {
-        const response = error.response;
-        if (response && response.status === 404) {
-          setMessage(response.data.message);
-        }
-        setLoading(false);
-        setAnchorEl(null);
-      });
-  };
-
-
   return (
     <>
       <Paper

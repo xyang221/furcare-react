@@ -58,6 +58,7 @@ export default function Signup() {
   const imageURL = "../src/assets/furcarebg.jpg";
 
   const [activeStep, setActiveStep] = useState(0);
+  const [zipcodeloading, setzipcodeLoading] = useState(0);
 
   const steps = [
     "Create a User Account",
@@ -68,6 +69,8 @@ export default function Signup() {
   const onSubmit = (ev) => {
     ev.preventDefault();
     setErrors(null);
+    setLoading(true);
+
     axiosClient
       .post("/signup", petowner)
       .then(({ data }) => {
@@ -78,6 +81,7 @@ export default function Signup() {
             icon: "success",
           }).then((result) => {
             if (result.isConfirmed) {
+              setLoading(false);
               navigate("/login");
             }
           });
@@ -91,6 +95,7 @@ export default function Signup() {
         if (errors.email || errors.password) {
           setActiveStep(0);
         }
+        setLoading(false);
       });
   };
 
@@ -98,8 +103,8 @@ export default function Signup() {
     ev.preventDefault();
     setErrors(null);
     setLoading(true);
-    setCode(null)
-    setEnterCode(null)
+    setCode(null);
+    setEnterCode(null);
     axiosClient
       .post("/verifyemail", petowner)
       .then(({ data }) => {
@@ -174,7 +179,7 @@ export default function Signup() {
     if (query) {
       setZipcode({});
       setZipcodeerror(null);
-
+      setzipcodeLoading(true);
       axiosClient
         .get(`/zipcodedetails/${query}`)
         .then(({ data }) => {
@@ -183,12 +188,14 @@ export default function Signup() {
             ...prevStaff,
             zipcode_id: data.data.id,
           }));
+          setzipcodeLoading(false);
         })
         .catch((error) => {
           const response = error.response;
           if (response && response.status === 404) {
             setZipcodeerror(response.data.message);
           }
+          setzipcodeLoading(false);
         });
     }
   };
@@ -269,6 +276,9 @@ export default function Signup() {
               <Grid item xs={12}>
                 <Typography align="center" pt={3}>
                   We have sent a verification code to your email address.
+                </Typography>
+                <Typography p={1} fontWeight={"bold"}>
+                  {petowner.email}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -386,6 +396,7 @@ export default function Signup() {
                   fullWidth={!zipcode.area}
                   value={selectedZipcode}
                   onChange={handleZipcodeChange}
+                  disabled={zipcodeloading}
                   required
                   error={
                     (errors && errors.zipcode_id) || zipcodeerror ? true : false
@@ -500,7 +511,7 @@ export default function Signup() {
                     </Button>
                     {activeStep === 0 && (
                       <>
-                          <LoadingButton
+                        <LoadingButton
                           size="small"
                           loading={loading}
                           color="primary"
@@ -508,15 +519,7 @@ export default function Signup() {
                           variant="contained"
                         >
                           Next
-                          {/* <span>Next</span> */}
                         </LoadingButton>
-                        {/* <Button
-                          variant="contained"
-                          color="primary"
-                          type="submit"
-                        >
-                          Next
-                        </Button> */}
                       </>
                     )}
                     {activeStep === 1 && (

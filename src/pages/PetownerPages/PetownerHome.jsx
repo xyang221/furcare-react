@@ -1,28 +1,18 @@
 import React, { useState, useEffect } from "react";
 import QrCodeScanner from "../../components/QrCodeScanner";
 import {
-  Box,
-  Button,
   Grid,
-  IconButton,
-  List,
-  Menu,
   Paper,
-  Stack,
   Typography,
 } from "@mui/material";
 import { Add, Close, Money, Paid, People } from "@mui/icons-material";
 import TotalGraph from "../../components/TotalGraph";
 import axiosClient from "../../axios-client";
-import AppointmentsToday from "../AppointmentsToday";
 import { HomeSearchBar } from "../../components/HomeSearchBar";
 import { useStateContext } from "../../contexts/ContextProvider";
 import PO_AppointmentsToday from "./PO_AppointmentsToday";
 import PO_VaccinationReturn from "./PO_VaccinationReturn";
-import pusher from "../../echo";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import echo from "../../echo";
 
 export default function PetownerHome() {
   const [pets, setPets] = useState([]);
@@ -87,57 +77,8 @@ export default function PetownerHome() {
       });
   };
 
-  // const pushAppointment = () => {
-  //   const channel = pusher.subscribe("admin-channel");
-  //   channel.bind("appointment-event", function (data) {
-  //     alert(data.data);
-  //   });
-  // }
-
-  const channel = echo.private(`admin-channel.${3}`);
-  // const channel = echo.channel(`admin-channel`);
-
-  channel.listen(".appointment-event", function (data) {
-    const display = `The appointment ${data.id} of ${data.firstname} ${data.lastname} is on ${data.date}`;
-    toast.info(display, { theme: "colored",autoClose:10000 });
-  });
-  console.log(channel)
-  // useEffect(() => {
-  //   if (channel) {
-  //     // Run this block every 5 seconds (adjust the interval as needed)
-  //     // const intervalId = setInterval(() => {
-  //     // axiosClient
-  //     //   .get("/appointments-triger/today")
-  //     //   .then((response) => {
-  //     //     console.log("Initial Data Received:", response.data);
-  //     //   })
-  //     //   .catch((error) => {
-  //     //     console.error("Error fetching initial data:", error);
-  //     //   });
-  //     // channel.bind("appointment-event", function (data) {
-  //     //   const display = `The appointment ${data.id} of ${data.firstname} ${data.lastname} is today ${data.date}`
-  //     //   toast.info(display, { theme: "colored" });
-  //     // });
-  //     channel.listen(".appointment-event", function (data) {
-  //       const display = `The appointment ${data.id} of ${data.firstname} ${data.lastname} is today ${data.date}`
-  //       toast.info(display, { theme: "colored" });
-  //     });
-  //     // channel.bind('appointment-event', function(data) {
-  //     //   toast.info(data, { theme: "colored" });
-  //     // });
-
-  //     // Log a test message
-  //     console.log(channel);
-  //     // }, 60000); // 10000 milliseconds = 10 seconds
-
-  //     // Clear the interval when the component is unmounted
-  //     // return () => clearInterval(intervalId);
-  //   }
-  // }, [channel]);
-
   useEffect(() => {
     getPetsTotal();
-    // pushAppointment()
     getBalance();
   }, []);
 

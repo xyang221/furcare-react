@@ -167,6 +167,7 @@ export default function PetownerAppointmentModal(props) {
                         key={name.id}
                         value={name.id}
                         sx={{ml:5, justifyContent: "space-between" }}
+                        disabled={name.isAvailable === 0}
                       >
                         {name.service}
                         {selectedServices.includes(name) ? (

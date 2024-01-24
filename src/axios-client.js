@@ -3,7 +3,10 @@ import Swal from "sweetalert2";
 
 const axiosClient = axios.create({
   baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
-  // withCredentials: true,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 axiosClient.interceptors.request.use((config) => {
@@ -11,6 +14,12 @@ axiosClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  const csrfToken = localStorage.getItem("CSRF_TOKEN");
+  if (csrfToken) {
+    config.headers["X-CSRF-Token"] = csrfToken;
+  }
+
   return config;
 });
 
@@ -28,14 +37,14 @@ axiosClient.interceptors.response.use(
         icon: "error",
         title: "Oops...",
         text: error,
-        confirmButtonText:"Reload",
+        confirmButtonText: "Reload",
       }).then((result) => {
         // Check if the "Reload" button was clicked
         if (result.isConfirmed) {
           // Reload the page
           location.reload();
-        }}
-      )
+        }
+      });
     }
 
     return Promise.reject(error);

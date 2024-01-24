@@ -168,7 +168,6 @@ export default function AdminHome() {
       <Paper sx={{ padding: "15px", margin: "10px", height: "100%" }}>
         {/* <Push/> */}
         <ToastContainer />
-        <Button onClick={triggerAppointments}>try</Button>
         <Typography variant="h5" mb={1}>
           Home
         </Typography>

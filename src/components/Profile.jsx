@@ -44,7 +44,7 @@ export default function Profile() {
       confirmButtonText: "Yes",
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosClient.post("/logout").then(() => {
+        axiosClient.post(`/logout/${user.id}`).then(() => {
           setToken(null);
           updateUser({});
           navigate("/login");

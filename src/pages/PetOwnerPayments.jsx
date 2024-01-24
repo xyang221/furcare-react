@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Alert,
+  Backdrop,
   Box,
   Button,
   Divider,
@@ -217,6 +218,7 @@ export default function PetOwnerPayments() {
     setOpenpayment(true);
     setClientservice(r);
   };
+
   const [backdrop, setBackdrop] = useState(false);
 
   const payBalance = async (ev) => {
@@ -240,7 +242,8 @@ export default function PetOwnerPayments() {
         `/paymentrecords/clientdeposits/${clientservice.id}`,
         paymentrecord
       );
-      setBackdrop(false); 
+
+      setBackdrop(false);
 
       Swal.fire({
         title: "Success",
@@ -286,8 +289,7 @@ export default function PetOwnerPayments() {
       link.href = url;
       link.setAttribute(
         "download",
-        `ChargeSlip-${
-          clientservice.date
+        `ChargeSlip-${clientservice.date
         }-${`${petowner.firstname}_${petowner.lastname}`}-.pdf`
       );
       document.body.appendChild(link);
@@ -313,6 +315,8 @@ export default function PetOwnerPayments() {
           padding: "20px",
         }}
       >
+        <Backdrop open={backdrop} style={{ zIndex: 999 }}></Backdrop>
+
         <ChargeSlipDetailsModal
           open={openmodal}
           onClose={closeModal}
@@ -348,7 +352,7 @@ export default function PetOwnerPayments() {
           clientservice={clientservice}
           // pastbalance={pastbalance}
           calculateBalance={calculateBalance}
-          //  errors={errors}
+        //  errors={errors}
         />
 
         <Divider />

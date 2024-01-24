@@ -278,7 +278,6 @@ export default function Signup() {
                   size="small"
                   label="Code"
                   required
-                  type="number"
                   value={entercode || ""}
                   onChange={(ev) => setEnterCode(ev.target.value)}
                 />

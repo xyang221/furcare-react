@@ -51,6 +51,8 @@ export default function Vets() {
 
   const getVets = () => {
     setLoading(true);
+    setVets([])
+    setMessage(null)
     axiosClient
       .get("/vets")
       .then(({ data }) => {
@@ -124,7 +126,8 @@ export default function Vets() {
     openchange(true);
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
     if (vet.id) {
       axiosClient
         .put(`/vets/${vet.id}`, vet)
